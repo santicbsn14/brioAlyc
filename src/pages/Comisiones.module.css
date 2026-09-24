@@ -1,0 +1,217 @@
+.comisiones {
+  background: var(--navy);
+  color: var(--white);
+  font-family: 'Poppins', system-ui, sans-serif;
+  min-height: 70vh;
+  padding: clamp(48px, 8vw, 88px) clamp(20px, 6vw, 88px) clamp(72px, 9vw, 110px);
+
+  /* Gris apagado sobre fondo navy — mismo criterio que Hero/Servicios/QuienesSomos:
+     el token global --gray-text (tokens.css) es para fondos claros. */
+  --muted: #9aa3b2;
+}
+.comisiones * {
+  box-sizing: border-box;
+}
+.inner {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+/* ── encabezado ── */
+.head {
+  max-width: 46rem;
+  margin-bottom: clamp(32px, 5vw, 48px);
+}
+.title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.9rem, 3.6vw, 2.7rem);
+  line-height: 1.1;
+  letter-spacing: -0.6px;
+  margin: 0 0 10px;
+}
+.subtitle {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--teal);
+  margin: 0 0 16px;
+}
+.aclaracion {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* ── pestañas ── */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: clamp(28px, 4vw, 40px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: clamp(16px, 2.4vw, 22px);
+}
+.tab {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  padding: 9px 18px;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+.tab:hover {
+  color: var(--white);
+  border-color: rgba(101, 245, 229, 0.3);
+}
+.tabActive {
+  color: var(--navy);
+  background: var(--teal);
+  border-color: var(--teal);
+  font-weight: 600;
+}
+.tabActive:hover {
+  color: var(--navy);
+}
+
+/* ── grupo de tablas ── */
+.tablesGroup {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(28px, 4vw, 40px);
+}
+.tableWrap {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.tableTitle {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0;
+  padding: 18px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+.table th {
+  text-align: left;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 14px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+}
+.table td {
+  padding: 13px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.9);
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+.tdMain {
+  color: var(--white);
+}
+.tdFee {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  color: var(--white);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.notes {
+  list-style: none;
+  margin: 0;
+  padding: 12px 22px;
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.notes li {
+  margin: 0 0 2px;
+}
+.notes li:last-child {
+  margin-bottom: 0;
+}
+
+/* ── reveal al scrollear (encabezado + pestañas) ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+.reveal.isIn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── responsive ── */
+@media (max-width: 560px) {
+  .table {
+    white-space: normal;
+  }
+  .table thead {
+    display: none;
+  }
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+    width: 100%;
+  }
+  .table tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 0;
+  }
+  .table td {
+    border: none;
+    padding: 7px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    white-space: normal;
+  }
+  .table td::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+  .tdMain,
+  .tdFee {
+    text-align: right;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

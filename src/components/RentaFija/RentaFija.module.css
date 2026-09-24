@@ -1,0 +1,556 @@
+/* Panel de Renta Fija — diseño portado de __ref/BrioRentaFija.jsx (prototipo
+   aprobado). --navy/--orange/--teal/--white/--up/--down ya están en tokens.css;
+   --muted/--line se definen acá porque son de este panel (fondo oscuro), igual
+   que el resto de páginas propias del sitio (ver Informes.module.css). */
+
+.rentaFija {
+  --muted: #9aa3b2;
+  --line: rgba(255, 255, 255, 0.12);
+  background: var(--navy);
+  color: var(--white);
+  min-height: 100vh;
+  font-family: 'Poppins', system-ui, sans-serif;
+  padding: clamp(90px, 10vw, 130px) clamp(20px, 5vw, 64px) clamp(60px, 8vw, 100px);
+}
+.rentaFija * {
+  box-sizing: border-box;
+}
+
+/* ── header (mismo patrón que Informes/Financiamiento PyME) ── */
+.head {
+  max-width: 900px;
+  margin: 0 auto clamp(28px, 4vw, 40px);
+}
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--teal);
+  letter-spacing: 0.3px;
+}
+.kickerLine {
+  width: 26px;
+  height: 2px;
+  background: var(--teal);
+  border-radius: 2px;
+}
+.title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+}
+.lead {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 60ch;
+}
+
+/* ── toolbar: tabs + status ── */
+.toolbar {
+  max-width: 1200px;
+  margin: 0 auto 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.tabs {
+  position: relative;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.tab {
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  padding: 12px 16px;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+}
+.tab:hover {
+  color: #dfe4ee;
+}
+.tab.isOn {
+  color: var(--white);
+  font-weight: 500;
+}
+.tab:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: -2px;
+  border-radius: 6px;
+}
+.tabIndicator {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: var(--teal);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  padding-bottom: 12px;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #5f6a7d;
+  display: inline-block;
+  flex: none;
+}
+.dotOk {
+  composes: dot;
+  background: var(--up);
+  box-shadow: 0 0 0 3px rgba(55, 211, 155, 0.18);
+}
+.dotBusy {
+  composes: dot;
+  background: var(--teal);
+  animation: rfPulse 1s ease-in-out infinite;
+}
+.dotErr {
+  composes: dot;
+  background: var(--down);
+}
+@keyframes rfPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.intervalSelect {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-family: 'Sora', sans-serif;
+  outline: none;
+  cursor: pointer;
+}
+
+/* ── botones ── */
+.btn {
+  font: inherit;
+  font-weight: 500;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.btnGhost {
+  background: transparent;
+  color: var(--white);
+  border-color: rgba(101, 245, 229, 0.5);
+}
+.btnGhost:hover {
+  background: rgba(101, 245, 229, 0.1);
+}
+.btnSm {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+}
+.btnPrimary {
+  background: var(--orange);
+  color: #fff;
+  padding: 12px 22px;
+  font-size: 0.9rem;
+}
+.btnPrimary:hover {
+  background: #ff6a2b;
+}
+
+/* ── transición entre pestañas ── */
+.panelWrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  overflow: hidden;
+  position: relative;
+}
+.panel {
+  animation-duration: 0.32s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: both;
+  padding-top: 20px;
+}
+.enterRight {
+  animation-name: rfSlideInRight;
+}
+.enterLeft {
+  animation-name: rfSlideInLeft;
+}
+@keyframes rfSlideInRight {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes rfSlideInLeft {
+  from { opacity: 0; transform: translateX(-24px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}
+
+/* ── toolbar de cada tabla (buscador + filtros + export) ── */
+.toolbarRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.search {
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 14px;
+  min-width: 220px;
+  flex: 1 1 220px;
+}
+.search::placeholder {
+  color: #6f7a8e;
+}
+.search:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 1px;
+}
+.fbtns {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.fbtn {
+  font: inherit;
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 13px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  white-space: nowrap;
+}
+.fbtn:hover {
+  color: #dfe4ee;
+}
+.fbtn.isOn {
+  color: var(--white);
+  background: rgba(101, 245, 229, 0.14);
+  border-color: var(--teal);
+}
+
+/* ── tabla ── */
+.tableWrap {
+  overflow-x: auto;
+  margin-top: 4px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  min-width: 720px;
+}
+.table thead th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.muted {
+  color: var(--muted);
+}
+.ticker {
+  color: var(--teal);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.chip {
+  font-size: 0.74rem;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: #dfe4ee;
+  white-space: nowrap;
+}
+.chipNy {
+  border-color: rgba(239, 89, 21, 0.5);
+  color: var(--orange);
+}
+.priceInput {
+  width: 92px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px dashed rgba(101, 245, 229, 0.5);
+  border-radius: 8px;
+  color: var(--white);
+  padding: 6px 8px;
+  text-align: right;
+  font: inherit;
+  font-size: 0.84rem;
+}
+.priceInput::placeholder {
+  color: #6f7a8e;
+  font-style: italic;
+  font-size: 0.74rem;
+}
+.cRed {
+  color: var(--down);
+}
+.cYellow {
+  color: #e8c04a;
+}
+.cGreen {
+  color: var(--up);
+}
+.sectionRow td {
+  color: var(--teal);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 16px !important;
+  background: rgba(255, 255, 255, 0.02);
+}
+.subTableTitle {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 32px 0 12px;
+}
+.emptyRow {
+  padding: 28px 16px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ── estado vacío (calendario / cartera) ── */
+.empty {
+  margin-top: 4px;
+  padding: 56px 24px;
+  text-align: center;
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+}
+.emptyTitle {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin: 0 0 10px;
+}
+.emptyText {
+  color: var(--muted);
+  max-width: 44ch;
+  margin: 0 auto 20px;
+  line-height: 1.6;
+}
+
+/* ── calendario / listado de flujos (Calendario.tsx y Cartera.tsx) ── */
+.calList {
+  display: flex;
+  flex-direction: column;
+}
+.calMonth {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--teal);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 24px 0 8px;
+}
+.calMonth:first-child {
+  margin-top: 4px;
+}
+.calRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-wrap: wrap;
+}
+.calDate {
+  font-variant-numeric: tabular-nums;
+  color: var(--white);
+  font-weight: 500;
+  width: 84px;
+  flex: none;
+}
+.calEvents {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+.calChip {
+  font-size: 0.76rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: #dfe4ee;
+  white-space: nowrap;
+}
+.calChipAmbos {
+  border-color: rgba(101, 245, 229, 0.5);
+  color: var(--teal);
+}
+.calChipAmort {
+  border-color: rgba(239, 89, 21, 0.5);
+  color: var(--orange);
+}
+.calChipRenta {
+  border-color: rgba(55, 211, 155, 0.5);
+  color: var(--up);
+}
+.calChipVal {
+  opacity: 0.7;
+}
+.carFlowTotal {
+  font-variant-numeric: tabular-nums;
+  color: var(--white);
+  font-weight: 600;
+  flex: none;
+}
+
+/* ── cartera ── */
+.carAddRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.vnInput {
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 14px;
+  width: 140px;
+}
+.vnInput::placeholder {
+  color: #6f7a8e;
+}
+.carMsg {
+  color: var(--teal);
+  font-size: 0.84rem;
+  margin: 0 0 16px;
+}
+.carSummary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+.carCard {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+.carCardLbl {
+  font-size: 0.74rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+.carCardVal {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+}
+.carCardSub {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.rmBtn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+.rmBtn:hover {
+  color: var(--down);
+  background: rgba(255, 90, 82, 0.1);
+}
+
+/* ── disclaimer ── */
+.disclaimer {
+  max-width: 1200px;
+  margin: 28px auto 0;
+  font-size: 0.78rem;
+  color: #5f6a7d;
+  text-align: center;
+}
+
+/* ── responsive ── */
+@media (max-width: 640px) {
+  .tabs {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .tab {
+    flex: none;
+  }
+  .status {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .carSummary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .calDate {
+    width: auto;
+  }
+}

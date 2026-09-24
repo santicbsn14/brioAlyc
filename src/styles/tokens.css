@@ -1,0 +1,16 @@
+/* Brio Valores — tokens de paleta (doc de contexto, secciones 3.2 y 6.0) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap');
+
+:root {
+  --navy: #05091f;
+  --navy-sticky: #060a1f;
+  --orange: #ef5915;
+  --teal: #65f5e5;
+  --white: #ffffff;
+  --gray-text: #666666;
+  --light: #f0f0f0;
+
+  /* Variaciones de precio del panel de acciones (prototipo BrioHero.jsx) */
+  --up: #37d39b;
+  --down: #ff5a52;
+}
