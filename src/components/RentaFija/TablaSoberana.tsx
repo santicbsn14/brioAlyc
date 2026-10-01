@@ -58,9 +58,10 @@ interface Props {
   lecapRows: LecapRow[];
   onManualSovPriceChange: (ticker: string, raw: string) => void;
   onManualLecapPriceChange: (ticker: string, raw: string) => void;
+  onTickerClick: (ticker: string) => void;
 }
 
-export default function TablaSoberana({ sovRows, lecapRows, onManualSovPriceChange, onManualLecapPriceChange }: Props) {
+export default function TablaSoberana({ sovRows, lecapRows, onManualSovPriceChange, onManualLecapPriceChange, onTickerClick }: Props) {
   const [q, setQ] = useState('');
   const [filtro, setFiltro] = useState<FiltroSov>('all');
 
@@ -134,7 +135,10 @@ export default function TablaSoberana({ sovRows, lecapRows, onManualSovPriceChan
                   )}
                   <tr>
                     <td>
-                      <span className={styles.ticker}>{b.ticker}</span>
+                      <button type="button" className={styles.tickerBtn} onClick={() => onTickerClick(b.ticker)} title="Ver flujo de fondos">
+                        {b.ticker}
+                        <span className={styles.tickerArrow} aria-hidden="true">↗</span>
+                      </button>
                     </td>
                     <td className={styles.muted} title={b.titulo}>{b.titulo}</td>
                     <td>
@@ -191,7 +195,10 @@ export default function TablaSoberana({ sovRows, lecapRows, onManualSovPriceChan
                   <span className={`${styles.chip} ${l.tipo === 'BONCAP' ? styles.chipNy : ''}`}>{l.tipo}</span>
                 </td>
                 <td>
-                  <span className={styles.ticker}>{l.ticker}</span>
+                  <button type="button" className={styles.tickerBtn} onClick={() => onTickerClick(l.ticker)} title="Ver flujo de fondos">
+                    {l.ticker}
+                    <span className={styles.tickerArrow} aria-hidden="true">↗</span>
+                  </button>
                 </td>
                 <td className={styles.muted}>{l.vencimiento}</td>
                 <td className={`${styles.num} ${styles.muted}`}>

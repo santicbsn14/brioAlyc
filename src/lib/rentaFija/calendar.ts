@@ -62,3 +62,52 @@ export function buildCalEvents(
 
   return ev;
 }
+
+const TIPO_ORDEN: Record<CalEventTipo, number> = { ambos: 0, amort: 1, renta: 2 };
+
+/** Mismo criterio de orden que renderCal: lo más "importante" (ambos > amort > renta) arriba. */
+export function sortDayEvents(events: CalEvent[]): CalEvent[] {
+  return [...events].sort((a, b) => TIPO_ORDEN[a.tipo] - TIPO_ORDEN[b.tipo]);
+}
+
+export interface CalDayCell {
+  iso: string;
+  day: number;
+  inMonth: boolean;
+  isToday: boolean;
+  events: CalEvent[];
+}
+
+function toISO(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** Arma las celdas de un mes (año, mes 0-based) en semanas de Lunes a Domingo (orden
+ * habitual en Argentina; el original arrancaba en Domingo), con relleno de los meses
+ * adyacentes — adaptación de renderCal. Los días fuera del mes no traen eventos,
+ * igual que el original (solo muestran el número de día). */
+export function buildMonthGrid(year: number, month: number, events: CalEventsByDate): CalDayCell[] {
+  const todayIso = toISO(new Date());
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startDow = (firstDay.getDay() + 6) % 7; // Lunes=0 ... Domingo=6
+  const daysInMonth = lastDay.getDate();
+  const totalCells = startDow + daysInMonth;
+  const trailing = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+
+  const cells: CalDayCell[] = [];
+  for (let i = 0; i < startDow; i++) {
+    const d = new Date(year, month, 1 - (startDow - i));
+    cells.push({ iso: toISO(d), day: d.getDate(), inMonth: false, isToday: false, events: [] });
+  }
+  for (let day = 1; day <= daysInMonth; day++) {
+    const d = new Date(year, month, day);
+    const iso = toISO(d);
+    cells.push({ iso, day, inMonth: true, isToday: iso === todayIso, events: sortDayEvents(events[iso] || []) });
+  }
+  for (let i = 1; i <= trailing; i++) {
+    const d = new Date(year, month + 1, i);
+    cells.push({ iso: toISO(d), day: d.getDate(), inMonth: false, isToday: false, events: [] });
+  }
+  return cells;
+}

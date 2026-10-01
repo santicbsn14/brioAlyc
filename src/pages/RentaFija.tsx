@@ -1,5 +1,7 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useRentaFija, type FetchStatus } from '../hooks/useRentaFija';
+import { buildCFInfo } from '../lib/rentaFija/flujoFondos';
+import FlujoFondosDrawer from '../components/RentaFija/FlujoFondosDrawer';
 import TablaONs from '../components/RentaFija/TablaONs';
 import TablaSoberana from '../components/RentaFija/TablaSoberana';
 import Calendario from '../components/RentaFija/Calendario';
@@ -42,6 +44,28 @@ export default function RentaFija() {
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
 
   const rf = useRentaFija();
+
+  // Drawer de flujo de fondos: solo se guarda QUÉ ticker está abierto; la info se
+  // deriva de las filas vivas del hook (si llega un precio nuevo mientras está
+  // abierto, se recalcula igual que calcFlows en el original). El ticker se
+  // conserva al cerrar para que el contenido no desaparezca en la animación de salida.
+  const [cf, setCf] = useState<{ ticker: string; seq: number } | null>(null);
+  const [cfOpen, setCfOpen] = useState(false);
+  const { onsRows, sovRows, lecapRows } = rf;
+  const cfInfo = useMemo(
+    () => (cf ? buildCFInfo(cf.ticker, onsRows, sovRows, lecapRows) : null),
+    [cf, onsRows, sovRows, lecapRows],
+  );
+  const openCF = useCallback(
+    (ticker: string) => {
+      // Mismos return silenciosos que openCFDrawer: LECAP/BONCAP vencida o bono sin flujos futuros.
+      if (!buildCFInfo(ticker, onsRows, sovRows, lecapRows)) return;
+      setCf((prev) => ({ ticker, seq: (prev?.seq ?? 0) + 1 }));
+      setCfOpen(true);
+    },
+    [onsRows, sovRows, lecapRows],
+  );
+  const closeCF = useCallback(() => setCfOpen(false), []);
 
   const changeTab = (id: TabId) => {
     if (id === tab) return;
@@ -140,16 +164,17 @@ export default function RentaFija() {
 
       <div className={styles.panelWrap}>
         <div key={tab} className={`${styles.panel} ${dir > 0 ? styles.enterRight : styles.enterLeft}`}>
-          {tab === 'ons' && <TablaONs rows={rf.onsRows} onManualPriceChange={rf.setManualOnPrice} />}
+          {tab === 'ons' && <TablaONs rows={rf.onsRows} onManualPriceChange={rf.setManualOnPrice} onTickerClick={openCF} />}
           {tab === 'sov' && (
             <TablaSoberana
               sovRows={rf.sovRows}
               lecapRows={rf.lecapRows}
               onManualSovPriceChange={rf.setManualSovPrice}
               onManualLecapPriceChange={rf.setManualLecapPrice}
+              onTickerClick={openCF}
             />
           )}
-          {tab === 'cal' && <Calendario events={rf.calEvents} />}
+          {tab === 'cal' && <Calendario onTickerClick={openCF} />}
           {tab === 'car' && (
             <Cartera
               positions={rf.carPositions}
@@ -159,6 +184,7 @@ export default function RentaFija() {
               onAdd={rf.addCarPosition}
               onRemove={rf.removeCarPosition}
               onClear={rf.clearCarPositions}
+              onTickerClick={openCF}
             />
           )}
         </div>
@@ -167,6 +193,8 @@ export default function RentaFija() {
       <p className={styles.disclaimer}>
         Datos referenciales, no en tiempo real (actualización cada 2 minutos aprox.). No constituye recomendación de inversión.
       </p>
+
+      <FlujoFondosDrawer info={cfInfo} open={cfOpen} sessionKey={cf?.seq ?? 0} onClose={closeCF} />
     </section>
   );
 }

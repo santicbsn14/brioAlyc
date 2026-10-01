@@ -322,6 +322,30 @@
   border-color: rgba(239, 89, 21, 0.5);
   color: var(--orange);
 }
+/* Ticker clickeable → abre el drawer de flujo de fondos (mismo estilo .rf-ticker
+   del prototipo: teal, "↗", subrayado al hover). */
+.tickerBtn {
+  composes: ticker;
+  font: inherit;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.tickerArrow {
+  margin-left: 0.3em;
+  font-size: 0.85em;
+  opacity: 0.7;
+}
+.tickerBtn:hover {
+  text-decoration: underline;
+}
+.tickerBtn:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
 .priceInput {
   width: 92px;
   background: rgba(255, 255, 255, 0.06);
@@ -434,25 +458,341 @@
   color: #dfe4ee;
   white-space: nowrap;
 }
-.calChipAmbos {
-  border-color: rgba(101, 245, 229, 0.5);
-  color: var(--teal);
-}
-.calChipAmort {
-  border-color: rgba(239, 89, 21, 0.5);
-  color: var(--orange);
-}
-.calChipRenta {
-  border-color: rgba(55, 211, 155, 0.5);
-  color: var(--up);
-}
-.calChipVal {
-  opacity: 0.7;
-}
 .carFlowTotal {
   font-variant-numeric: tabular-nums;
   color: var(--white);
   font-weight: 600;
+  flex: none;
+}
+
+/* ── calendario: grilla mensual (Calendario.tsx) ──────────────────────────
+   Colores de marca: teal para Renta, naranja para Amortización; "Renta +
+   Amortización" usa un degradé diagonal de ambos en vez de un tercer color,
+   para dejar claro que combina los dos tipos sin salir de la paleta. */
+.calWrap {
+  position: relative;
+}
+.calHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.calNav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.calNavBtn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--white);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.calNavBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(101, 245, 229, 0.5);
+}
+.calNavBtn:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+.calTitle {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  min-width: 160px;
+  text-align: center;
+  margin: 0 4px;
+}
+.calLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 12px 0 16px;
+}
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.legendDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.evRenta {
+  background: var(--teal);
+}
+.evAmort {
+  background: var(--orange);
+}
+.evAmbos {
+  background: linear-gradient(135deg, var(--teal) 50%, var(--orange) 50%);
+}
+
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  animation: calFadeIn 0.2s ease both;
+}
+@keyframes calFadeIn {
+  from { opacity: 0.3; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .calGrid {
+    animation: none;
+  }
+}
+.calDow {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  padding: 10px 4px;
+}
+.calCell {
+  position: relative;
+  background: var(--navy);
+  min-height: 92px;
+  padding: 6px 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.calCellOut {
+  background: rgba(255, 255, 255, 0.015);
+}
+.calCellOut .calCellNum {
+  color: #44506a;
+}
+.calCellToday {
+  background: rgba(101, 245, 229, 0.07);
+  box-shadow: inset 0 0 0 1px var(--teal);
+}
+.calCellNum {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.calCellToday .calCellNum {
+  color: var(--teal);
+  font-weight: 600;
+}
+.calCellEvents {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.calEvent {
+  font: inherit;
+  font-size: 0.66rem;
+  text-align: left;
+  color: #dfe4ee;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-left: 2px solid transparent;
+  border-radius: 3px;
+  padding: 2px 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.calEvent.evRenta {
+  border-left-color: var(--teal);
+  background: rgba(101, 245, 229, 0.12);
+}
+.calEvent.evAmort {
+  border-left-color: var(--orange);
+  background: rgba(239, 89, 21, 0.12);
+}
+.calEvent.evAmbos {
+  border-left: none;
+  background: linear-gradient(135deg, rgba(101, 245, 229, 0.2), rgba(239, 89, 21, 0.2));
+  color: var(--white);
+}
+.calEvent:hover,
+.calEvent:focus-visible {
+  filter: brightness(1.25);
+  outline: none;
+}
+.calMore {
+  font-size: 0.64rem;
+  color: var(--muted);
+  padding: 0 5px;
+}
+
+/* ── mobile: puntos de color en vez de texto (ver Calendario.tsx, useIsCompact) ── */
+.calDotsBtn {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  width: 100%;
+}
+.calDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+.calDotMore {
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
+/* ── tooltip de día (desktop) ── */
+.calTooltip {
+  position: absolute;
+  z-index: 20;
+  min-width: 190px;
+  max-width: 240px;
+  background: #0b1130;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+.calTooltipBelow {
+  top: calc(100% + 6px);
+}
+.calTooltipAbove {
+  bottom: calc(100% + 6px);
+}
+.calTooltipStart {
+  left: 0;
+}
+.calTooltipEnd {
+  right: 0;
+}
+.calTooltipCenter {
+  left: 50%;
+  transform: translateX(-50%);
+}
+.calTooltipTitle {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+.calTooltipRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.76rem;
+  padding: 3px 0;
+  color: #dfe4ee;
+}
+.calTooltipTipo {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+.calTooltipVal {
+  font-variant-numeric: tabular-nums;
+  color: var(--white);
+  flex: none;
+}
+
+/* ── hoja de detalle del día (mobile) ── */
+.calSheetBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 29;
+  background: rgba(2, 4, 16, 0.55);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.calSheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  max-height: 60vh;
+  overflow-y: auto;
+  background: #0b1130;
+  border-top: 1px solid var(--line);
+  border-radius: 18px 18px 0 0;
+  padding: 16px 18px calc(16px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.45);
+}
+.calSheetHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.calSheetTitle {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0;
+}
+.calSheetClose {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.calSheetRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--white);
+  font: inherit;
+  font-size: 0.86rem;
+  padding: 10px 2px;
+  cursor: pointer;
+  text-align: left;
+}
+.calSheetTicker {
+  color: var(--teal);
+  font-weight: 500;
+}
+.calSheetTipo {
+  color: var(--muted);
+  font-size: 0.78rem;
+  flex: 1;
+}
+.calSheetVal {
+  font-variant-numeric: tabular-nums;
   flex: none;
 }
 
@@ -552,5 +892,16 @@
   }
   .calDate {
     width: auto;
+  }
+  .calCell {
+    min-height: 56px;
+    padding: 4px;
+  }
+  .calTitle {
+    min-width: 0;
+  }
+  .calDow {
+    font-size: 0.64rem;
+    padding: 8px 2px;
   }
 }

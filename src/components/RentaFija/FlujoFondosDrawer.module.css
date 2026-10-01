@@ -1,0 +1,361 @@
+/* Drawer de flujo de fondos por ticker (Panel de Renta Fija). Mismo lenguaje visual
+   que RentaFija.module.css (fondo navy, líneas finas, teal/orange como acento);
+   --muted/--line se redefinen acá porque el overlay es fixed y no depende de
+   heredarlos del panel. */
+
+.overlay {
+  --muted: #9aa3b2;
+  --line: rgba(255, 255, 255, 0.12);
+  --cf-dur: 0.3s;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(2, 4, 16, 0.6);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--cf-dur) ease, visibility 0s linear var(--cf-dur);
+  font-family: 'Poppins', system-ui, sans-serif;
+  color: var(--white);
+}
+.overlay * {
+  box-sizing: border-box;
+}
+.overlay.isOpen {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--cf-dur) ease, visibility 0s linear 0s;
+}
+
+.drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  /* En mobile queda una franja del overlay visible a la izquierda: indica que es un
+     panel superpuesto y deja dónde tocar para cerrarlo. */
+  width: min(560px, calc(100% - 40px));
+  background: var(--navy);
+  border-left: 1px solid var(--line);
+  box-shadow: -24px 0 64px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--cf-dur) cubic-bezier(0.4, 0, 0.2, 1);
+}
+.isOpen .drawer {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .overlay.isOpen,
+  .drawer {
+    transition: none;
+  }
+}
+
+/* ── header ── */
+.header {
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.kicker {
+  margin: 0 0 4px;
+  font-size: 0.74rem;
+  color: var(--teal);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: 0.01em;
+  margin: 0 0 12px;
+}
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 8px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.closeBtn:hover {
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.06);
+}
+.closeBtn:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 1px;
+}
+.subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.78rem;
+}
+.stat {
+  color: var(--muted);
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.stat b {
+  color: var(--white);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.tipo {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.tipoLecap {
+  color: var(--teal);
+  border: 1px solid rgba(101, 245, 229, 0.5);
+}
+.tipoBoncap {
+  color: var(--orange);
+  border: 1px solid rgba(239, 89, 21, 0.5);
+}
+
+/* ── cuerpo ── */
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px 24px 28px;
+}
+.controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.amountWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 180px;
+}
+.amountLbl {
+  font-size: 0.74rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.amountInput {
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 14px;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+.amountInput::placeholder {
+  color: #6f7a8e;
+}
+.amountInput:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 1px;
+}
+.curBtns {
+  display: flex;
+  gap: 6px;
+}
+.curBtn {
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  white-space: nowrap;
+}
+.curBtn:hover {
+  color: #dfe4ee;
+}
+.curBtn.isOn {
+  color: var(--white);
+  background: rgba(101, 245, 229, 0.14);
+  border-color: var(--teal);
+}
+.curBtn:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 1px;
+}
+.escala {
+  margin: 10px 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 18px 0;
+}
+.card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  min-width: 0;
+}
+.cardLbl {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+.cardVal {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.tableWrap {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+.table th {
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 11px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+  white-space: nowrap;
+}
+.table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: right;
+  white-space: nowrap;
+}
+.table th:first-child,
+.table td:first-child {
+  text-align: left;
+}
+.table tbody td:first-child {
+  color: var(--muted);
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.rowAmort td {
+  background: rgba(239, 89, 21, 0.08);
+}
+.rowAmort td:first-child {
+  box-shadow: inset 2px 0 0 var(--orange);
+}
+.pct {
+  color: var(--muted);
+}
+.table tfoot td {
+  border-top: 1px solid var(--line);
+  border-bottom: none;
+  font-weight: 600;
+  padding-top: 11px;
+  padding-bottom: 11px;
+}
+.table tfoot td:first-child {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.74rem;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+.legendSwatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: rgba(239, 89, 21, 0.25);
+  box-shadow: inset 2px 0 0 var(--orange);
+  flex: none;
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 18px 16px 14px;
+  }
+  .body {
+    padding: 16px 16px 24px;
+  }
+  .summary {
+    gap: 8px;
+  }
+  .card {
+    padding: 10px 8px;
+  }
+  .cardLbl {
+    font-size: 0.6rem;
+    letter-spacing: 0.02em;
+  }
+  .cardVal {
+    font-size: 0.9rem;
+  }
+  .tableWrap {
+    overflow-x: auto;
+  }
+  .table {
+    font-size: 0.7rem;
+  }
+  .table th {
+    font-size: 0.6rem;
+    letter-spacing: 0.02em;
+  }
+  .table th,
+  .table td {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+  .table th:first-child,
+  .table td:first-child {
+    padding-left: 8px;
+  }
+  .table th:last-child,
+  .table td:last-child {
+    padding-right: 8px;
+  }
+}

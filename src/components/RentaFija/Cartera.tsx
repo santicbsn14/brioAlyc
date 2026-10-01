@@ -14,6 +14,7 @@ interface Props {
   onAdd: (ticker: string, vn: number) => { ok: boolean; message: string };
   onRemove: (index: number) => void;
   onClear: () => void;
+  onTickerClick: (ticker: string) => void;
 }
 
 function lookupInfo(universe: CarUniverseItem[], ticker: string) {
@@ -41,7 +42,7 @@ function exportCSV(flows: CarFlowsByDate) {
   URL.revokeObjectURL(url);
 }
 
-export default function Cartera({ positions, universe, flows, stats, onAdd, onRemove, onClear }: Props) {
+export default function Cartera({ positions, universe, flows, stats, onAdd, onRemove, onClear, onTickerClick }: Props) {
   const [tickerInput, setTickerInput] = useState('');
   const [vnInput, setVnInput] = useState('');
   const [rango, setRango] = useState<RangoFlujos>('all');
@@ -169,7 +170,10 @@ export default function Cartera({ positions, universe, flows, stats, onAdd, onRe
                   return (
                     <tr key={`${p.ticker}-${idx}`}>
                       <td>
-                        <span className={styles.ticker}>{p.ticker}</span>
+                        <button type="button" className={styles.tickerBtn} onClick={() => onTickerClick(p.ticker)} title="Ver flujo de fondos">
+                          {p.ticker}
+                          <span className={styles.tickerArrow} aria-hidden="true">↗</span>
+                        </button>
                       </td>
                       <td className={styles.muted}>{info ? `${info.emisor} · ${info.titulo}` : 'Ticker desconocido'}</td>
                       <td className={styles.num}>{p.vn.toLocaleString('es-AR')}</td>

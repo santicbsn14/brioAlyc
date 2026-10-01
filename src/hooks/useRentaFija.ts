@@ -14,7 +14,6 @@ import {
   lookupLecapOrBoncapVol,
   type PriceMap,
 } from '../lib/rentaFija/lookups';
-import { buildCalEvents, type CalEventsByDate } from '../lib/rentaFija/calendar';
 import {
   buildCarUniverse,
   buildCarFlows,
@@ -312,12 +311,6 @@ export function useRentaFija() {
     return [...build(LECAPS_DATA, 'LECAP'), ...build(BONCAPS_DATA, 'BONCAP')];
   }, [lecapPrices, mapNotesVol, mapBondsVol]);
 
-  // ── Calendario ───────────────────────────────────────────────────
-  const calEvents: CalEventsByDate = useMemo(
-    () => buildCalEvents(BONDS, SOVEREIGN_BONDS, LECAPS_DATA, BONCAPS_DATA),
-    [],
-  );
-
   // ── Cartera ──────────────────────────────────────────────────────
   const carUniverse: CarUniverseItem[] = useMemo(
     () => buildCarUniverse(BONDS, SOVEREIGN_BONDS, LECAPS_DATA, BONCAPS_DATA),
@@ -407,8 +400,6 @@ export function useRentaFija() {
     fetchSov,
     setManualSovPrice,
     setManualLecapPrice,
-
-    calEvents,
 
     carPositions,
     carUniverse,

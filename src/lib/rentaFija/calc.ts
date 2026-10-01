@@ -71,6 +71,13 @@ export function calcDuration(
   return sumTxPV / sumPV;
 }
 
+/** K = cotización final capitalizada de una LECAP/BONCAP (col K del Excel LECAPS):
+ * 100 × (1 + TEM de emisión) ^ (días / 360 × 12), redondeado a 3 decimales.
+ * Misma fórmula que el original usaba inline en calcLecapRates y en openCFDrawer. */
+export function calcLecapK(item: LecapOrBoncap): number {
+  return Math.round(100 * Math.pow(1 + item.tasa_emision, (item.dias_tot / 360) * 12) * 1000) / 1000;
+}
+
 export interface LecapRates {
   tna: number | null;
   tem: number | null;
@@ -91,7 +98,7 @@ export function calcLecapRates(item: LecapOrBoncap, precioMkt: number | null | u
   const p = precioMkt && precioMkt > 0 ? precioMkt : item.cotiz_ref;
   if (!p || p <= 0) return { tna: null, tem: null, tea: null, diasVenc: null };
 
-  const K = Math.round(100 * Math.pow(1 + item.tasa_emision, (item.dias_tot / 360) * 12) * 1000) / 1000;
+  const K = calcLecapK(item);
 
   const t1 = new Date();
   t1.setHours(0, 0, 0, 0);

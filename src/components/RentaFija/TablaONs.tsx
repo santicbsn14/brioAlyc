@@ -45,9 +45,10 @@ function exportCSV(rows: OnsRow[]) {
 interface Props {
   rows: OnsRow[];
   onManualPriceChange: (ticker: string, raw: string) => void;
+  onTickerClick: (ticker: string) => void;
 }
 
-export default function TablaONs({ rows, onManualPriceChange }: Props) {
+export default function TablaONs({ rows, onManualPriceChange, onTickerClick }: Props) {
   const [q, setQ] = useState('');
   const [filtro, setFiltro] = useState<FiltroOns>('all');
 
@@ -114,7 +115,10 @@ export default function TablaONs({ rows, onManualPriceChange }: Props) {
               <tr key={b.ticker}>
                 <td>{b.emisor}</td>
                 <td>
-                  <span className={styles.ticker}>{b.ticker}</span>
+                  <button type="button" className={styles.tickerBtn} onClick={() => onTickerClick(b.ticker)} title="Ver flujo de fondos">
+                    {b.ticker}
+                    <span className={styles.tickerArrow} aria-hidden="true">↗</span>
+                  </button>
                 </td>
                 <td className={styles.muted} title={b.titulo}>{b.titulo}</td>
                 <td>
