@@ -1,0 +1,294 @@
+/* Panel de Cotizaciones — diseño portado de __ref/BrioAcciones.jsx (prototipo
+   aprobado). --navy/--teal/--white/--up/--down ya están en tokens.css; --muted/--line
+   se definen acá, igual que en Renta Fija/Informes. Header, status, select y botones
+   siguen los mismos valores que Renta Fija (RentaFija.module.css). */
+
+.acciones {
+  --muted: #9aa3b2;
+  --line: rgba(255, 255, 255, 0.12);
+  background: var(--navy);
+  color: var(--white);
+  min-height: 100vh;
+  font-family: 'Poppins', system-ui, sans-serif;
+  padding: clamp(90px, 10vw, 130px) clamp(20px, 5vw, 64px) clamp(60px, 8vw, 100px);
+}
+.acciones * {
+  box-sizing: border-box;
+}
+
+/* ── header ── */
+.head {
+  max-width: 1100px;
+  margin: 0 auto clamp(28px, 4vw, 40px);
+}
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--teal);
+  letter-spacing: 0.3px;
+}
+.kickerLine {
+  width: 26px;
+  height: 2px;
+  background: var(--teal);
+  border-radius: 2px;
+}
+.title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+}
+.lead {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 60ch;
+}
+
+/* ── toolbar: buscador + estado ── */
+.toolbar {
+  max-width: 1100px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.search {
+  flex: 1 1 260px;
+  max-width: 320px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 18px;
+  color: var(--white);
+  font: inherit;
+  font-size: 0.9rem;
+}
+.search::placeholder {
+  color: #6f7a8e;
+}
+.search:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(101, 245, 229, 0.18);
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #5f6a7d;
+  display: inline-block;
+  flex: none;
+}
+.dotOk {
+  composes: dot;
+  background: var(--up);
+  box-shadow: 0 0 0 3px rgba(55, 211, 155, 0.18);
+}
+.dotBusy {
+  composes: dot;
+  background: var(--teal);
+  animation: acPulse 1s ease-in-out infinite;
+}
+.dotErr {
+  composes: dot;
+  background: var(--down);
+}
+@keyframes acPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+.intervalSelect {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-family: 'Sora', sans-serif;
+  outline: none;
+  cursor: pointer;
+}
+.intervalSelect:focus-visible {
+  border-color: var(--teal);
+}
+.btn {
+  font: inherit;
+  font-weight: 500;
+  font-size: 0.8rem;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  border: 1px solid rgba(101, 245, 229, 0.5);
+  background: transparent;
+  color: var(--white);
+  white-space: nowrap;
+  transition: background 0.2s ease;
+}
+.btn:hover {
+  background: rgba(101, 245, 229, 0.1);
+}
+.btn:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+/* ── tabla ── */
+.tableWrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  min-width: 680px;
+}
+.table thead th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.thBtn {
+  all: unset;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 14px 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.thBtn:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: -4px;
+  border-radius: 8px;
+}
+.table thead th.num .thBtn {
+  justify-content: flex-end;
+}
+.sortArrow {
+  color: var(--teal);
+  font-size: 0.75rem;
+}
+.table tbody td {
+  padding: 13px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.muted {
+  color: var(--muted);
+}
+.ticker {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.last {
+  font-weight: 600;
+}
+.pct {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.up {
+  color: var(--up);
+}
+.down {
+  color: var(--down);
+}
+.flat {
+  color: var(--muted);
+}
+.empty {
+  text-align: center;
+  padding: 40px 16px;
+  color: var(--muted);
+}
+
+.disclaimer {
+  max-width: 1100px;
+  margin: 24px auto 0;
+  font-size: 0.78rem;
+  color: #5f6a7d;
+  text-align: center;
+}
+
+/* ── reveal al scrollear (solo el header) ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+.reveal.isIn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  /* En columna, el flex-basis de 260px pasaría a ser ALTO del input (bug del prototipo). */
+  .search {
+    flex: none;
+    max-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .dotBusy {
+    animation: none;
+  }
+  .btn {
+    transition: none;
+  }
+}

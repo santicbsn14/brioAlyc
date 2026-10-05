@@ -1,4 +1,5 @@
 import Hero from '../components/Hero/Hero';
+import { ACCIONES_LIDERES } from '../data/accionesLideres';
 import Servicios from '../components/Servicios/Servicios';
 import QuienesSomos from '../components/QuienesSomos/QuienesSomos';
 import Equipo from '../components/Equipo/Equipo';
@@ -26,7 +27,8 @@ export default function Home() {
         lead={heroContent.lead}
         ctas={heroCtas}
         credentials={credentials}
-        stocks={stocksInitial}
+        leaders={ACCIONES_LIDERES}
+        fallbackStocks={stocksInitial}
         panelTitle={panelCopy.title}
         panelTag={panelCopy.tag}
         panelFootnote={panelCopy.footnote}

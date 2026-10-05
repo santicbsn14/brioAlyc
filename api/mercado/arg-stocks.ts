@@ -1,0 +1,24 @@
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import { getData912 } from '../_lib/data912';
+
+// GET /api/mercado/arg-stocks — proxea https://data912.com/live/arg_stocks (acciones
+// BYMA, precio en ARS). Lo consume el panel de acciones líderes del Hero. Mismo criterio
+// de caché/fallback/deduplicación que los endpoints de Renta Fija (ver
+// api/_lib/data912.ts).
+
+interface VercelLikeResponse extends ServerResponse {
+  status(code: number): VercelLikeResponse;
+  json(body: unknown): void;
+}
+
+export default async function handler(_req: IncomingMessage, res: VercelLikeResponse) {
+  res.setHeader('Cache-Control', 'no-store');
+  try {
+    const { data, stale } = await getData912('arg_stocks');
+    if (stale) res.setHeader('X-Data-Stale', 'true');
+    res.status(200).json(data);
+  } catch (err) {
+    console.error('[api/mercado/arg-stocks]', err);
+    res.status(502).json({ ok: false, error: 'No pudimos obtener datos de mercado (arg_stocks).' });
+  }
+}

@@ -117,6 +117,46 @@
   margin: 0;
 }
 
+/* Bio extendida ("Ver más"): se despliega in-place, debajo de la bio corta */
+.bioExt {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+.bioExtOpen {
+  grid-template-rows: 1fr;
+}
+.bioExtInner {
+  overflow: hidden;
+  min-height: 0;
+}
+.bioExtInner .socioBio {
+  padding-top: 10px;
+}
+.verMas {
+  margin-top: 12px;
+  padding: 2px 0;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--teal);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s ease;
+}
+.verMas:hover {
+  text-decoration-color: currentColor;
+}
+.verMas:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
 /* ── Empleados: grilla simple, solo foto+nombre+cargo ── */
 .empWrap {
   max-width: 1100px;
@@ -195,6 +235,10 @@
   .reveal {
     opacity: 1;
     transform: none;
+    transition: none;
+  }
+  .bioExt,
+  .verMas {
     transition: none;
   }
 }

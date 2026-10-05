@@ -323,6 +323,10 @@
 .chg.down {
   color: var(--down);
 }
+/* Ticker que no vino en la respuesta de data912: "—" en gris, sin flecha. */
+.chg.na {
+  color: var(--muted);
+}
 .arrow {
   font-size: 0.6rem;
 }

@@ -2,6 +2,8 @@
 // Objetivo: todo esto sale de Sanity más adelante sin tocar los componentes
 // (ver brief 6.0 "todo sale de Sanity") — por eso nada va hardcodeado en el JSX.
 
+import { ACCIONES_LIDERES } from './accionesLideres';
+
 export type NavItemKind = 'internal' | 'external' | 'disabled';
 
 export interface NavDropdownItem {
@@ -59,7 +61,7 @@ export const navLinks: NavLinkItem[] = [
       { kind: 'internal', label: 'Comisiones', href: '/comisiones' },
       { kind: 'internal', label: 'Informes', href: '/informes' },
       { kind: 'external', label: 'Consulta de Portafolio', href: 'https://brio-web.aunesa.com/Irmo/' },
-      { kind: 'disabled', label: 'Panel de cotizaciones' },
+      { kind: 'internal', label: 'Panel de cotizaciones', href: '/herramientas/acciones' },
       { kind: 'internal', label: 'Renta fija', href: '/herramientas/renta-fija' },
     ],
   },
@@ -101,16 +103,28 @@ export const panelCopy = {
   footnote: 'Datos referenciales · no en tiempo real',
 };
 
-// TODO: mock referencial — se reemplaza por data912 (arg_stocks) vía backend
-// con caché en la Fase 4. El % acá deriva del precio de forma independiente;
-// se va con la data real (detalle conocido, ver brief).
-export const stocksInitial: StockRow[] = [
-  { symbol: 'GGAL', name: 'Grupo Galicia', price: 5842.5, changePct: 1.8 },
-  { symbol: 'YPFD', name: 'YPF', price: 41200, changePct: 0.9 },
-  { symbol: 'BMA', name: 'Banco Macro', price: 9740, changePct: 2.3 },
-  { symbol: 'PAMP', name: 'Pampa Energía', price: 3128, changePct: -0.6 },
-  { symbol: 'ALUA', name: 'Aluar', price: 1086.5, changePct: -0.4 },
-];
+// FALLBACK del panel de acciones del Hero: precios de EJEMPLO (no reales) que se ven
+// en el primer render, antes de que resuelva /api/mercado/arg-stocks, y si ese fetch
+// falla — el Hero nunca queda vacío. Los tickers/nombres salen de ACCIONES_LIDERES
+// (mismas filas, mismo orden que con datos reales → sin salto de layout). Los precios
+// están en un orden de magnitud parecido al real (oct. 2026) para que el cambio a los
+// datos reales no sea brusco; no hace falta mantenerlos al día.
+const precioEjemplo: Record<string, { price: number; changePct: number }> = {
+  GGAL: { price: 6100, changePct: 1.8 },
+  YPFD: { price: 8200, changePct: 0.9 },
+  PAMP: { price: 5100, changePct: -0.6 },
+  ALUA: { price: 830, changePct: -0.4 },
+  BMA: { price: 11000, changePct: 2.3 },
+  CEPU: { price: 1980, changePct: 1.1 },
+  TGSU2: { price: 8550, changePct: -0.8 },
+  BBAR: { price: 7100, changePct: 1.4 },
+};
+
+export const stocksInitial: StockRow[] = ACCIONES_LIDERES.map((a) => ({
+  symbol: a.ticker,
+  name: a.nombre,
+  ...(precioEjemplo[a.ticker] ?? { price: 1000, changePct: 0 }),
+}));
 
 // ── Servicios (sección 6.4) ──────────────────────────────────────────────
 

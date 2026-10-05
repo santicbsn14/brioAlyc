@@ -7,6 +7,7 @@ import Productos from './pages/Productos';
 import FinanciamientoPyme from './pages/FinanciamientoPyme';
 import Informes from './pages/Informes';
 import RentaFija from './pages/RentaFija';
+import Acciones from './pages/Acciones';
 import CodigoConducta from './pages/CodigoConducta';
 import TerminosCondiciones from './pages/TerminosCondiciones';
 import { brand, navLinks, navActions } from './data/placeholders';
@@ -31,6 +32,7 @@ function App() {
         <Route path="/servicios/financiamiento-pyme" element={<FinanciamientoPyme />} />
         <Route path="/servicios/productos" element={<Productos />} />
         <Route path="/informes" element={<Informes />} />
+        <Route path="/herramientas/acciones" element={<Acciones />} />
         <Route path="/herramientas/renta-fija" element={<RentaFija />} />
         <Route path="/codigo-de-conducta" element={<CodigoConducta />} />
         <Route path="/terminos-y-condiciones" element={<TerminosCondiciones />} />

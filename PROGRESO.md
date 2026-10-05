@@ -1,7 +1,7 @@
 # PROGRESO — Brio Valores (sitio nuevo)
 
 ## Estado actual
-Front nuevo (`brio-nuevo`, separado de la web puente) con routing (React Router): home (`/`, header + hero + Servicios + Quiénes somos + Equipo + Contacto — ya completa, las 5 secciones de esta etapa), página propia de comisiones (`/comisiones`, con las tablas completas del PDF por pestañas), página de productos (`/servicios/productos`, carrusel animado de instrumentos por categoría), página de Financiamiento PyME (`/servicios/financiamiento-pyme`, con el paso a paso animado de 4 etapas), página de Informes (`/informes`, colgada del menú Herramientas: listado de PDFs filtrable por categoría, con descarga directa) y ahora también el Panel de Renta Fija (`/herramientas/renta-fija`, colgada del menú Herramientas: ONs, Deuda Soberana + LECAPs/BONCAPs, Calendario de pagos y Cartera propia, con datos y cálculos reales vía un proxy propio a data912; clickear cualquier ticker abre un panel lateral con su flujo de fondos futuro, recalculable para un monto a invertir). El header (Navbar) ya quedó terminado: logo real, menú con dropdowns funcionales (Servicios y Herramientas), link nuevo a Equipo, fondo que cambia al scrollear y los 3 anchors de la home (Quiénes somos/Equipo/Contacto) funcionando cross-página (navegan a la home y scrollean, parados en cualquier ruta). Ahora también hay Footer institucional (montado en `App.tsx`, visible en todas las páginas) y dos páginas legales (`/codigo-de-conducta`, texto real de Brio; `/terminos-y-condiciones`, borrador genérico a reemplazar). Quiénes somos ya tiene la foto real de oficina y quedó en 2 bloques (relato + valores), sin el bloque de números. En Servicios, las descripciones de los 3 pilares ya son texto real (rescatado del sitio anterior). Equipo (nueva) muestra 3 socios (tarjeta con bio) y 9 empleados (grilla simple), todo con contenido de EJEMPLO — falta la nómina y las fotos reales. Contacto tiene formulario funcional con validación, honeypot y un endpoint real de envío por mail (Resend, en `api/contacto.ts`) — falta que Vercel tenga configuradas las variables de entorno reales para que mande mails de verdad. Los botones "Consultá por tu PyME" de Financiamiento PyME ya llevan a Contacto con el motivo correcto preseleccionado. Los datos reales de contacto (teléfono, email, dirección) ya están sincronizados entre `data/footer.ts` y `data/contacto.ts`; solo quedan de ejemplo WhatsApp, horario e Instagram/LinkedIn. En Informes, el primer informe ya es real (PDF real, descarga funcional); los otros tres son de ejemplo para mostrar el filtro funcionando. El resto del contenido sigue en placeholder salvo los valores de comisiones (ya reales, transcriptos y cruzados contra el PDF fuente) y los datos financieros de Renta Fija (ONs, soberanos, LECAPs, BONCAPs — reales, portados de la herramienta vieja). Con esto la home queda completa para esta etapa; falta el resto del sitio.
+Front nuevo (`brio-nuevo`, separado de la web puente) con routing (React Router): home (`/`, header + hero + Servicios + Quiénes somos + Equipo + Contacto — ya completa, las 5 secciones de esta etapa), página propia de comisiones (`/comisiones`, con las tablas completas del PDF por pestañas), página de productos (`/servicios/productos`, carrusel animado de instrumentos por categoría), página de Financiamiento PyME (`/servicios/financiamiento-pyme`, con el paso a paso animado de 4 etapas), página de Informes (`/informes`, colgada del menú Herramientas: listado de PDFs filtrable por categoría, con descarga directa) y ahora también el Panel de Renta Fija (`/herramientas/renta-fija`, colgada del menú Herramientas: ONs, Deuda Soberana + LECAPs/BONCAPs, Calendario de pagos y Cartera propia, con datos y cálculos reales vía un proxy propio a data912; clickear cualquier ticker abre un panel lateral con su flujo de fondos futuro, recalculable para un monto a invertir). El header (Navbar) ya quedó terminado: logo real, menú con dropdowns funcionales (Servicios y Herramientas), link nuevo a Equipo, fondo que cambia al scrollear y los 3 anchors de la home (Quiénes somos/Equipo/Contacto) funcionando cross-página (navegan a la home y scrollean, parados en cualquier ruta). Ahora también hay Footer institucional (montado en `App.tsx`, visible en todas las páginas) y dos páginas legales (`/codigo-de-conducta`, texto real de Brio; `/terminos-y-condiciones`, borrador genérico a reemplazar). Quiénes somos ya tiene la foto real de oficina y quedó en 2 bloques (relato + valores), sin el bloque de números. En Servicios, las descripciones de los 3 pilares ya son texto real (rescatado del sitio anterior). Equipo muestra 3 socios (tarjeta con bio corta + "Ver más" que despliega la bio completa) y 9 empleados (grilla simple), con contenido real: nómina, cargos, bios y fotos de 11 de las 12 personas (falta solo la foto de Claudio Adrián Iglesias, que se ve con avatar de iniciales). Contacto tiene formulario funcional con validación, honeypot y un endpoint real de envío por mail (Resend, en `api/contacto.ts`) — falta que Vercel tenga configuradas las variables de entorno reales para que mande mails de verdad. Los botones "Consultá por tu PyME" de Financiamiento PyME ya llevan a Contacto con el motivo correcto preseleccionado. Los datos reales de contacto (teléfono, email, dirección) ya están sincronizados entre `data/footer.ts` y `data/contacto.ts`; solo quedan de ejemplo WhatsApp, horario e Instagram/LinkedIn. En Informes, el primer informe ya es real (PDF real, descarga funcional); los otros tres son de ejemplo para mostrar el filtro funcionando. El resto del contenido sigue en placeholder salvo los valores de comisiones (ya reales, transcriptos y cruzados contra el PDF fuente) y los datos financieros de Renta Fija (ONs, soberanos, LECAPs, BONCAPs — reales, portados de la herramienta vieja). El panel de acciones del Hero ya muestra precios reales de BYMA (8 acciones líderes, vía `/api/mercado/arg-stocks` → data912), con fallback a precios de ejemplo mientras carga o si falla. Esas mismas 8 acciones tienen su tabla completa en el Panel de Cotizaciones (`/herramientas/acciones`, colgado del menú Herramientas: compra/venta/último/variación/volumen, ordenable, con buscador, auto-refresh elegible y export CSV). Con esto la home queda completa para esta etapa; falta el resto del sitio.
 
 ## Estructura de archivos
 ```
@@ -14,10 +14,13 @@ brio-nuevo/
       arg-corp.ts             → GET /api/mercado/arg-corp → proxea data912.com/live/arg_corp (ONs)
       arg-bonds.ts             → GET /api/mercado/arg-bonds → proxea data912.com/live/arg_bonds (soberanos + BONCAPs)
       arg-notes.ts             → GET /api/mercado/arg-notes → proxea data912.com/live/arg_notes (LECAPs)
+      arg-stocks.ts            → GET /api/mercado/arg-stocks → proxea data912.com/live/arg_stocks (acciones BYMA, para el panel del Hero)
   src/
     styles/
       tokens.css            → paleta de marca + fuentes (Poppins/Sora)
     lib/
+      mercado/
+        accionesLideres.ts    → parser de arg_stocks (tipo `CotizacionAccion`) para el panel del Hero y la tabla de /herramientas/acciones: precio `c`, `pct_change`, puntas `px_bid`/`px_ask` y volumen `v`, sin exigir volumen; null por dato faltante, null si no vino ningún ticker
       rentaFija/
         calc.ts               → motor de cálculo financiero (calcTIR, calcDuration, calcLecapRates, calcLecapK, fmtVol, parseVenc/daysTo), portado tal cual de la herramienta vieja
         flujoFondos.ts         → lógica del panel lateral de flujo de fondos por ticker (qué pagos mostrar, pago único de LECAP/BONCAP, escala por monto invertido y totales), portada tal cual de openCFDrawer/calcFlows
@@ -32,14 +35,16 @@ brio-nuevo/
       useReveal.ts           → aparición progresiva al scrollear, reusable en toda la home
       useScrollToTop.ts       → al cambiar de ruta: sin hash scrollea a (0,0); con hash (ej. #contacto) espera a que el elemento exista y hace scrollIntoView
       useRentaFija.ts         → hook central del Panel de Renta Fija: fetch a los 3 endpoints propios, precios manuales + localStorage, auto-refresh por grupo (ONs / Soberana+LECAPs), filas calculadas para las 4 pestañas
+      useAccionesLideres.ts   → cotizaciones de las acciones líderes (Hero + /herramientas/acciones): fallback → fetch a /api/mercado/arg-stocks, auto-refresh configurable (`intervalSec`, default 90s; 0 = apagado) con la pestaña visible, `status`/`lastUpdated`/`refrescar` para la barra de estado, resaltado de filas que cambiaron; latido simulado opcional (`simularLatido`, solo el Hero) mientras se ven precios de ejemplo
     data/
-      placeholders.ts       → contenido de Navbar/Hero/Servicios/Quiénes somos (textos, links, credenciales, mock de acciones, pilares, instrumentos), tipado
+      placeholders.ts       → contenido de Navbar/Hero/Servicios/Quiénes somos (textos, links, credenciales, precios de EJEMPLO del panel de acciones como fallback, pilares, instrumentos), tipado
+      accionesLideres.ts     → ACCIONES_LIDERES: los 8 tickers (ticker + nombre) del panel del Hero, dato ESTÁTICO — candidato a Sanity (ver pendientes)
       comisiones.ts         → tablas de comisiones (título/columnas/filas/notas por tabla, agrupadas en pestañas), tipado, valores reales del PDF
       productos.ts          → categorías de productos, sus instrumentos y las líneas explicativas + textos de encabezado de la página, tipado, contenido provisorio
       financiamiento.ts     → textos de la página de Financiamiento PyME (encabezado, beneficios, pasos, cierre y botón), tipado, contenido provisorio
       informes.ts             → contenido de la página de Informes (encabezado, categorías, listado de informes con fecha/categoría/resumen/PDF), tipado; solo el primer informe es real, el resto son de ejemplo
       contacto.ts            → contenido de la sección Contacto (motivos, canales, redes, textos de estado), tipado; email/teléfono/dirección ya reales, WhatsApp/horario/redes siguen de ejemplo
-      equipo.ts               → contenido de la sección Equipo (kicker/título/bajada, 3 socios con bio, 9 empleados), tipado; TODO el contenido es de EJEMPLO (nombres/cargos/bios/fotos), con nota sobre el modelo probable en Sanity (un solo tipo "Persona" con flag "esSocio")
+      equipo.ts               → contenido de la sección Equipo (kicker/título/bajada, 3 socios con bio corta + `bioExtendida?`, 9 empleados), tipado; contenido REAL (nombres/cargos/bios/fotos importadas de `assets/equipo/`), salvo la foto de Claudio Iglesias que falta, con nota sobre el modelo probable en Sanity (un solo tipo "Persona" con flag "esSocio")
       footer.ts               → contenido del Footer (contacto, dirección, redes, razón social, registro CNV, credenciales, links legales), tipado, datos reales
       legal.ts                → contenido de las dos páginas legales: `codigoConducta` (texto real de Brio, por capítulos/artículos) y `terminosCondiciones` (borrador genérico, con TODO de asesoría legal)
     hooks/
@@ -85,12 +90,13 @@ brio-nuevo/
       FinanciamientoPyme.module.css
       Informes.tsx            → página /informes: header + chips de filtro por categoría + listado de informes (ordenado por fecha descendente) con descarga
       Informes.module.css
+      Acciones.tsx + .module.css → página /herramientas/acciones (Panel de Cotizaciones): header con reveal + buscador + status bar (estado, hora, intervalo, Actualizar, Exportar CSV) + tabla ordenable de las 8 acciones líderes + disclaimer. Usa `hooks/useAccionesLideres.ts` (el mismo del Hero)
       RentaFija.tsx            → página /herramientas/renta-fija: header + 4 tabs con indicador real (refs) + status bar (por grupo ONs / Soberana+LECAPs) + panel con slide + disclaimer. Usa `hooks/useRentaFija.ts` para todo el estado/datos y los componentes de `components/RentaFija/` para cada pestaña
       CodigoConducta.tsx      → página /codigo-de-conducta: texto legal real de Brio, completo, por capítulos
       TerminosCondiciones.tsx → página /terminos-y-condiciones: borrador genérico (TODO asesoría legal)
       LegalDoc.module.css     → estilos compartidos por las dos páginas legales (documento navy, sin tarjetas)
-      ComingSoon.tsx          → placeholder mínimo ("Próximamente") para rutas que todavía no tienen página real
-    App.tsx                  → Navbar fuera de <Routes> (siempre visible) + <Routes> ("/" → Home, "/comisiones" → Comisiones, "/servicios/productos" → Productos, "/servicios/financiamiento-pyme" → FinanciamientoPyme, "/informes" → Informes, "/herramientas/renta-fija" → RentaFija, "/codigo-de-conducta" → CodigoConducta, "/terminos-y-condiciones" → TerminosCondiciones) + Footer fuera de <Routes> (siempre visible, en todas las páginas)
+      ComingSoon.tsx          → placeholder mínimo ("Próximamente") para rutas que todavía no tienen página real — hoy ninguna ruta lo usa (se deja por si aparece una ruta nueva sin página)
+    App.tsx                  → Navbar fuera de <Routes> (siempre visible) + <Routes> ("/" → Home, "/comisiones" → Comisiones, "/servicios/productos" → Productos, "/servicios/financiamiento-pyme" → FinanciamientoPyme, "/informes" → Informes, "/herramientas/acciones" → Acciones, "/herramientas/renta-fija" → RentaFija, "/codigo-de-conducta" → CodigoConducta, "/terminos-y-condiciones" → TerminosCondiciones) + Footer fuera de <Routes> (siempre visible, en todas las páginas)
     main.tsx                 → envuelve <App/> en <BrowserRouter>
     index.css
   tsconfig.api.json          → proyecto TS aparte para tipar api/ (Node, no browser)
@@ -98,6 +104,107 @@ brio-nuevo/
 ```
 
 ## Historial
+
+### 2026-10-05 — Página Panel de Cotizaciones (/herramientas/acciones)
+- Reemplaza el "Próximamente" del ítem "Panel de cotizaciones" del menú Herramientas. Antes era un ítem deshabilitado y no existía la ruta; ahora es un link activo a `/herramientas/acciones`.
+- **Diseño:** portado de `__ref/BrioAcciones.jsx` (prototipo aprobado). Header (kicker "Herramientas" + título + bajada) con aparición al scrollear vía `useReveal`. Toolbar con buscador por ticker o nombre (filtra en el cliente) y barra de estado. Tabla Ticker / Nombre / Compra / Venta / Último / Var. % / Volumen. Estado vacío del prototipo y disclaimer al pie.
+- **Barra de estado** (igual que Renta Fija): punto de color idle/cargando/ok/error, hora del último refresh, selector de intervalo (sin auto-refresh / 1 / 2 / 5 min, default 2), botón Actualizar y botón Exportar CSV.
+- **Orden:** las 7 columnas se ordenan clickeando el encabezado (asc/desc con flechita y `aria-sort`; el encabezado es un `<button>`, accesible por teclado). Los datos faltantes van siempre al final, en las dos direcciones.
+- **Formato:** Var. % con ▲/▼/– y colores `--up`/`--down` de tokens.css. Volumen con `fmtVol` de Renta Fija (se importa, no se duplicó).
+- **Export CSV:** mismo formato que el de Renta Fija (comillas, BOM, números crudos sin formatear). Exporta las filas visibles con el filtro y el orden activos. Archivo: `briovalores-acciones-AAAA-MM-DD.csv`.
+- **Datos:** reusa todo lo de la tarea del Hero, sin duplicar nada (`ACCIONES_LIDERES`, `/api/mercado/arg-stocks`, el parser y `useAccionesLideres`). El hook se extendió sin cambiar cómo lo llama el Hero:
+  - Tercer parámetro opcional `{ intervalSec, simularLatido }`. Default 90s y latido activado, que es justo lo que ya usaba el Hero.
+  - Ahora devuelve también `status`, `lastUpdated` y `refrescar`.
+  - Cambiar el intervalo no dispara un fetch, solo rearma el timer (criterio de Renta Fija). El fetch inicial pasó a un `setTimeout(0)`, mismo patrón que `useRentaFija`.
+  - El parser ahora lee además `px_bid`, `px_ask` y `v`. El tipo pasó de `HeroStock` a `CotizacionAccion`; `bid`/`ask`/`volume` son opcionales porque el fallback del Hero no los tiene.
+
+**Archivos creados:** `src/pages/Acciones.tsx`, `src/pages/Acciones.module.css`.
+**Archivos modificados:** `src/hooks/useAccionesLideres.ts` (intervalo configurable, status/lastUpdated/refrescar, latido opcional), `src/lib/mercado/accionesLideres.ts` (bid/ask/volumen + rename del tipo), `src/App.tsx` (ruta nueva), `src/data/placeholders.ts` (el ítem del dropdown pasa a `internal` con `href`).
+
+**Decisiones propias / desvíos del brief:**
+- **Sin precios de ejemplo en la tabla:** a diferencia del Hero, mientras carga o si data912 falla las 8 filas se ven con "—". Una tabla de cotizaciones con compra/venta inventadas sería engañosa. La barra de estado dice "Cargando cotizaciones…" o "No pudimos obtener cotizaciones" (o, si ya hubo un dato bueno, la hora + "falló el último intento"), con el punto en rojo. Si un ticker puntual no viene en la respuesta, su fila muestra "—".
+- **Ruta:** el brief decía que `/herramientas/acciones` "pasa de `<ComingSoon />` a `<Acciones />`", pero esa ruta no existía en `App.tsx`. Se creó directamente. `ComingSoon.tsx` queda sin uso; no se borró.
+- **Bajada:** el prototipo decía "Precios en vivo…", lo que contradice el disclaimer "no en tiempo real". Quedó "Precios de las principales acciones líderes de BYMA — datos referenciales, con actualización automática cada 2 minutos aproximadamente."
+- **Toolbar:** el selector de intervalo no estaba en el prototipo. Se sumó dentro de la barra de estado con el mismo estilo que en Renta Fija. Orden: punto · hora · intervalo · Actualizar · Exportar CSV.
+- **Kicker:** lleva la rayita teal a la izquierda, igual que el port de Renta Fija/Informes (el prototipo no la tenía), para que las páginas de Herramientas se vean iguales.
+- **Bug del prototipo corregido:** en mobile la toolbar pasa a columna, y el `flex: 1 1 260px` del buscador se convertía en 260px de ALTO (input gigante). Se fijó `flex: none` en ese breakpoint.
+- En mobile la tabla scrollea horizontalmente dentro de su contenedor (`min-width: 680px`, igual que el prototipo), sin scroll horizontal de página.
+
+**Verificación:** con Playwright (Chromium headless, en el scratchpad de la sesión), desktop 1440px y mobile 390px, interceptando `/api/mercado/arg-stocks` con datos del formato real de data912:
+- **Navegación:** desde la home se llega a la página clickeando Herramientas → "Panel de cotizaciones" en el navbar, con el dropdown en desktop y el menú hamburguesa en mobile.
+- **Datos:** las 8 filas muestran compra, venta, último, variación y volumen del mock. Un volumen 0 se ve "—" y una variación 0 se ve "– 0,0%" en gris.
+- **Orden:** Ticker, Nombre, Compra, Venta, Último, Var. % y Volumen ordenan bien en asc y desc. Se cotejó el orden contra los valores del mock: Último asc da ALUA 830 → BMA 11.040; Var. % asc da BMA -5,14 → BBAR 5,63. `aria-sort` cambia en consecuencia.
+- **Buscador:** "ypf" → YPFD, "banco" → BMA, "gas del" → TGSU2; "zzzz" muestra el estado vacío.
+- **CSV:** con filtro "ba" y orden Volumen desc, el archivo trae el encabezado de las 7 columnas y exactamente BMA y BBAR, en ese orden.
+- **Actualizar:** el botón dispara 1 fetch.
+- **Intervalos, con el reloj falso de Playwright (`page.clock`):**
+  - Default 2 min: 1 fetch a los 120s.
+  - Cambiar a 1 min no dispara fetch; después, 1 fetch a los 61s y otro a los 60s siguientes.
+  - 5 min: 0 fetches a los 299s y 1 a los 301s.
+  - Sin auto-refresh: 0 fetches en 15 min.
+- **502 con reduced motion:** las 8 filas en "—", estado "No pudimos obtener cotizaciones", header visible de entrada (opacity 1, transición 0s).
+- **Regresión del Hero:** sigue mostrando los 8 precios reales (`data-fuente=data912`).
+- **Chequeos:** sin errores de consola y sin scroll horizontal en mobile. `npx tsc -b`, `npx tsc -p tsconfig.api.json`, `npx eslint .` y `npm run build` corren limpios.
+
+**Pendientes que quedaron abiertos:**
+- Convertir "Panel de cotizaciones en vivo →" (Servicios → Renta variable) en link a esta página.
+- Los mismos de la tarea del Hero: `ACCIONES_LIDERES` como candidato a Sanity (agendar con Agus) y probar `/api/mercado/arg-stocks` contra data912 real en un deploy de Vercel.
+
+### 2026-10-05 — Hero: panel de acciones con datos reales de BYMA (data912)
+- Nuevo endpoint `api/mercado/arg-stocks.ts`, que proxea `data912.com/live/arg_stocks`. No hizo falta generalizar `api/_lib/data912.ts`: ya estaba indexado por endpoint (caché TTL 90s, fallback a caché vencida, dedup en vuelo), así que el handler es igual a los de Renta Fija.
+- Nueva lista `data/accionesLideres.ts` (`ACCIONES_LIDERES`) con 8 tickers y su nombre amigable: GGAL, YPFD, PAMP, ALUA, BMA, CEPU, TGSU2, BBAR. Es estática y candidata a Sanity (ver pendientes). El panel ya mostraba ticker + nombre, así que se mantienen los dos.
+- El Hero ahora usa el hook `useAccionesLideres`:
+  - El primer render muestra los precios de ejemplo (`stocksInitial`, que ahora se arma desde la misma lista: mismas 8 filas, mismo orden) y al montar pide `/api/mercado/arg-stocks`.
+  - Si la respuesta es buena, pasa a precios reales.
+  - Si falla (HTTP de error, red caída, JSON inválido o ninguno de los 8 tickers en la respuesta), se queda con lo que había. El Hero nunca queda vacío.
+- Refresca cada 90s (igual al TTL del proxy) solo con la pestaña visible, y al volver a la pestaña si ya pasó ese tiempo.
+- Si un refresh falla después de haber mostrado datos reales, se mantiene el último dato real. No vuelve a los precios de ejemplo.
+- Parser (`lib/mercado/accionesLideres.ts`): mismo criterio de lectura que `d912parse` (symbol normalizado, `c` = último precio, descarta precios inválidos o <= 0), más `pct_change`. Ese campo viene en porcentaje (1.59 = 1,59%), cotejado con un `curl` real a data912. Si a un ticker puntual le falta el precio, su fila muestra "—" en gris en vez de inventar un número.
+- El diseño del panel no se tocó (glassmorphism, `bob`, punto "en vivo" pulsante, filas). Lo único nuevo en CSS es el gris del "—".
+
+**Archivos creados:** `api/mercado/arg-stocks.ts`, `src/data/accionesLideres.ts`, `src/lib/mercado/accionesLideres.ts`, `src/hooks/useAccionesLideres.ts`.
+**Archivos modificados:** `components/Hero/Hero.tsx` (usa el hook; props `leaders` + `fallbackStocks` en vez de `stocks`; atributo `data-fuente` en el panel), `components/Hero/Hero.module.css` (clase `.chg.na`), `data/placeholders.ts` (`stocksInitial` derivado de `ACCIONES_LIDERES` con precios de ejemplo actualizados), `pages/Home.tsx` (pasa las props nuevas).
+
+**Decisiones propias / desvíos del brief:**
+- **Volumen:** no se exige `v > 0`. El panel es informativo, así que muestra el último precio aunque el papel no haya operado hoy. En Renta Fija el volumen sí importa porque decide qué precio entra en la TIR.
+- **Latido:**
+  - Con datos reales ya no se simulan movimientos: inventar variaciones encima de precios reales de una ALyC sería engañoso.
+  - La sensación de "panel vivo" se mantiene con el punto pulsante, el `bob` y el resaltado de las filas que cambiaron en cada refresh (en la primera carga real se resaltan todas, como señal de "actualizado").
+  - El latido simulado original (deriva aleatoria + resaltado) sigue solo mientras se ven los precios de ejemplo (carga o falla), y respeta reduced-motion como antes.
+- **Precios de ejemplo:** el mock tenía 5 filas con precios muy desfasados (ej. YPFD 41.200 contra ~8.200 real). Pasó a 8 filas, igual que la lista real, para que no haya salto de layout. Los precios se acercaron al orden de magnitud real de oct. 2026 para que el cambio a datos reales no sea brusco.
+- **Disclaimer:** no se agregó uno nuevo. El panel ya tenía el tag "Referencial" y el pie "Datos referenciales · no en tiempo real", que sigue siendo cierto (caché de 90s + la demora propia de data912).
+- **Altura del panel:** con 8 filas pasa de ~405px a 562px. En 1440x900 entra completo dentro del Hero y en mobile queda debajo del texto, como antes. "Transportadora de Gas del Sur" se corta con "…" en mobile, con el CSS de ellipsis que ya existía.
+
+**Verificación:** con Playwright (Chromium headless, en el scratchpad de la sesión), desktop 1440px y mobile 390px, interceptando `/api/mercado/arg-stocks`:
+- **Respuesta OK** (datos con el formato real de data912, con 1,2s de demora): primero se ven las 8 filas de ejemplo y después los 8 precios y % del mock en el orden de la lista. El panel mide 562px antes y después, sin layout shift. `data-fuente` pasa de `ejemplo` a `data912`.
+- **Fallas:** con 502, red abortada y array vacío, el panel queda con las 8 filas de ejemplo (`data-fuente=ejemplo`), sin romperse.
+- **Respuesta parcial** (3 de 8 tickers): esos 3 con precio real y el resto con "—".
+- **Consola y layout:** sin scroll horizontal y sin errores de la app. En los escenarios de falla, el único mensaje en consola es el log de red del propio navegador ("Failed to load resource" por el 502 o el abort), esperable para un fetch que falla y que no se puede silenciar desde el código.
+- **Chequeos:** `npx tsc -b`, `npx tsc -p tsconfig.api.json`, `npx eslint .` y `npm run build` corren limpios.
+
+**Pendientes que quedaron abiertos:**
+- Agendar con Agus: `ACCIONES_LIDERES` como candidato a Sanity.
+- Probar el endpoint contra data912 real en un deploy de Vercel (`vite dev` no corre las funciones serverless; en local el sitio siempre muestra el fallback de ejemplo, salvo que se use `vercel dev`).
+
+### 2026-10-05 — Equipo: contenido real completo (fotos, nómina, bios de socios con "Ver más")
+- Se reemplazó todo el contenido de ejemplo de `data/equipo.ts` por el real: 3 socios (Carlos Alberto Rodríguez Ansaldi — Presidente del Directorio, Pablo Alberto Bortolato — Socio, Claudio Adrián Iglesias — Socio) con bio corta y bio extendida, y los 9 empleados con nombre, cargo y foto. Las 11 fotos (todas menos la de Claudio) se importan desde `src/assets/equipo/` (WebP 960x1200 que subió Santiago).
+- Claudio queda sin `foto`, así que sigue mostrando el avatar con iniciales (TODO(Agus) comentado en el dato).
+- Nuevo campo opcional `bioExtendida?: string` en `Socio`. Si una persona lo tiene, la tarjeta muestra un link chico "Ver más" debajo de la bio corta. Al tocarlo, la bio completa se despliega dentro de la misma tarjeta y el link pasa a "Ver menos". Sin `bioExtendida`, no aparece el link.
+- El despliegue anima la altura con `grid-template-rows: 0fr → 1fr` (0,3s), que sigue la altura real del texto sin un `max-height` fijo. Con "reducir animaciones" activado no hay transición. Accesibilidad: el botón lleva `aria-expanded` + `aria-controls` (id generado con `useId`), y el contenido colapsado queda `inert` para que no lo lea un lector de pantalla ni reciba foco.
+- Se dejó comentada en `data/equipo.ts` la nota de la décima persona (Comercial) que se suma en noviembre; no se agregó un casillero vacío.
+- No se tocaron el layout, la animación de aparición ni el resto del diseño de la sección.
+- Se verificó con Playwright (Chromium headless, en el scratchpad de la sesión) en desktop 1440px y mobile 390px. Los 3 socios muestran nombre, cargo y bio corta; Carlos y Pablo con su foto, Claudio con el avatar "CI". Los 9 empleados muestran nombre, cargo y foto cargada (960px de ancho natural), y cada `src` coincide con el archivo de esa persona. En los 3 socios, "Ver más" cambia `aria-expanded` a `true` y el texto a "Ver menos", y despliega la bio extendida completa (altura 0 → ~270–434px, ya sin `inert`); un segundo click vuelve a colapsar (altura 0). Con `prefers-reduced-motion: reduce`, la transición computada es `0s` y el despliegue funciona igual. Sin errores de consola y sin scroll horizontal en mobile. `npx tsc -b`, `npx eslint .` y `npm run build` corren limpios.
+
+**Archivos modificados:** `data/equipo.ts` (contenido real + tipo `bioExtendida?`), `components/Equipo/Equipo.tsx` (componente `BioExtendida` + iniciales), `components/Equipo/Equipo.module.css` (estilos del despliegue y del link "Ver más", sin transición con reduced-motion).
+
+**Decisiones propias / desvíos del brief:**
+- Iniciales del avatar placeholder: antes tomaba las 2 primeras palabras, así que "Claudio Adrián Iglesias" daba "CA". Ahora toma nombre + último apellido ("CI"). Para nombres de 2 palabras da lo mismo que antes. Es el único cambio a la lógica del avatar; el fallback de foto/iniciales queda igual.
+- Al desplegar una bio en desktop, las otras dos tarjetas de la fila se estiran a la misma altura, porque la grilla ya tenía altura de fila compartida. Visualmente queda prolijo y no se cambió el layout para evitarlo.
+- Los `id` de las personas pasaron de `s1`/`e1` a slugs del nombre (`carlos-rodriguez-ansaldi`, etc.), que son más estables de cara a Sanity.
+
+**Pendientes que quedaron abiertos:**
+- TODO(Agus): foto de Claudio Adrián Iglesias.
+- Décima persona (área Comercial) que se suma en noviembre: hay que sumarla a `empleados` cuando llegue.
 
 ### 2026-10-01 — Panel de Renta Fija: Calendario como grilla mensual real (no lista)
 - Reemplaza la pestaña Calendario, que la tarea del 2026-09-24 había portado como una lista agrupada por mes (simplificación visual autorizada en ese momento), por una grilla de calendario mensual real — como pidió Agus al ver la herramienta vieja, que sí tenía esa grilla (`_buildCalEvents`/`renderCal`/`setCalFilter`/`calPrev`/`calNext`/`calGoToday`/`showCalTooltip` en `herramientaRentaFija.html`). Se portó la LÓGICA tal cual (qué eventos se arman, cómo se ordenan dentro de un día) y se rediseñó la presentación con la identidad de Brio.
@@ -473,7 +580,9 @@ brio-nuevo/
 
 ## Pendientes globales
 - Informes, Productos, Financiamiento PyME, Contacto, Equipo, Footer y las dos páginas legales ya tienen su página/sección real. Con Equipo, la home queda completa para esta etapa.
-- TODO(Agus): fotos reales de las 12 personas de Equipo (3 socios + 9 empleados, vertical 4:5), nómina real (nombres/cargos) y las bios de los 3 socios (con años de mercado). También definir si hay un orden específico para mostrarlas dentro de cada bloque (hoy es el orden del array, sin criterio).
+- **Resuelto:** fotos, nómina y bios reales de Equipo (ver entrada del 2026-10-05), salvo un pendiente puntual:
+  - TODO(Agus): foto de Claudio Adrián Iglesias (hoy se ve con avatar de iniciales "CI"). Cuando llegue: WebP 960x1200 en `src/assets/equipo/claudio-iglesias.webp`, import + campo `foto` en `data/equipo.ts`.
+- Noviembre 2026: se suma una décima persona al equipo (área Comercial). Es solo sumar un objeto al array `empleados` de `data/equipo.ts` (con su foto); la grilla se reacomoda sola.
 - TODO(Agus): confirmar si las categorías "mensual" y "especial" de Informes aplican o hay que ajustarlas/sacarlas; solo el primer informe (semanal) es contenido real, los otros tres son de ejemplo.
 - Configurar en Vercel `RESEND_API_KEY` y `CONTACTO_DESTINATARIO` (variables reales del envío de Contacto) y verificar un dominio propio de Brio en Resend para el remitente del mail.
 - TODO(Agus): email, teléfono y dirección ya son reales (footer y home). Falta confirmar WhatsApp, horario de atención, y los links reales de Instagram y LinkedIn (hoy son placeholder en `footer.ts` y `contacto.ts`).
@@ -483,7 +592,11 @@ brio-nuevo/
 - Copy definitivo de todas las secciones (hoy todo es placeholder, salvo los valores de comisiones y las descripciones de los 3 pilares de Servicios, que ya son reales).
 - Confirmar con Agus/Brio: listado fino de instrumentos de Servicios.
 - Conexión real a Sanity (contenido editable desde el CMS) — `placeholders.ts`, `comisiones.ts`, `productos.ts`, `financiamiento.ts`, `contacto.ts` y `equipo.ts` ya están tipados para eso.
-- Conexión al backend de cotizaciones (data912 vía proxy con caché) para reemplazar el mock de acciones del Hero — ya existe el patrón de proxy con caché/dedup para reusar (`api/_lib/data912.ts`, hecho para el Panel de Renta Fija).
+- **Resuelto:** "Panel de cotizaciones — Próximamente" del menú Herramientas: ya es link activo a la página real `/herramientas/acciones` (ver entrada del 2026-10-05).
+- Servicios → Renta variable: el ítem "Panel de cotizaciones en vivo →" sigue siendo texto plano; ahora que la página existe, falta convertirlo en link a `/herramientas/acciones` (requiere que `instrumentGroups` acepte ítems con `href`).
+- **Resuelto:** conexión al backend de cotizaciones para reemplazar el mock de acciones del Hero (`/api/mercado/arg-stocks`, ver entrada del 2026-10-05).
+- Agendar con Agus: candidato a Sanity para `ACCIONES_LIDERES` (`data/accionesLideres.ts`, los 8 tickers del panel del Hero y de /herramientas/acciones) — mismo criterio que `LECAPS_DATA`: hoy estático, solo lo edita el desarrollador; a futuro Agus podría elegir desde el CMS qué acciones mostrar y en qué orden.
+- Probar `/api/mercado/arg-stocks` contra data912 real en un deploy de Vercel (igual que los endpoints de Renta Fija: en local solo se probó con la respuesta mockeada; el formato real de arg_stocks sí se cotejó con un `curl` a data912).
 - **Resuelto:** el Panel de Renta Fija (antes vivía aparte, en Netlify) ya está portado a `/herramientas/renta-fija`, con proxy propio y motor de cálculo verificado contra el original.
 - Agendar con Agus: candidato a Sanity para `BONDS`/`SOVEREIGN_BONDS`/`LECAPS_DATA`/`BONCAPS_DATA` de Renta Fija (hoy estáticos, solo los edita el desarrollador).
 - Probar el proxy de Renta Fija (`api/mercado/*`) contra data912 real en un deploy de Vercel — el desarrollo local solo lo probó con `fetch` mockeado.

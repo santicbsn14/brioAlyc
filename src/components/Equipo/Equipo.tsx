@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { useId, useState, type CSSProperties } from 'react';
 import { equipo, type Empleado, type Socio } from '../../data/equipo';
 import { useReveal } from '../../hooks/useReveal';
 import styles from './Equipo.module.css';
@@ -10,11 +10,11 @@ function staggerStyle(index: number): CSSProperties {
   return { '--i': index } as CSSProperties;
 }
 
+/** Iniciales de nombre + último apellido ("Claudio Adrián Iglesias" → "CI"). */
 function initials(nombre: string): string {
-  return nombre
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
+  const partes = nombre.split(' ').filter(Boolean);
+  const elegidas = partes.length > 1 ? [partes[0], partes[partes.length - 1]] : partes;
+  return elegidas
     .map((p) => p[0])
     .join('')
     .toUpperCase();
@@ -49,6 +49,34 @@ function Avatar({
   );
 }
 
+/**
+ * Bio extendida desplegable in-place ("Ver más" / "Ver menos"). La transición de alto usa
+ * el truco de `grid-template-rows: 0fr → 1fr` (anima a la altura real del texto, sin
+ * max-height fijo). Colapsada queda `inert` para que no se lea ni se pueda enfocar.
+ */
+function BioExtendida({ texto }: { texto: string }) {
+  const [abierta, setAbierta] = useState(false);
+  const id = useId();
+  return (
+    <>
+      <div id={id} className={`${styles.bioExt} ${abierta ? styles.bioExtOpen : ''}`} inert={!abierta}>
+        <div className={styles.bioExtInner}>
+          <p className={styles.socioBio}>{texto}</p>
+        </div>
+      </div>
+      <button
+        type="button"
+        className={styles.verMas}
+        aria-expanded={abierta}
+        aria-controls={id}
+        onClick={() => setAbierta((v) => !v)}
+      >
+        {abierta ? 'Ver menos' : 'Ver más'}
+      </button>
+    </>
+  );
+}
+
 function SocioCard({ socio, index }: { socio: Socio; index: number }) {
   const tone: Tone = index % 2 ? 'orange' : 'teal';
   return (
@@ -57,6 +85,7 @@ function SocioCard({ socio, index }: { socio: Socio; index: number }) {
       <h3 className={styles.socioNombre}>{socio.nombre}</h3>
       <p className={styles.socioCargo}>{socio.cargo}</p>
       <p className={styles.socioBio}>{socio.bio}</p>
+      {socio.bioExtendida && <BioExtendida texto={socio.bioExtendida} />}
     </article>
   );
 }
