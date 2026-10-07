@@ -113,7 +113,12 @@ brio-nuevo/
 
 **Verificación:**
 - `npx tsc -b`, `npx eslint .` y `npm run build` corren limpios (el `.js` apuntando a un `.ts` no da error con la configuración actual de `tsconfig.api.json`).
-- Deploy: verificación en producción pendiente de confirmar (se completa abajo).
+- Commit + push a `main`; Vercel publicó el deploy de producción automáticamente (`brio-alyc.vercel.app`).
+- Las 4 funciones responden OK (200) en producción con datos reales de data912. En los logs de Vercel del deploy nuevo, todas las llamadas a las 4 funciones aparecen sin error y ya no figura `ERR_MODULE_NOT_FOUND`.
+- Se verificó con Playwright (Chromium headless) contra el sitio publicado, en desktop 1440px y mobile 390px: `/herramientas/acciones` muestra las 8 acciones con precios reales (ninguna celda en "—"); en Renta Fija, la pestaña ONs muestra precios, TIR, duration y volumen reales (algunas pocas celdas en "—", que son ONs puntuales sin operación hoy en data912, no un error), y Deuda Soberana muestra soberanos y LECAPs/BONCAPs con datos reales y sin ninguna celda en "—" (y sin las LECAPs vencidas, confirmando también la tarea anterior). Sin errores de consola.
+
+**Pendientes que quedaron abiertos:**
+- **Problema nuevo detectado (no es de esta tarea):** en producción, entrar directo a cualquier página que no sea la home (escribiendo la dirección, recargando la página o abriendo un link compartido, por ej. `brio-alyc.vercel.app/herramientas/acciones`) muestra el error 404 de Vercel. Navegando desde la home funciona bien. Falta configurar Vercel para que todas las rutas carguen el sitio (una regla de reescritura en un `vercel.json`, cuidando de no afectar las rutas `/api/`).
 
 ### 2026-10-07 — Link al Panel de Cotizaciones desde Servicios + LECAPs vencidas fuera de la tabla
 Dos pendientes técnicos chicos, sin diseño nuevo.
@@ -619,10 +624,11 @@ Dos pendientes técnicos chicos, sin diseño nuevo.
 - **Resuelto:** Servicios → Renta variable: "Panel de cotizaciones en vivo →" ya es link a `/herramientas/acciones` (ver entrada del 2026-10-07).
 - **Resuelto:** conexión al backend de cotizaciones para reemplazar el mock de acciones del Hero (`/api/mercado/arg-stocks`, ver entrada del 2026-10-05).
 - Agendar con Agus: candidato a Sanity para `ACCIONES_LIDERES` (`data/accionesLideres.ts`, los 8 tickers del panel del Hero y de /herramientas/acciones) — mismo criterio que `LECAPS_DATA`: hoy estático, solo lo edita el desarrollador; a futuro Agus podría elegir desde el CMS qué acciones mostrar y en qué orden.
-- Probar `/api/mercado/arg-stocks` contra data912 real en un deploy de Vercel (igual que los endpoints de Renta Fija: en local solo se probó con la respuesta mockeada; el formato real de arg_stocks sí se cotejó con un `curl` a data912).
+- **Resuelto:** `/api/mercado/arg-stocks` probado contra data912 real en producción (ver entrada del 2026-10-07, fix de ERR_MODULE_NOT_FOUND).
+- Producción: entrar directo a una ruta que no sea la home (recargar, link compartido) da 404 de Vercel. Falta la regla de reescritura para la SPA (`vercel.json`), sin pisar `/api/` (ver entrada del 2026-10-07).
 - **Resuelto:** el Panel de Renta Fija (antes vivía aparte, en Netlify) ya está portado a `/herramientas/renta-fija`, con proxy propio y motor de cálculo verificado contra el original.
 - Agendar con Agus: candidato a Sanity para `BONDS`/`SOVEREIGN_BONDS`/`LECAPS_DATA`/`BONCAPS_DATA` de Renta Fija (hoy estáticos, solo los edita el desarrollador).
-- Probar el proxy de Renta Fija (`api/mercado/*`) contra data912 real en un deploy de Vercel — el desarrollo local solo lo probó con `fetch` mockeado.
+- **Resuelto:** proxy de Renta Fija (`api/mercado/*`) probado contra data912 real en producción (ver entrada del 2026-10-07).
 - **Resuelto:** panel lateral de flujo de fondos por ticker en Renta Fija (lo único de la herramienta vieja que había quedado afuera del port).
 - **Resuelto:** la grilla del Calendario ya abre el panel de flujo de fondos al clickear un evento (y, en mobile, al tocar un ticker dentro de la hoja de detalle del día) — ver entrada del 2026-10-01 (grilla mensual).
 - **Resuelto:** Renta Fija: las LECAPs/BONCAPs ya vencidas dejaron de aparecer en la tabla de Deuda Soberana (se filtran solas según la fecha de hoy, ver entrada del 2026-10-07). Igual conviene, cuando se actualicen los datos estáticos, sumar las licitaciones nuevas.
