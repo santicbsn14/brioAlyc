@@ -105,6 +105,16 @@ brio-nuevo/
 
 ## Historial
 
+### 2026-10-07 — Fix: las funciones de mercado fallaban en producción (ERR_MODULE_NOT_FOUND)
+- **Síntoma:** en el sitio publicado en Vercel, el Panel de Cotizaciones (`/herramientas/acciones`) y el Panel de Renta Fija mostraban "—" en vez de precios. En los logs de Vercel, las 4 funciones de mercado (`api/mercado/arg-stocks`, `arg-bonds`, `arg-corp`, `arg-notes`) tiraban `ERR_MODULE_NOT_FOUND: Cannot find module '/var/task/api/_lib/data912'`. En local (`vercel dev`) andaba todo bien.
+- **Causa:** las 4 funciones importan el proxy compartido (`api/_lib/data912.ts`) sin poner la extensión del archivo. El proyecto está configurado como "módulos ES" (`"type": "module"`), y en ese modo Node exige la extensión en los imports. En local no se notaba porque `vercel dev` empaqueta cada función con sus dependencias y resuelve el import solo; el build de producción de Vercel, en cambio, compila cada archivo por separado sin empaquetarlo, así que el import llegaba tal cual a Node, que no encontraba el archivo.
+- **Fix:** en las 4 funciones el import ahora apunta a `../_lib/data912.js` (con `.js` aunque el archivo fuente sea `.ts`: es la convención de TypeScript para módulos ES, porque el import apunta al archivo ya compilado). No se tocaron `api/_lib/data912.ts` ni `api/contacto.ts` (no tienen este tipo de import).
+- **Archivos modificados:** los 4 de `api/mercado/`.
+
+**Verificación:**
+- `npx tsc -b`, `npx eslint .` y `npm run build` corren limpios (el `.js` apuntando a un `.ts` no da error con la configuración actual de `tsconfig.api.json`).
+- Deploy: verificación en producción pendiente de confirmar (se completa abajo).
+
 ### 2026-10-07 — Link al Panel de Cotizaciones desde Servicios + LECAPs vencidas fuera de la tabla
 Dos pendientes técnicos chicos, sin diseño nuevo.
 

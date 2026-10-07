@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { getData912 } from '../_lib/data912';
+import { getData912 } from '../_lib/data912.js';
 
 // GET /api/mercado/arg-notes — proxea https://data912.com/live/arg_notes (LECAPs).
 // Ver api/_lib/data912.ts para el criterio de caché/fallback/deduplicación.

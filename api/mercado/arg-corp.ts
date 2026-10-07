@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { getData912 } from '../_lib/data912';
+import { getData912 } from '../_lib/data912.js';
 
 // GET /api/mercado/arg-corp — proxea https://data912.com/live/arg_corp (ONs, precio
 // USD MEP). El frontend consume este endpoint en vez de pegarle directo a data912
