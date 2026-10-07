@@ -189,6 +189,16 @@
   border-radius: 50%;
   background: var(--teal);
 }
+/* Ítem con link: mismo aspecto que el texto plano, solo suma subrayado al hover/foco */
+.instLink {
+  color: inherit;
+  text-decoration: none;
+}
+.instLink:hover,
+.instLink:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 /* ── Comisiones (CTA a /comisiones) ── */
 .feesCta {

@@ -111,9 +111,17 @@ export default function Servicios({
             <div key={g.category} className={`${styles.inst} ${styles.reveal}`} style={staggerStyle(i)}>
               <div className={styles.instCat}>{g.category}</div>
               <ul className={styles.instList}>
-                {g.items.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
+                {g.items.map((item) =>
+                  typeof item === 'string' ? (
+                    <li key={item}>{item}</li>
+                  ) : (
+                    <li key={item.label}>
+                      <Link to={item.href} className={styles.instLink}>
+                        {item.label}
+                      </Link>
+                    </li>
+                  ),
+                )}
               </ul>
             </div>
           ))}

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BONDS, SOVEREIGN_BONDS, type Bond, type SovereignBond } from '../lib/rentaFija/data/bonds';
 import { LECAPS_DATA, BONCAPS_DATA, type LecapOrBoncap } from '../lib/rentaFija/data/lecapsYBoncaps';
-import { calcTIR, calcDuration, calcLecapRates } from '../lib/rentaFija/calc';
+import { calcTIR, calcDuration, calcLecapRates, calcLecapDiasVenc } from '../lib/rentaFija/calc';
 import {
   d912parseAll,
   d912parse,
@@ -293,8 +293,11 @@ export function useRentaFija() {
   );
 
   const lecapRows: LecapRow[] = useMemo(() => {
+    // Las ya vencidas (días al vencimiento <= 0, mismo criterio t+1 que
+    // calcLecapRates) no entran a la tabla. Calendario y Cartera usan
+    // LECAPS_DATA/BONCAPS_DATA directo, no pasan por acá.
     const build = (list: LecapOrBoncap[], tipo: 'LECAP' | 'BONCAP') =>
-      list.map((item) => {
+      list.filter((item) => calcLecapDiasVenc(item) > 0).map((item) => {
         const precio = lecapPrices[item.ticker] ?? null;
         const { tna, tem, tea, diasVenc } = calcLecapRates(item, precio);
         return {

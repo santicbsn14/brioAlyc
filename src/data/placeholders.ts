@@ -138,9 +138,13 @@ export interface ServicePillar {
   featured?: boolean;
 }
 
+/** Ítem de la lista de instrumentos: texto plano, o `{ label, href }` cuando
+ * tiene que ser un link interno (ruta de react-router). */
+export type InstrumentItem = string | { label: string; href: string };
+
 export interface InstrumentGroup {
   category: string;
-  items: string[];
+  items: InstrumentItem[];
 }
 
 export const serviciosContent = {
@@ -186,7 +190,10 @@ export const instrumentGroups: InstrumentGroup[] = [
   },
   {
     category: 'Renta variable',
-    items: ['Acciones (BYMA líderes)', 'Panel de cotizaciones en vivo →'],
+    items: [
+      'Acciones (BYMA líderes)',
+      { label: 'Panel de cotizaciones en vivo →', href: '/herramientas/acciones' },
+    ],
   },
 ];
 

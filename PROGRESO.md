@@ -105,6 +105,19 @@ brio-nuevo/
 
 ## Historial
 
+### 2026-10-07 — Link al Panel de Cotizaciones desde Servicios + LECAPs vencidas fuera de la tabla
+Dos pendientes técnicos chicos, sin diseño nuevo.
+
+- **Link en Servicios:** en la home, sección Servicios → bloque de instrumentos → Renta variable, el ítem "Panel de cotizaciones en vivo →" ahora es un link real que lleva a `/herramientas/acciones`. Se ve exactamente igual que antes (mismo color y tamaño que el resto de la lista); solo suma un subrayado al pasar el mouse o al llegar con el teclado, para que se note que es clickeable. Para esto, la lista de instrumentos ahora acepta que un ítem sea "texto + destino del link"; el resto de los ítems siguen siendo texto plano, sin cambios. (Aclaración: el brief mencionaba la página de Productos, pero ese ítem en realidad vive en la sección Servicios de la home; en Productos no existe.)
+- **LECAPs/BONCAPs vencidas:** la tabla de LECAPs/BONCAPs de la pestaña Deuda Soberana ya no muestra los instrumentos cuyo vencimiento pasó (hoy, S15S6 y S30S6). El filtro es automático: cada día compara contra la fecha de hoy, con el mismo criterio de "liquidación mañana" que ya usaba el cálculo de TNA/TEM (se reusó esa misma cuenta de días, no se armó una comparación nueva). Así, cuando una LECAP vence, desaparece sola de la tabla sin tener que tocar los datos.
+- **Lo que NO cambió:** el Calendario y la Cartera siguen usando el listado completo de instrumentos, no pasan por este filtro. El Calendario sigue mostrando los vencimientos pasados en su mes (por ej. S30S6 en septiembre), que es lo correcto para un calendario; y como el panel de flujo de fondos ya no abría para una LECAP vencida, clickearla ahí sigue sin abrir nada, igual que antes.
+- **Archivos modificados:** `data/placeholders.ts` (el ítem con link y el tipo de la lista), `components/Servicios/` (dibuja el link y su estilo), `lib/rentaFija/calc.ts` (la cuenta de días al vencimiento quedó como función propia, reusada por el cálculo de tasas y por el filtro) y `hooks/useRentaFija.ts` (aplica el filtro al armar la tabla).
+
+**Verificación:**
+- Se verificó con Playwright (Chromium headless, en el scratchpad de la sesión) sobre el build de producción, en desktop 1440px y mobile 390px, con los precios de mercado mockeados incluyendo dos LECAPs vencidas (S15S6, S30S6) y una vigente (S16O6): el link de Servicios apunta a `/herramientas/acciones`, tiene el mismo color/tamaño/sin subrayado que el texto de al lado, y al clickearlo navega a esa página. En Deuda Soberana aparece S16O6 y no aparecen S15S6 ni S30S6. En el Calendario (desktop) octubre sigue mostrando S16O6 y septiembre sigue mostrando S30S6. Sin scroll horizontal y sin errores de consola. `npx tsc -b`, `npx eslint .` y `npm run build` corren limpios.
+
+**Pendientes que quedaron abiertos:** ninguno nuevo de esta tarea.
+
 ### 2026-10-05 — Página Panel de Cotizaciones (/herramientas/acciones)
 - Reemplaza el "Próximamente" del ítem "Panel de cotizaciones" del menú Herramientas. Antes era un ítem deshabilitado y no existía la ruta; ahora es un link activo a `/herramientas/acciones`.
 - **Diseño:** portado de `__ref/BrioAcciones.jsx` (prototipo aprobado). Header (kicker "Herramientas" + título + bajada) con aparición al scrollear vía `useReveal`. Toolbar con buscador por ticker o nombre (filtra en el cliente) y barra de estado. Tabla Ticker / Nombre / Compra / Venta / Último / Var. % / Volumen. Estado vacío del prototipo y disclaimer al pie.
@@ -593,7 +606,7 @@ brio-nuevo/
 - Confirmar con Agus/Brio: listado fino de instrumentos de Servicios.
 - Conexión real a Sanity (contenido editable desde el CMS) — `placeholders.ts`, `comisiones.ts`, `productos.ts`, `financiamiento.ts`, `contacto.ts` y `equipo.ts` ya están tipados para eso.
 - **Resuelto:** "Panel de cotizaciones — Próximamente" del menú Herramientas: ya es link activo a la página real `/herramientas/acciones` (ver entrada del 2026-10-05).
-- Servicios → Renta variable: el ítem "Panel de cotizaciones en vivo →" sigue siendo texto plano; ahora que la página existe, falta convertirlo en link a `/herramientas/acciones` (requiere que `instrumentGroups` acepte ítems con `href`).
+- **Resuelto:** Servicios → Renta variable: "Panel de cotizaciones en vivo →" ya es link a `/herramientas/acciones` (ver entrada del 2026-10-07).
 - **Resuelto:** conexión al backend de cotizaciones para reemplazar el mock de acciones del Hero (`/api/mercado/arg-stocks`, ver entrada del 2026-10-05).
 - Agendar con Agus: candidato a Sanity para `ACCIONES_LIDERES` (`data/accionesLideres.ts`, los 8 tickers del panel del Hero y de /herramientas/acciones) — mismo criterio que `LECAPS_DATA`: hoy estático, solo lo edita el desarrollador; a futuro Agus podría elegir desde el CMS qué acciones mostrar y en qué orden.
 - Probar `/api/mercado/arg-stocks` contra data912 real en un deploy de Vercel (igual que los endpoints de Renta Fija: en local solo se probó con la respuesta mockeada; el formato real de arg_stocks sí se cotejó con un `curl` a data912).
@@ -602,4 +615,4 @@ brio-nuevo/
 - Probar el proxy de Renta Fija (`api/mercado/*`) contra data912 real en un deploy de Vercel — el desarrollo local solo lo probó con `fetch` mockeado.
 - **Resuelto:** panel lateral de flujo de fondos por ticker en Renta Fija (lo único de la herramienta vieja que había quedado afuera del port).
 - **Resuelto:** la grilla del Calendario ya abre el panel de flujo de fondos al clickear un evento (y, en mobile, al tocar un ticker dentro de la hoja de detalle del día) — ver entrada del 2026-10-01 (grilla mensual).
-- Renta Fija: sacar de los datos las LECAPs ya vencidas que siguen apareciendo en la tabla.
+- **Resuelto:** Renta Fija: las LECAPs/BONCAPs ya vencidas dejaron de aparecer en la tabla de Deuda Soberana (se filtran solas según la fecha de hoy, ver entrada del 2026-10-07). Igual conviene, cuando se actualicen los datos estáticos, sumar las licitaciones nuevas.

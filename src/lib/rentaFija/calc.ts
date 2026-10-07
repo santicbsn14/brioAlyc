@@ -85,6 +85,18 @@ export interface LecapRates {
   diasVenc: number | null;
 }
 
+/** Días al vencimiento de una LECAP/BONCAP contados desde t+1 (columna G del
+ * Excel); <= 0 = ya venció. Lo usan calcLecapRates y el filtro de vencidas de la
+ * tabla de LECAPs/BONCAPs (useRentaFija). */
+export function calcLecapDiasVenc(item: LecapOrBoncap): number {
+  const t1 = new Date();
+  t1.setHours(0, 0, 0, 0);
+  t1.setDate(t1.getDate() + 1);
+  const [d, m, y] = item.vencimiento.split('/').map(Number);
+  const venc = new Date(y, m - 1, d);
+  return Math.round((venc.getTime() - t1.getTime()) / 86400000);
+}
+
 /**
  * TNA/TEM/TEA de una LECAP/BONCAP a partir de su precio de mercado (o `cotiz_ref`
  * como fallback). Fórmulas exactas del Excel original (hoja LECAPS, columnas G–N):
@@ -99,13 +111,7 @@ export function calcLecapRates(item: LecapOrBoncap, precioMkt: number | null | u
   if (!p || p <= 0) return { tna: null, tem: null, tea: null, diasVenc: null };
 
   const K = calcLecapK(item);
-
-  const t1 = new Date();
-  t1.setHours(0, 0, 0, 0);
-  t1.setDate(t1.getDate() + 1);
-  const [d, m, y] = item.vencimiento.split('/').map(Number);
-  const venc = new Date(y, m - 1, d);
-  const diasVenc = Math.round((venc.getTime() - t1.getTime()) / 86400000);
+  const diasVenc = calcLecapDiasVenc(item);
 
   if (diasVenc <= 0) return { tna: null, tem: null, tea: null, diasVenc: 0 };
 
