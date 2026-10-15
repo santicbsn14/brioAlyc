@@ -1,0 +1,21 @@
+/* Solo se ve en local y en la preview: tiene que saltar a la vista sobre cualquier fondo. */
+.recuadro {
+  margin: 16px clamp(16px, 6vw, 88px);
+  padding: 20px 24px;
+  border: 3px dashed var(--orange);
+  border-radius: 12px;
+  background: var(--navy);
+  color: var(--white);
+  font-family: 'Poppins', system-ui, sans-serif;
+  text-align: center;
+}
+.titulo {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.ubicacion {
+  margin: 6px 0 0;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.72);
+}
