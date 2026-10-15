@@ -249,7 +249,10 @@
   transform: translateY(-7px) rotate(-45deg);
 }
 
-@media (max-width: 920px) {
+/* Corte del menú hamburguesa: medido con los textos de hoy, la barra completa entra con
+   ≥ 24 px de aire recién desde 1073 px (a 921 px se salía 100 px de la pantalla). Si
+   cambian los textos del Navbar, volver a medir. */
+@media (max-width: 1072px) {
   .actions {
     display: none;
   }
