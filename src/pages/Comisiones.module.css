@@ -92,7 +92,10 @@
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
-  overflow: hidden;
+  /* En tablet (561–~900 px) tablas anchas como la de A3 no entran: scrollean de costado
+     adentro de la tarjeta (mismo criterio que la tabla de Acciones). Sigue recortando a
+     las esquinas redondeadas. */
+  overflow-x: auto;
 }
 .tableTitle {
   font-family: 'Sora', sans-serif;
@@ -101,6 +104,9 @@
   margin: 0;
   padding: 18px 22px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  /* quieto (con su línea) mientras la tabla scrollea de costado */
+  position: sticky;
+  left: 0;
 }
 .table {
   width: 100%;
@@ -147,6 +153,8 @@
   background: rgba(255, 255, 255, 0.02);
   font-size: 0.78rem;
   color: var(--muted);
+  position: sticky;
+  left: 0;
 }
 .notes li {
   margin: 0 0 2px;
