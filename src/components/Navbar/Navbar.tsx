@@ -4,8 +4,7 @@ import type { NavLinkItem } from '../../data/placeholders';
 import logoBlanco from '../../assets/logo-brio-blanco.svg';
 import styles from './Navbar.module.css';
 
-export interface NavbarProps {
-  logoAlt: string;
+export interface NavbarContenido {
   links: NavLinkItem[];
   portfolioLabel: string;
   portfolioHref: string;
@@ -14,16 +13,14 @@ export interface NavbarProps {
   ctaHref: string;
 }
 
+/** `cargando`: los textos todavía no llegaron de Sanity. Se ve la barra con el logo y el fondo,
+ * sin links ni botones, con el mismo alto (ver render), para que la página no salte. */
+export type NavbarProps = { logoAlt: string } & ({ cargando: true } | ({ cargando?: false } & NavbarContenido));
+
 const STICKY_THRESHOLD = 40;
 
-export default function Navbar({
-  logoAlt,
-  links,
-  portfolioLabel,
-  portfolioHref,
-  ctaLabel,
-  ctaHref,
-}: NavbarProps) {
+export default function Navbar(props: NavbarProps) {
+  const { logoAlt } = props;
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
@@ -127,11 +124,32 @@ export default function Navbar({
     );
   };
 
+  const headerClass = `${styles.nav} ${mounted ? styles.isIn : ''} ${scrolled ? styles.isScrolled : ''}`;
+  const brandLink = (
+    <Link to="/" className={styles.brand} aria-label="Brio Valores — inicio" onClick={closeAll}>
+      <img src={logoBlanco} alt={logoAlt} className={styles.logo} />
+    </Link>
+  );
+
+  // Mientras carga: mismo <header> (no se repite la animación de entrada cuando llegan los
+  // datos) y, en vez de los botones, un botón invisible que reserva su alto en compu. En el
+  // celular los botones no se ven y el alto lo da el logo, como siempre.
+  if (props.cargando) {
+    return (
+      <header ref={navRef} className={headerClass}>
+        {brandLink}
+        <div className={styles.actions} aria-hidden="true">
+          <span className={`${styles.btn} ${styles.btnSm} ${styles.reservaAlto}`}>&nbsp;</span>
+        </div>
+      </header>
+    );
+  }
+
+  const { links, portfolioLabel, portfolioHref, ctaLabel, ctaHref } = props;
+
   return (
-    <header ref={navRef} className={`${styles.nav} ${mounted ? styles.isIn : ''} ${scrolled ? styles.isScrolled : ''}`}>
-      <Link to="/" className={styles.brand} aria-label="Brio Valores — inicio" onClick={closeAll}>
-        <img src={logoBlanco} alt={logoAlt} className={styles.logo} />
-      </Link>
+    <header ref={navRef} className={headerClass}>
+      {brandLink}
 
       <nav className={`${styles.navlinks} ${navOpen ? styles.isOpen : ''}`} aria-label="Principal">
         {links.map((link) =>

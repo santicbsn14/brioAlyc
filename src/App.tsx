@@ -1,5 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
-import Navbar from './components/Navbar/Navbar';
+import NavbarSanity from './components/Navbar/NavbarSanity';
 import Footer from './components/Footer/Footer';
 import Home from './pages/Home';
 import Comisiones from './pages/Comisiones';
@@ -10,7 +10,6 @@ import RentaFija from './pages/RentaFija';
 import Acciones from './pages/Acciones';
 import CodigoConducta from './pages/CodigoConducta';
 import TerminosCondiciones from './pages/TerminosCondiciones';
-import { brand, navLinks, navActions } from './data/placeholders';
 import { useScrollToTop } from './hooks/useScrollToTop';
 
 function App() {
@@ -18,14 +17,8 @@ function App() {
 
   return (
     <>
-      <Navbar
-        logoAlt={brand.logoAlt}
-        links={navLinks}
-        portfolioLabel={navActions.portfolioLabel}
-        portfolioHref={navActions.portfolioHref}
-        ctaLabel={navActions.ctaLabel}
-        ctaHref={navActions.ctaHref}
-      />
+      {/* Navbar y Footer piden sus textos a Sanity cada uno por su cuenta (ver src/sanity/). */}
+      <NavbarSanity />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/comisiones" element={<Comisiones />} />

@@ -220,6 +220,11 @@
   display: none;
 }
 
+/* Estado "cargando" (Navbar.tsx): ocupa el alto del botón sin verse. */
+.reservaAlto {
+  visibility: hidden;
+}
+
 .burger {
   display: none;
   flex-direction: column;
