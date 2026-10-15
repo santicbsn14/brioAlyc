@@ -18,9 +18,12 @@ const MAX_HASH_RETRIES = 30;
  * la página de destino puede todavía no haber montado el elemento del hash en el primer
  * render — se reintenta con requestAnimationFrame hasta encontrarlo (con un tope, para
  * no quedar reintentando para siempre si el id no existe).
+ *
+ * Depende también de `key` (cambia en cada navegación): así un link a la misma URL en la
+ * que ya estamos (ej. tocar dos veces "Abrí tu cuenta" estando en la home) vuelve a scrollear.
  */
 export function useScrollToTop() {
-  const { pathname, hash } = useLocation();
+  const { pathname, hash, key } = useLocation();
 
   useEffect(() => {
     if (!hash) {
@@ -46,5 +49,5 @@ export function useScrollToTop() {
     tryScroll();
 
     return () => cancelAnimationFrame(raf);
-  }, [pathname, hash]);
+  }, [pathname, hash, key]);
 }

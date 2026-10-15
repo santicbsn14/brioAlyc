@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { CtaAction, Credential, StockRow } from '../../data/placeholders';
 import type { AccionLider } from '../../data/accionesLideres';
 import { useAccionesLideres } from '../../hooks/useAccionesLideres';
@@ -63,15 +64,19 @@ export default function Hero({
           <p className={styles.lead}>{lead}</p>
 
           <div className={styles.ctas}>
-            {ctas.map((cta) => (
-              <a
-                key={cta.label}
-                href={cta.href}
-                className={`${styles.btn} ${cta.variant === 'primary' ? styles.btnPrimary : styles.btnGhost}`}
-              >
-                {cta.label}
-              </a>
-            ))}
+            {ctas.map((cta) => {
+              const className = `${styles.btn} ${cta.variant === 'primary' ? styles.btnPrimary : styles.btnGhost}`;
+              // Externo (http…) → pestaña nueva; interno → Link, navega sin recargar.
+              return /^https?:\/\//.test(cta.href) ? (
+                <a key={cta.label} href={cta.href} className={className} target="_blank" rel="noopener noreferrer">
+                  {cta.label}
+                </a>
+              ) : (
+                <Link key={cta.label} to={cta.href} className={className}>
+                  {cta.label}
+                </Link>
+              );
+            })}
           </div>
 
           <ul className={styles.creds}>

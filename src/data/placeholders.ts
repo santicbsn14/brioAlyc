@@ -22,6 +22,7 @@ export interface NavLinkItem {
 
 export interface CtaAction {
   label: string;
+  /** Ruta interna (react-router) o URL externa (empieza con http; abre en pestaña nueva). */
   href: string;
   variant: 'primary' | 'ghost';
 }
@@ -69,11 +70,19 @@ export const navLinks: NavLinkItem[] = [
   { label: 'Contacto', href: '/#contacto' },
 ];
 
+/** Login del broker online. Lo usan "Mi Portafolio" (Navbar) y "Operá online" (Hero). */
+export const BROKER_LOGIN_URL = 'https://virtualbroker-brio.aunesa.com/auth/signin';
+
+/** "Abrí tu cuenta" (Navbar y Hero): Contacto de la home con el motivo "cuenta" preseleccionado,
+ * mismo mecanismo que el CTA de Financiamiento PyME (el id sale de `data/contacto.ts`).
+ * TODO(Agus): si Brio tiene link de apertura de cuenta online, apuntar ahí. */
+export const ABRI_CUENTA_HREF = '/?motivo=cuenta#contacto';
+
 export const navActions = {
   portfolioLabel: 'Mi Portafolio',
-  portfolioHref: 'https://virtualbroker-brio.aunesa.com/auth/signin',
+  portfolioHref: BROKER_LOGIN_URL,
   ctaLabel: 'Abrí tu cuenta',
-  ctaHref: '#abri-cuenta',
+  ctaHref: ABRI_CUENTA_HREF,
 };
 
 // TODO(Agus): copy definitivo del hero (H1 + bajada).
@@ -85,8 +94,8 @@ export const heroContent = {
 };
 
 export const heroCtas: CtaAction[] = [
-  { label: 'Abrí tu cuenta', href: '#abri-cuenta', variant: 'primary' },
-  { label: 'Operá online', href: '#opera-online', variant: 'ghost' },
+  { label: 'Abrí tu cuenta', href: ABRI_CUENTA_HREF, variant: 'primary' },
+  { label: 'Operá online', href: BROKER_LOGIN_URL, variant: 'ghost' },
 ];
 
 export const credentials: Credential[] = [

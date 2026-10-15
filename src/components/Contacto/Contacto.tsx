@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type FormEvent, type SVGProps } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { contacto } from '../../data/contacto';
 import { useReveal } from '../../hooks/useReveal';
 import styles from './Contacto.module.css';
@@ -100,8 +100,10 @@ function Icon({ id }: { id: IconId }) {
  * (el prototipo trae su propio hook local solo porque es standalone).
  *
  * El motivo preseleccionado se puede pasar por query param (`?motivo=pyme`), como llega
- * desde el CTA "Consultá por tu PyME" de Financiamiento PyME. Se lee una sola vez al
- * montar; si no viene o no matchea ningún motivo, arranca en el primero de la lista.
+ * desde el CTA "Consultá por tu PyME" de Financiamiento PyME o desde "Abrí tu cuenta"
+ * (Navbar y Hero). Se lee al montar y en cada navegación posterior (la home ya montada,
+ * ej. "Abrí tu cuenta" del Hero): si trae un motivo válido, se marca ese chip. Si no
+ * viene o no matchea ningún motivo, al montar arranca en el primero de la lista.
  */
 export default function Contacto() {
   // Un solo ref en la sección: useReveal busca los descendientes con `styles.reveal`
@@ -110,10 +112,18 @@ export default function Contacto() {
   const ref = useReveal<HTMLElement>(styles.reveal, styles.isIn);
 
   const [searchParams] = useSearchParams();
-  const [motivo, setMotivo] = useState(() => {
-    const fromQuery = searchParams.get('motivo');
-    return contacto.motivos.some((m) => m.id === fromQuery) ? (fromQuery as string) : contacto.motivos[0].id;
-  });
+  const { key: navKey } = useLocation();
+  const fromQuery = searchParams.get('motivo');
+  const motivoQuery = contacto.motivos.some((m) => m.id === fromQuery) ? (fromQuery as string) : null;
+  const [motivo, setMotivo] = useState(motivoQuery ?? contacto.motivos[0].id);
+
+  // Navegación nueva con la sección ya montada: re-aplicar el motivo del query param
+  // (ajuste de estado durante el render, sin efecto).
+  const [syncedNavKey, setSyncedNavKey] = useState(navKey);
+  if (navKey !== syncedNavKey) {
+    setSyncedNavKey(navKey);
+    if (motivoQuery) setMotivo(motivoQuery);
+  }
 
   const [values, setValues] = useState<Values>(emptyValues);
   const [errors, setErrors] = useState<FieldErrors>({});

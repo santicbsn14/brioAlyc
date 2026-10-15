@@ -10,6 +10,7 @@ export interface NavbarProps {
   portfolioLabel: string;
   portfolioHref: string;
   ctaLabel: string;
+  /** Ruta interna (react-router), ej. "/?motivo=cuenta#contacto". */
   ctaHref: string;
 }
 
@@ -157,13 +158,9 @@ export default function Navbar({
               ↗
             </span>
           </a>
-          <a
-            href={ctaHref}
-            className={`${styles.btn} ${styles.btnPrimary} ${styles.btnSm}`}
-            onClick={closeAll}
-          >
+          <Link to={ctaHref} className={`${styles.btn} ${styles.btnPrimary} ${styles.btnSm}`} onClick={closeAll}>
             {ctaLabel}
-          </a>
+          </Link>
         </div>
       </nav>
 
@@ -174,9 +171,9 @@ export default function Navbar({
             ↗
           </span>
         </a>
-        <a href={ctaHref} className={`${styles.btn} ${styles.btnPrimary} ${styles.btnSm}`}>
+        <Link to={ctaHref} className={`${styles.btn} ${styles.btnPrimary} ${styles.btnSm}`}>
           {ctaLabel}
-        </a>
+        </Link>
       </div>
 
       <button
