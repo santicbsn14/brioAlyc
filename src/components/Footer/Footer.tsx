@@ -187,9 +187,7 @@ export default function Footer({
         </nav>
       </div>
 
-      <p className={styles.copyright}>
-        © {year} {textoCopyright}
-      </p>
+      <p className={styles.copyright}>{`© ${year} ${textoCopyright}`}</p>
     </footer>
   );
 }
