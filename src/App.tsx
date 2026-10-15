@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import NavbarSanity from './components/Navbar/NavbarSanity';
-import Footer from './components/Footer/Footer';
+import FooterSanity from './components/Footer/FooterSanity';
 import Home from './pages/Home';
 import Comisiones from './pages/Comisiones';
 import Productos from './pages/Productos';
@@ -30,7 +30,7 @@ function App() {
         <Route path="/codigo-de-conducta" element={<CodigoConducta />} />
         <Route path="/terminos-y-condiciones" element={<TerminosCondiciones />} />
       </Routes>
-      <Footer />
+      <FooterSanity />
     </>
   );
 }
