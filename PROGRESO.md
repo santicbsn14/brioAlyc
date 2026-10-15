@@ -1,7 +1,7 @@
 # PROGRESO — Brio Valores (sitio nuevo)
 
 ## Estado actual
-Front nuevo (`brio-nuevo`, separado de la web puente) con routing (React Router): home (`/`, header + hero + Servicios + Quiénes somos + Equipo + Contacto — ya completa, las 5 secciones de esta etapa), página propia de comisiones (`/comisiones`, con las tablas completas del PDF por pestañas), página de productos (`/servicios/productos`, carrusel animado de instrumentos por categoría), página de Financiamiento PyME (`/servicios/financiamiento-pyme`, con el paso a paso animado de 4 etapas), página de Informes (`/informes`, colgada del menú Herramientas: listado de PDFs filtrable por categoría, con descarga directa) y ahora también el Panel de Renta Fija (`/herramientas/renta-fija`, colgada del menú Herramientas: ONs, Deuda Soberana + LECAPs/BONCAPs, Calendario de pagos y Cartera propia, con datos y cálculos reales vía un proxy propio a data912; clickear cualquier ticker abre un panel lateral con su flujo de fondos futuro, recalculable para un monto a invertir). El header (Navbar) ya quedó terminado: logo real, menú con dropdowns funcionales (Servicios y Herramientas), link nuevo a Equipo, fondo que cambia al scrollear y los 3 anchors de la home (Quiénes somos/Equipo/Contacto) funcionando cross-página (navegan a la home y scrollean, parados en cualquier ruta). Ahora también hay Footer institucional (montado en `App.tsx`, visible en todas las páginas) y dos páginas legales (`/codigo-de-conducta`, texto real de Brio; `/terminos-y-condiciones`, borrador genérico a reemplazar). Quiénes somos ya tiene la foto real de oficina y quedó en 2 bloques (relato + valores), sin el bloque de números. En Servicios, las descripciones de los 3 pilares ya son texto real (rescatado del sitio anterior). Equipo muestra 3 socios (tarjeta con bio corta + "Ver más" que despliega la bio completa) y 9 empleados (grilla simple), con contenido real: nómina, cargos, bios y fotos de 11 de las 12 personas (falta solo la foto de Claudio Adrián Iglesias, que se ve con avatar de iniciales). Contacto tiene formulario funcional con validación, honeypot y un endpoint real de envío por mail (Resend, en `api/contacto.ts`) — falta que Vercel tenga configuradas las variables de entorno reales para que mande mails de verdad. Los botones "Consultá por tu PyME" de Financiamiento PyME ya llevan a Contacto con el motivo correcto preseleccionado. Los datos reales de contacto (teléfono, email, dirección) ya están sincronizados entre `data/footer.ts` y `data/contacto.ts`; solo quedan de ejemplo WhatsApp, horario e Instagram/LinkedIn. En Informes, el primer informe ya es real (PDF real, descarga funcional); los otros tres son de ejemplo para mostrar el filtro funcionando. El resto del contenido sigue en placeholder salvo los valores de comisiones (ya reales, transcriptos y cruzados contra el PDF fuente) y los datos financieros de Renta Fija (ONs, soberanos, LECAPs, BONCAPs — reales, portados de la herramienta vieja). El panel de acciones del Hero ya muestra precios reales de BYMA (8 acciones líderes, vía `/api/mercado/arg-stocks` → data912), con fallback a precios de ejemplo mientras carga o si falla. Esas mismas 8 acciones tienen su tabla completa en el Panel de Cotizaciones (`/herramientas/acciones`, colgado del menú Herramientas: compra/venta/último/variación/volumen, ordenable, con buscador, auto-refresh elegible y export CSV). Con esto la home queda completa para esta etapa; falta el resto del sitio.
+Front nuevo (`brio-nuevo`, separado de la web puente) con routing (React Router): home (`/`, header + hero + Servicios + Quiénes somos + Equipo + Contacto — ya completa, las 5 secciones de esta etapa), página propia de comisiones (`/comisiones`, con las tablas completas del PDF por pestañas), página de productos (`/servicios/productos`, carrusel animado de instrumentos por categoría), página de Financiamiento PyME (`/servicios/financiamiento-pyme`, con el paso a paso animado de 4 etapas), página de Informes (`/informes`, colgada del menú Herramientas: listado de PDFs filtrable por categoría, con descarga directa) y ahora también el Panel de Renta Fija (`/herramientas/renta-fija`, colgada del menú Herramientas: ONs, Deuda Soberana + LECAPs/BONCAPs, Calendario de pagos y Cartera propia, con datos y cálculos reales vía un proxy propio a data912; clickear cualquier ticker abre un panel lateral con su flujo de fondos futuro, recalculable para un monto a invertir). El header (Navbar) ya quedó terminado: logo real, menú con dropdowns funcionales (Servicios y Herramientas), link nuevo a Equipo, fondo que cambia al scrollear y los 3 anchors de la home (Quiénes somos/Equipo/Contacto) funcionando cross-página (navegan a la home y scrollean, parados en cualquier ruta). Ahora también hay Footer institucional (montado en `App.tsx`, visible en todas las páginas) y dos páginas legales (`/codigo-de-conducta`, texto real de Brio; `/terminos-y-condiciones`, borrador genérico a reemplazar). Quiénes somos ya tiene la foto real de oficina y quedó en 2 bloques (relato + valores), sin el bloque de números. En Servicios, las descripciones de los 3 pilares ya son texto real (rescatado del sitio anterior). Equipo muestra 3 socios (tarjeta con bio corta + "Ver más" que despliega la bio completa) y 9 empleados (grilla simple), con contenido real: nómina, cargos, bios y fotos de 11 de las 12 personas (falta solo la foto de Claudio Adrián Iglesias, que se ve con avatar de iniciales). Contacto tiene formulario funcional con validación, honeypot y un endpoint real de envío por mail (Resend, en `api/contacto.ts`) — falta que Vercel tenga configuradas las variables de entorno reales para que mande mails de verdad. Los botones "Consultá por tu PyME" de Financiamiento PyME ya llevan a Contacto con el motivo correcto preseleccionado, y "Abrí tu cuenta" (Hero y Navbar) hace lo mismo con el motivo "Abrir mi cuenta"; "Operá online" abre el login del broker. En producción ya se puede entrar directo a cualquier página (recargar o abrir un link compartido) sin el 404 de Vercel. Los datos reales de contacto (teléfono, email, dirección) ya están sincronizados entre `data/footer.ts` y `data/contacto.ts`; solo quedan de ejemplo WhatsApp, horario e Instagram/LinkedIn. En Informes, el primer informe ya es real (PDF real, descarga funcional); los otros tres son de ejemplo para mostrar el filtro funcionando. El resto del contenido sigue en placeholder salvo los valores de comisiones (ya reales, transcriptos y cruzados contra el PDF fuente) y los datos financieros de Renta Fija (ONs, soberanos, LECAPs, BONCAPs — reales, portados de la herramienta vieja). El panel de acciones del Hero ya muestra precios reales de BYMA (8 acciones líderes, vía `/api/mercado/arg-stocks` → data912), con fallback a precios de ejemplo mientras carga o si falla. Esas mismas 8 acciones tienen su tabla completa en el Panel de Cotizaciones (`/herramientas/acciones`, colgado del menú Herramientas: compra/venta/último/variación/volumen, ordenable, con buscador, auto-refresh elegible y export CSV). Con esto la home queda completa para esta etapa; falta el resto del sitio.
 
 ## Estructura de archivos
 ```
@@ -100,10 +100,84 @@ brio-nuevo/
     main.tsx                 → envuelve <App/> en <BrowserRouter>
     index.css
   tsconfig.api.json          → proyecto TS aparte para tipar api/ (Node, no browser)
+  vercel.json                → reescritura de SPA: toda ruta que no sea /api/ ni un archivo carga index.html (sin esto, entrar directo a una ruta daba 404)
   .env.example                → variables que necesita api/contacto.ts (RESEND_API_KEY, CONTACTO_DESTINATARIO), sin valores reales
 ```
 
 ## Historial
+
+### 2026-10-15 — Cinco arreglos de producción (rama `main`)
+Arreglos puntuales del sitio publicado, detectados mientras se modelaba el Studio (lista "Arreglos para `main` del front" en `brio-studio/PROGRESO-STUDIO.md`). No es la rama de Sanity: de `src/data/` solo se tocó lo que pedía el arreglo 1. Un commit por arreglo; los arreglos 3 y 4 se midieron primero en el navegador.
+
+**Arreglo 1 — Botones "Abrí tu cuenta" y "Operá online"** (commit `d31c5c5`)
+- Antes apuntaban a anclas que no existían y no llevaban a ningún lado.
+- **"Abrí tu cuenta"** (Hero y Navbar, en la barra y en el menú del celular) ahora lleva a la sección Contacto de la home con el chip "Abrir mi cuenta" ya marcado, con el mismo mecanismo que "Consultá por tu PyME" (el motivo viaja en la dirección; el id real del motivo es `cuenta`). Ese motivo ya es el que viene marcado por defecto, pero igual se pasa: deja clara la intención. Navega sin recargar la página.
+- **"Operá online"** (Hero) ahora abre el login del broker en una pestaña nueva, el mismo link que "Mi Portafolio". La dirección del broker quedó escrita una sola vez y la usan los dos botones.
+- El Hero distingue solo cuál botón es interno y cuál externo según su destino (si empieza con "http" es externo): no hizo falta cambiar la forma de los datos.
+- **Agregado propio (encontrado al probar):** si el usuario ya estaba en la home, cambiaba el chip a "Otra consulta" y volvía a tocar "Abrí tu cuenta", no pasaba nada (ni scroll ni chip), porque la dirección no cambiaba. Ahora cada toque cuenta como una navegación nueva: vuelve a scrollear a Contacto y vuelve a marcar el chip. El link "Contacto" del menú (que no trae motivo) no pisa el chip que haya elegido el usuario.
+- Archivos: `data/placeholders.ts`, `components/Hero/`, `components/Navbar/`, `components/Contacto/` y `hooks/useScrollToTop.ts`.
+
+**Arreglo 2 — Navbar entre 921 y ~1045 px** (commit `cb8088d`)
+- Medición (con el corte bajado a propósito para ver la barra completa en todos los anchos): a 921 px los botones se salían 100 px (había scroll horizontal), a 1024 px 17 px, y la barra recién entraba justa a 1045 px. Con ≥ 24 px de aire entra desde **1073 px** (24,3 px; a 1072 px son ~23).
+- Arreglo: el menú hamburguesa ahora aparece hasta 1072 px (antes, hasta 920). El corte está en un solo lugar del CSS del Navbar y no había nada en el código que dependiera de él: el acordeón del celular y el hover/click de escritorio cuelgan del mismo corte, así que siguen coherentes. Quedó un comentario avisando que si cambian los textos de la barra hay que volver a medir.
+- Archivo: `components/Navbar/Navbar.module.css`.
+
+**Arreglo 3 — Tabla de A3 en tablets, /comisiones** (commit `3eb27c1`)
+- Medición, comparando el ancho de la tabla con el de su tarjeta: **sí se cortaba**. La de A3 mide 856 px y quedaba cortada en todos los anchos probados (tarjeta de 526 px a 600, 614 a 700, 674 a 768, 720 a 820 y 790 a 900). Revisando las otras pestañas, también se cortaban Custodia (691 px; a 600, 700 y 768) y, a 600 px, las de 4 columnas (Buenos Aires, Rosario, Exterior).
+- Arreglo: las tablas que no entran ahora se pueden deslizar de costado adentro de su tarjeta (igual que la tabla de Acciones en el celular), con las esquinas redondeadas intactas y sin scroll horizontal de la página. **Agregado propio:** el título y las notas de la tarjeta quedan quietos mientras se desliza la tabla (si no, el título se iba de costado y su línea de abajo terminaba a mitad de tabla).
+- El formato tarjeta de 560 px para abajo no cambió.
+- Archivo: `pages/Comisiones.module.css`.
+
+**Arreglo 4 — "ASESORAMIENTO" en tablets, Quiénes somos** (sin cambios)
+- Medición a 861, 900, 960 y 1024 px: **ningún título desborda su tarjeta**. "ASESORAMIENTO" mide 148 px y en el peor caso le quedan 23 px hasta el borde de la tarjeta (es el margen interno de la tarjeta). La grilla tampoco se sale de su contenedor.
+- No se tocó nada, como pedía el brief.
+- **Observación, para decidir:** el motivo por el que no desborda es que la grilla le da más lugar a esa columna. Entre 861 y ~950 px las cuatro tarjetas no miden lo mismo: a 861 px la de "Asesoramiento" mide 194 px y las otras 165–173; a 900 px, 194 contra 179. Desde ~955 px quedan parejas. Si molesta a la vista, el arreglo sería subir el corte de 2 → 4 columnas a ~955 px.
+
+**Arreglo 5 — 404 al entrar directo a una ruta** (commit `9f7d315`)
+- No había `vercel.json`; se creó con la regla que hace que cualquier dirección del sitio cargue la página y React Router muestre la sección que corresponde. Quedan afuera de la regla las funciones (`/api/…`) y cualquier archivo (todo lo que termina en una extensión, como `.js`, `.svg` o `.pdf`), así un archivo que no existe da un 404 real en vez de la página.
+- **Agregado propio:** también quedan afuera las direcciones que empiezan con "@". Probando en local con `vercel dev`, la regla mandaba a la página unos archivos internos que Vite usa en modo desarrollo y el sitio no arrancaba. En producción esas direcciones no existen, así que ahí no cambia nada.
+- Archivo: `vercel.json` (nuevo).
+
+**Verificación:**
+- En local, con Playwright (Chromium headless, en el scratchpad de la sesión), sin scroll horizontal y sin errores de consola en todos los casos:
+  - Arreglo 1: desde la home, "Abrí tu cuenta" del Hero scrollea a Contacto con "Abrir mi cuenta" marcado (y lo mismo al repetirlo después de cambiar el chip); desde `/comisiones`, el del Navbar navega a la home sin recargar, scrollea a Contacto y marca el chip; en el celular (390 px), el del menú hace lo mismo y cierra el menú. "Operá online" y "Mi Portafolio" tienen la URL del broker, abren en pestaña nueva y con el `rel` correcto. "Consultá por tu PyME" sigue marcando PyME.
+  - Arreglo 2: a 921, 1024, 1060 y 1072 px, hamburguesa funcionando y desplegables como acordeón; a 1073, 1080, 1100, 1280 y 1440 px, barra completa adentro del margen y desplegables por hover y por click.
+  - Arreglo 3: las 5 pestañas a 390, 560, 561, 600, 700, 768, 820, 900, 1024, 1280 y 1440 px; las que no entran deslizan adentro de la tarjeta; capturas de A3 y Custodia a 768 px antes y después de deslizar.
+  - Arreglo 5: con `vercel dev`, entrar directo a `/comisiones`, `/servicios/productos`, `/herramientas/renta-fija`, `/codigo-de-conducta`, `/informes` y `/servicios/financiamiento-pyme` carga cada página; `/api/mercado/arg-stocks` devuelve JSON.
+- `npx tsc -b`, `npx tsc -p tsconfig.api.json`, `npx eslint .` y `npm run build`: limpios.
+- Push a `main` y deploy de Vercel listo. **En producción** (`brio-alyc.vercel.app`), con Playwright:
+  - Entrar directo (sin pasar por la home) a `/comisiones`, `/servicios/productos`, `/herramientas/renta-fija`, `/codigo-de-conducta`, `/informes` y `/servicios/financiamiento-pyme`: todas cargan (200, con su título), ya no el 404.
+  - `/api/mercado/arg-stocks` sigue devolviendo JSON (97 acciones) y `/api/contacto` sigue respondiendo la función (no la página).
+  - Los archivos de la build (el JS, el CSS, el favicon y el logo) cargan bien; un archivo inexistente da 404.
+  - Se repitieron los chequeos de los arreglos 1 a 4 con los mismos resultados que en local.
+
+**Decisiones propias / desvíos del brief:**
+- Arreglo 1: que repetir "Abrí tu cuenta" estando en la home vuelva a scrollear y a marcar el chip (ver arriba).
+- Arreglo 3: título y notas quietos mientras se desliza la tabla.
+- Arreglo 5: excluir las direcciones con "@" para no romper `vercel dev`, y excluir todo archivo con extensión (no solo los que existen) para que un archivo faltante dé 404 de verdad.
+- En esta misma tanda se commiteó la entrada del 2026-10-07 "Estrategia para la próxima etapa", que estaba escrita pero sin commitear.
+
+**Pendientes que quedaron abiertos:**
+- TODO(Agus): ¿Brio tiene link de apertura de cuenta online? (ver Pendientes globales).
+- Decidir si se emparejan las tarjetas de valores de Quiénes somos entre 861 y ~950 px (ver arreglo 4).
+
+### 2026-10-07 — Estrategia para la próxima etapa: ramas e integración con Sanity
+Tarea solo de documentación: no se tocó código. Queda registrada la decisión de cómo se encara la conexión del sitio a Sanity (el CMS donde Agus va a poder editar el contenido sin pedir un deploy).
+
+- **`main` queda como está.** La maquetación del sitio quedó completa en diseño y funcionalidad. `main` sigue en producción con el contenido actual (en varias secciones todavía es placeholder) y no se toca, salvo fixes puntuales (por ejemplo, el 404 al entrar directo a una ruta, que sigue pendiente).
+- **Rama nueva aparte para Sanity** (por ejemplo `feature/sanity`). Ahí se conecta el front a Sanity: los archivos de datos estáticos de `src/data/` (`placeholders`, `comisiones`, `productos`, `financiamiento`, `contacto`, `equipo`, `informes` y `accionesLideres`) se reemplazan por consultas a Sanity. Cuando esa rama esté lista y probada, se mergea a `main`; hasta entonces producción no se ve afectada. (Quedan por definir también `footer.ts` y `legal.ts`, que no estaban en la lista original.)
+- **El Sanity Studio es un proyecto aparte.** El Studio (el panel donde se carga el contenido) no vive en este repo ni depende de sus ramas. Probablemente se arranque en paralelo o incluso antes que la rama nueva, porque el front necesita que el modelo de datos (el "schema") ya esté definido para poder consultarlo.
+- **Pregunta abierta para resolver con Agus, antes o durante el modelado:** ¿los datos de Renta Fija (`BONDS`, `SOVEREIGN_BONDS`, `LECAPS_DATA`, `BONCAPS_DATA`, en `src/lib/rentaFija/data/`) y la lista de acciones líderes (`ACCIONES_LIDERES`, en `data/accionesLideres.ts`) también pasan a Sanity, o quedan como están?
+  - **Si pasan a Sanity:** Agus podría cargar una LECAP nueva o elegir qué acciones mostrar (y en qué orden) sin pedir un deploy.
+  - **Si quedan como están:** solo los puede editar Santiago, tocando el código.
+  - **Por qué conviene decidirlo antes:** modelar Renta Fija en Sanity es bastante más trabajo que el resto, porque cada bono trae su lista completa de pagos futuros (cashflows). Conviene tenerlo resuelto antes de diseñar el schema completo, para no rehacerlo.
+
+**Verificación:** no aplica (solo se editó este archivo; no se corrió build, lint ni tests).
+
+**Pendientes que quedaron abiertos:**
+- Resolver con Agus la pregunta de Renta Fija y acciones líderes (ver arriba).
+- Arrancar el proyecto del Sanity Studio y definir el schema.
+- Crear la rama de integración y reemplazar los datos estáticos por consultas a Sanity.
 
 ### 2026-10-07 — Fix: las funciones de mercado fallaban en producción (ERR_MODULE_NOT_FOUND)
 - **Síntoma:** en el sitio publicado en Vercel, el Panel de Cotizaciones (`/herramientas/acciones`) y el Panel de Renta Fija mostraban "—" en vez de precios. En los logs de Vercel, las 4 funciones de mercado (`api/mercado/arg-stocks`, `arg-bonds`, `arg-corp`, `arg-notes`) tiraban `ERR_MODULE_NOT_FOUND: Cannot find module '/var/task/api/_lib/data912'`. En local (`vercel dev`) andaba todo bien.
@@ -625,10 +699,12 @@ Dos pendientes técnicos chicos, sin diseño nuevo.
 - **Resuelto:** conexión al backend de cotizaciones para reemplazar el mock de acciones del Hero (`/api/mercado/arg-stocks`, ver entrada del 2026-10-05).
 - Agendar con Agus: candidato a Sanity para `ACCIONES_LIDERES` (`data/accionesLideres.ts`, los 8 tickers del panel del Hero y de /herramientas/acciones) — mismo criterio que `LECAPS_DATA`: hoy estático, solo lo edita el desarrollador; a futuro Agus podría elegir desde el CMS qué acciones mostrar y en qué orden.
 - **Resuelto:** `/api/mercado/arg-stocks` probado contra data912 real en producción (ver entrada del 2026-10-07, fix de ERR_MODULE_NOT_FOUND).
-- Producción: entrar directo a una ruta que no sea la home (recargar, link compartido) da 404 de Vercel. Falta la regla de reescritura para la SPA (`vercel.json`), sin pisar `/api/` (ver entrada del 2026-10-07).
+- TODO(Agus): ¿Brio tiene link de apertura de cuenta online? Si sí, "Abrí tu cuenta" apunta ahí en vez de a Contacto.
+- Quiénes somos: entre 861 y ~950 px las 4 tarjetas de valores no miden lo mismo (la de "Asesoramiento" es más ancha). Decidir si se emparejan subiendo el corte a ~955 px (ver entrada del 2026-10-15).
 - **Resuelto:** el Panel de Renta Fija (antes vivía aparte, en Netlify) ya está portado a `/herramientas/renta-fija`, con proxy propio y motor de cálculo verificado contra el original.
 - Agendar con Agus: candidato a Sanity para `BONDS`/`SOVEREIGN_BONDS`/`LECAPS_DATA`/`BONCAPS_DATA` de Renta Fija (hoy estáticos, solo los edita el desarrollador).
 - **Resuelto:** proxy de Renta Fija (`api/mercado/*`) probado contra data912 real en producción (ver entrada del 2026-10-07).
 - **Resuelto:** panel lateral de flujo de fondos por ticker en Renta Fija (lo único de la herramienta vieja que había quedado afuera del port).
 - **Resuelto:** la grilla del Calendario ya abre el panel de flujo de fondos al clickear un evento (y, en mobile, al tocar un ticker dentro de la hoja de detalle del día) — ver entrada del 2026-10-01 (grilla mensual).
 - **Resuelto:** Renta Fija: las LECAPs/BONCAPs ya vencidas dejaron de aparecer en la tabla de Deuda Soberana (se filtran solas según la fecha de hoy, ver entrada del 2026-10-07). Igual conviene, cuando se actualicen los datos estáticos, sumar las licitaciones nuevas.
+- Fase de integración con Sanity: ver entrada del 2026-10-07 ("Estrategia para la próxima etapa") para la estrategia de ramas y la pregunta abierta de Renta Fija.
