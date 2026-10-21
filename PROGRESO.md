@@ -154,6 +154,7 @@ Pedido de Agus: al clickear el cuadro "Acciones · BYMA líderes" del Hero, ir d
 - El link es el mismo elemento que tiene el `bob`, así el contorno del foco acompaña al panel cuando sube y baja. Para no pisar el `bob`, el hover no usa `transform`: solo cambia borde, fondo y sombra. La única animación de hover con `transform` es la de la flecha, que es otro elemento.
 - La flecha "→" no está en `placeholders.ts` sino en el componente, como elemento decorativo aparte para poder animarla. En `placeholders.ts` el texto es "Ver panel completo".
 - Al pushear se configuró el upstream de `main` (`git push -u`): la rama local no seguía a `origin/main`.
+- **Merge de `main` en `feature/sanity`** (commit `c206bfe`): el código entró sin conflictos. El único conflicto fue en este archivo: las dos ramas habían sumado una entrada arriba del Historial. Se dejaron las dos, por fecha (esta primero, después la de la base de Sanity). En `feature/sanity`, `tsc` (los dos), `eslint` y `build` dan limpios y el panel se comporta igual (Playwright sobre el build local: click, teclado, `bob` y medidas). En esa prueba la consola mostró errores de CORS de Sanity, pero son del puerto de prueba (4180, que no está en la lista de CORS), no del cambio.
 
 **Pendientes:**
 - Si Agus lo pide: que cada fila lleve a su acción en el Panel de Cotizaciones (pasando el ticker en la dirección).
