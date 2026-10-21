@@ -1,6 +1,7 @@
 import { useState, type ChangeEvent, type FormEvent, type SVGProps } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { contacto } from '../../data/contacto';
+import { motivos, erroresValidacion } from '../../data/contacto';
+import type { MotivoContactoId } from '../../sanity/types';
 import { useReveal } from '../../hooks/useReveal';
 import styles from './Contacto.module.css';
 
@@ -34,7 +35,47 @@ const iconProps: SVGProps<SVGSVGElement> = {
   strokeLinejoin: 'round',
 };
 
-type IconId = 'whatsapp' | 'email' | 'tel' | 'dir' | 'hs' | 'instagram' | 'linkedin';
+/** Un canal de contacto de la columna izquierda. El ícono va por `id`. */
+export interface ContactoCanal {
+  id: 'whatsapp' | 'email' | 'tel' | 'dir' | 'hs';
+  label: string;
+  value: string;
+  /** Sin link (horario, dirección) se muestra como texto plano. */
+  href: string | null;
+  external?: boolean;
+  sub?: string;
+}
+
+/** Una red social: solo hay íconos de Instagram y LinkedIn. */
+export interface ContactoRed {
+  id: 'instagram' | 'linkedin';
+  /** aria-label del ícono. */
+  label: string;
+  href: string;
+}
+
+/** Los textos y datos de la sección (vienen de Sanity). Los opcionales vacíos no se pintan.
+ * Los motivos y los mensajes de validación quedan en código (data/contacto.ts). */
+export interface ContactoProps {
+  seal?: string;
+  title: string;
+  lead?: string;
+  channels: ContactoCanal[];
+  socialLabel: string;
+  /** Sin redes no se pinta el bloque "Seguinos". */
+  social: ContactoRed[];
+  motivosLabel: string;
+  fields: { nombre: string; email: string; telefono: string; mensaje: string };
+  /** Texto de ayuda del mensaje para cada motivo (opcional). */
+  mensajePlaceholders: Partial<Record<MotivoContactoId, string>>;
+  submitLabel: string;
+  sendingLabel: string;
+  legal?: string;
+  success: { title: string; text?: string; again: string };
+  errorEnvio: string;
+}
+
+type IconId = ContactoCanal['id'] | ContactoRed['id'];
 
 /** Íconos SVG inline (trazo simple), uno por canal/red social. */
 function Icon({ id }: { id: IconId }) {
@@ -105,7 +146,22 @@ function Icon({ id }: { id: IconId }) {
  * ej. "Abrí tu cuenta" del Hero): si trae un motivo válido, se marca ese chip. Si no
  * viene o no matchea ningún motivo, al montar arranca en el primero de la lista.
  */
-export default function Contacto() {
+export default function Contacto({
+  seal,
+  title,
+  lead,
+  channels,
+  socialLabel,
+  social,
+  motivosLabel,
+  fields,
+  mensajePlaceholders,
+  submitLabel,
+  sendingLabel,
+  legal,
+  success,
+  errorEnvio,
+}: ContactoProps) {
   // Un solo ref en la sección: useReveal busca los descendientes con `styles.reveal`
   // (acá, `.side` y `.card`) y observa cada uno por separado — mismo patrón que
   // QuienesSomos/FinanciamientoPyme, no uno por bloque.
@@ -114,8 +170,8 @@ export default function Contacto() {
   const [searchParams] = useSearchParams();
   const { key: navKey } = useLocation();
   const fromQuery = searchParams.get('motivo');
-  const motivoQuery = contacto.motivos.some((m) => m.id === fromQuery) ? (fromQuery as string) : null;
-  const [motivo, setMotivo] = useState(motivoQuery ?? contacto.motivos[0].id);
+  const motivoQuery = motivos.find((m) => m.id === fromQuery)?.id ?? null;
+  const [motivo, setMotivo] = useState(motivoQuery ?? motivos[0].id);
 
   // Navegación nueva con la sección ya montada: re-aplicar el motivo del query param
   // (ajuste de estado durante el render, sin efecto).
@@ -129,7 +185,7 @@ export default function Contacto() {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<Status>('idle');
 
-  const current = contacto.motivos.find((m) => m.id === motivo) ?? contacto.motivos[0];
+  const current = motivos.find((m) => m.id === motivo) ?? motivos[0];
   const setField =
     (key: keyof Values) =>
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -137,9 +193,9 @@ export default function Contacto() {
 
   const validate = (): FieldErrors => {
     const er: FieldErrors = {};
-    if (!values.nombre.trim()) er.nombre = contacto.errors.nombre;
-    if (!EMAIL_RE.test(values.email.trim())) er.email = contacto.errors.email;
-    if (values.mensaje.trim().length < 5) er.mensaje = contacto.errors.mensaje;
+    if (!values.nombre.trim()) er.nombre = erroresValidacion.nombre;
+    if (!EMAIL_RE.test(values.email.trim())) er.email = erroresValidacion.email;
+    if (values.mensaje.trim().length < 5) er.mensaje = erroresValidacion.mensaje;
     return er;
   };
 
@@ -178,24 +234,26 @@ export default function Contacto() {
       <div className={styles.wrap}>
         {/* ── columna izquierda: qué + canales ── */}
         <div className={`${styles.side} ${styles.reveal}`}>
-          <p className={styles.seal}>
-            <span className={styles.sealBar} aria-hidden="true" />
-            {contacto.seal}
-          </p>
+          {seal && (
+            <p className={styles.seal}>
+              <span className={styles.sealBar} aria-hidden="true" />
+              {seal}
+            </p>
+          )}
           <h2 id="contacto-title" className={styles.title}>
-            {contacto.title}
+            {title}
           </h2>
-          <p className={styles.lead}>{contacto.lead}</p>
+          {lead && <p className={styles.lead}>{lead}</p>}
 
           <ul className={styles.channels}>
-            {contacto.channels.map((c) => {
+            {channels.map((c) => {
               const inner = (
                 <>
                   <span className={styles.ico}>
-                    <Icon id={c.id as IconId} />
+                    <Icon id={c.id} />
                   </span>
                   <span className={styles.chText}>
-                    <span className={styles.chLabel}>{c.label}</span>
+                    {c.label && <span className={styles.chLabel}>{c.label}</span>}
                     <span className={styles.chValue}>{c.value}</span>
                     {c.sub && <span className={styles.chSub}>{c.sub}</span>}
                   </span>
@@ -219,23 +277,25 @@ export default function Contacto() {
             })}
           </ul>
 
-          <div className={styles.social}>
-            <span className={styles.socialLabel}>{contacto.socialLabel}</span>
-            <div className={styles.socialLinks}>
-              {contacto.social.map((s) => (
-                <a
-                  key={s.id}
-                  className={styles.socialLink}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={s.label}
-                >
-                  <Icon id={s.id as IconId} />
-                </a>
-              ))}
+          {social.length > 0 && (
+            <div className={styles.social}>
+              <span className={styles.socialLabel}>{socialLabel}</span>
+              <div className={styles.socialLinks}>
+                {social.map((s) => (
+                  <a
+                    key={s.id}
+                    className={styles.socialLink}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.label}
+                  >
+                    <Icon id={s.id} />
+                  </a>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* ── columna derecha: formulario ── */}
@@ -247,18 +307,18 @@ export default function Contacto() {
                   <path d="m5 12.5 4.5 4.5L19 7.5" />
                 </svg>
               </span>
-              <h3 className={styles.doneTitle}>{contacto.success.title}</h3>
-              <p className={styles.doneText}>{contacto.success.text}</p>
+              <h3 className={styles.doneTitle}>{success.title}</h3>
+              {success.text && <p className={styles.doneText}>{success.text}</p>}
               <button type="button" className={`${styles.btn} ${styles.btnGhost}`} onClick={reset}>
-                {contacto.success.again}
+                {success.again}
               </button>
             </div>
           ) : (
             <form onSubmit={onSubmit} noValidate>
               <fieldset className={styles.motivos}>
-                <legend className={styles.legend}>{contacto.motivosLabel}</legend>
+                <legend className={styles.legend}>{motivosLabel}</legend>
                 <div className={styles.chips}>
-                  {contacto.motivos.map((m) => (
+                  {motivos.map((m) => (
                     <label key={m.id} className={`${styles.chip} ${motivo === m.id ? styles.isOn : ''}`}>
                       <input
                         type="radio"
@@ -275,7 +335,7 @@ export default function Contacto() {
 
               <div className={styles.grid}>
                 <div className={styles.field}>
-                  <label htmlFor="contacto-nombre">{contacto.fields.nombre}</label>
+                  <label htmlFor="contacto-nombre">{fields.nombre}</label>
                   <input
                     id="contacto-nombre"
                     type="text"
@@ -293,7 +353,7 @@ export default function Contacto() {
                 </div>
 
                 <div className={styles.field}>
-                  <label htmlFor="contacto-email">{contacto.fields.email}</label>
+                  <label htmlFor="contacto-email">{fields.email}</label>
                   <input
                     id="contacto-email"
                     type="email"
@@ -312,7 +372,7 @@ export default function Contacto() {
                 </div>
 
                 <div className={styles.field}>
-                  <label htmlFor="contacto-tel">{contacto.fields.telefono}</label>
+                  <label htmlFor="contacto-tel">{fields.telefono}</label>
                   <input
                     id="contacto-tel"
                     type="tel"
@@ -331,18 +391,18 @@ export default function Contacto() {
                       type="text"
                       autoComplete="organization"
                       placeholder={current.extra.placeholder}
-                      value={values[current.extra.name as keyof Values]}
-                      onChange={setField(current.extra.name as keyof Values)}
+                      value={values[current.extra.name]}
+                      onChange={setField(current.extra.name)}
                     />
                   </div>
                 )}
 
                 <div className={`${styles.field} ${styles.full}`}>
-                  <label htmlFor="contacto-msg">{contacto.fields.mensaje}</label>
+                  <label htmlFor="contacto-msg">{fields.mensaje}</label>
                   <textarea
                     id="contacto-msg"
                     rows={5}
-                    placeholder={current.mensajePlaceholder}
+                    placeholder={mensajePlaceholders[current.id]}
                     value={values.mensaje}
                     onChange={setField('mensaje')}
                     aria-invalid={!!errors.mensaje}
@@ -371,15 +431,15 @@ export default function Contacto() {
 
               {status === 'error' && (
                 <p className={`${styles.err} ${styles.errBox}`} role="alert">
-                  {contacto.errors.envio}
+                  {errorEnvio}
                 </p>
               )}
 
               <div className={styles.foot}>
                 <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`} disabled={status === 'sending'}>
-                  {status === 'sending' ? contacto.sendingLabel : contacto.submitLabel}
+                  {status === 'sending' ? sendingLabel : submitLabel}
                 </button>
-                <p className={styles.legal}>{contacto.legal}</p>
+                {legal && <p className={styles.legal}>{legal}</p>}
               </div>
             </form>
           )}

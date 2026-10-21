@@ -446,3 +446,9 @@
     flex: none;
   }
 }
+
+/* Mientras cargan los textos de Sanity (ContactoSanity.tsx): la sección vacía, con su fondo, del
+   alto de una pantalla, para que el scroll a #contacto la pueda dejar arriba de todo. */
+.reserva {
+  min-height: 100vh;
+}

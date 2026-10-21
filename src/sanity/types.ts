@@ -84,3 +84,95 @@ export interface FooterQueryResult {
   footer: FooterDoc | null;
   empresa: DatosEmpresaFooter | null;
 }
+
+// ── Hero (schemaTypes/singletons/seccionHero.ts) ────────────────────────
+
+export interface SeccionHeroDoc {
+  titulo?: Texto;
+  /** Opcional. */
+  bajada?: Texto;
+  textoBotonPrincipal?: Texto;
+  textoBotonSecundario?: Texto;
+  tituloPanel?: Texto;
+  etiquetaPanel?: Texto;
+  notaPanel?: Texto;
+  /** "Ver panel completo", sin la flecha (la pone el front). Agregado el 2026-10-21: un Hero
+   * publicado antes no lo tiene. */
+  textoLinkPanel?: Texto;
+}
+
+/** Los campos de datosEmpresa que pide el Hero. */
+export interface DatosEmpresaHero {
+  /** "Agente registrado en CNV · Mat. 512": el antetítulo del Hero. */
+  selloCnv?: Texto;
+  credenciales?: Credencial[] | null;
+}
+
+/** HERO_QUERY: cada documento viene `null` si no está publicado. */
+export interface HeroQueryResult {
+  hero: SeccionHeroDoc | null;
+  empresa: DatosEmpresaHero | null;
+}
+
+// ── Contacto (schemaTypes/singletons/seccionContacto.ts) ────────────────
+
+/** Ids de los motivos del formulario: los mismos que MOTIVOS_CONTACTO del Studio y data/contacto.ts. */
+export type MotivoContactoId = 'cuenta' | 'pyme' | 'consulta';
+
+export interface SeccionContactoDoc {
+  titulo?: Texto;
+  /** Opcional. */
+  bajada?: Texto;
+  etiquetasCanales?: {
+    whatsapp?: Texto;
+    email?: Texto;
+    telefono?: Texto;
+    oficina?: Texto;
+    horario?: Texto;
+  } | null;
+  /** "Seguinos". */
+  rotuloRedes?: Texto;
+  /** "¿En qué te ayudamos?". */
+  rotuloMotivos?: Texto;
+  etiquetasCampos?: {
+    nombre?: Texto;
+    email?: Texto;
+    telefono?: Texto;
+    mensaje?: Texto;
+  } | null;
+  /** Texto de ayuda del mensaje, uno por motivo, todos opcionales. */
+  placeholdersMensaje?: Partial<Record<MotivoContactoId, Texto>> | null;
+  textoBotonEnviar?: Texto;
+  textoBotonEnviando?: Texto;
+  /** Opcional: "Usamos tus datos solo para…". */
+  avisoDatos?: Texto;
+  exito?: {
+    titulo?: Texto;
+    /** Opcional. */
+    texto?: Texto;
+    textoBoton?: Texto;
+  } | null;
+  mensajeErrorEnvio?: Texto;
+}
+
+/** Los campos de datosEmpresa que pide Contacto. */
+export interface DatosEmpresaContacto {
+  telefono?: Texto;
+  email?: Texto;
+  direccion?: Direccion | null;
+  /** Opcional (con aviso en el Studio). Solo dígitos, formato internacional. */
+  whatsapp?: Texto;
+  /** Opcional: cómo se muestra; vacío → "+" + `whatsapp`. */
+  whatsappTexto?: Texto;
+  /** Opcional (con aviso en el Studio). */
+  horario?: Texto;
+  instagram?: Texto;
+  linkedin?: Texto;
+  selloCnv?: Texto;
+}
+
+/** CONTACTO_QUERY: cada documento viene `null` si no está publicado. */
+export interface ContactoQueryResult {
+  seccion: SeccionContactoDoc | null;
+  empresa: DatosEmpresaContacto | null;
+}

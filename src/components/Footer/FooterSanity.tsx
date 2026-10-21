@@ -2,6 +2,7 @@ import Footer, { type FooterLink, type FooterProps, type FooterRed } from './Foo
 import FaltaCargar from '../FaltaCargar/FaltaCargar';
 import { useSanityQuery } from '../../sanity/useSanityQuery';
 import { FOOTER_QUERY } from '../../sanity/queries';
+import { hrefEmail, hrefTelefono } from '../../sanity/links';
 import type { DatosEmpresaFooter, Direccion, FooterDoc, FooterQueryResult } from '../../sanity/types';
 
 /** Texto alternativo del logo y aria-labels de las redes: no son texto visible, quedan en código. */
@@ -16,17 +17,14 @@ const REDES: { id: FooterRed['id']; label: string }[] = [
   { id: 'linkedin', label: 'LinkedIn' },
 ];
 
-const digitos = (t: string) => t.replace(/\D/g, '');
-
-/** "+54 (341) 5275351/52" → tel:+543415275351 (llama al primer número, el de antes de la barra). */
 function linkTelefono(telefono?: string | null): FooterLink | null {
   if (!telefono?.trim()) return null;
-  return { texto: telefono, href: `tel:+${digitos(telefono.split('/')[0])}` };
+  return { texto: telefono, href: hrefTelefono(telefono) };
 }
 
 function linkEmail(email?: string | null): FooterLink | null {
   if (!email?.trim()) return null;
-  return { texto: email, href: `mailto:${email.trim()}` };
+  return { texto: email, href: hrefEmail(email) };
 }
 
 /** Dirección en 3 líneas, como hoy: "Córdoba 1464 Piso 4," / "Rosario, CP 2000," / "Santa Fe, Argentina".

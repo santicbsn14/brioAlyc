@@ -11,6 +11,33 @@ export const NAVBAR_QUERY = /* groq */ `
   textoPortafolio, textoBotonCuenta
 }`;
 
+/** Hero de la home. Entradas "Sanity 6.19 + sección Hero + menú agrupado" y
+ * "Hero: texto del link al panel completo". */
+export const HERO_QUERY = /* groq */ `
+{
+  "hero": *[_type == "seccionHero" && _id == "seccionHero"][0]{
+    titulo, bajada, textoBotonPrincipal, textoBotonSecundario,
+    tituloPanel, etiquetaPanel, notaPanel, textoLinkPanel
+  },
+  "empresa": *[_type == "datosEmpresa" && _id == "datosEmpresa"][0]{
+    selloCnv, credenciales[]{_key, entidad, numero}
+  }
+}`;
+
+/** Contacto de la home. Entrada "Datos de la empresa + Contacto + Footer". */
+export const CONTACTO_QUERY = /* groq */ `
+{
+  "seccion": *[_type == "seccionContacto" && _id == "seccionContacto"][0]{
+    titulo, bajada, etiquetasCanales, rotuloRedes,
+    rotuloMotivos, etiquetasCampos, placeholdersMensaje,
+    textoBotonEnviar, textoBotonEnviando, avisoDatos, exito, mensajeErrorEnvio
+  },
+  "empresa": *[_type == "datosEmpresa" && _id == "datosEmpresa"][0]{
+    telefono, email, direccion, whatsapp, whatsappTexto, horario,
+    instagram, linkedin, selloCnv
+  }
+}`;
+
 /** Footer (montado en App.tsx). Entrada "Datos de la empresa + Contacto + Footer". */
 export const FOOTER_QUERY = /* groq */ `
 {

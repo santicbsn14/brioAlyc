@@ -1,15 +1,9 @@
-import Hero from '../components/Hero/Hero';
-import { ACCIONES_LIDERES } from '../data/accionesLideres';
+import HeroSanity from '../components/Hero/HeroSanity';
 import Servicios from '../components/Servicios/Servicios';
 import QuienesSomos from '../components/QuienesSomos/QuienesSomos';
 import Equipo from '../components/Equipo/Equipo';
-import Contacto from '../components/Contacto/Contacto';
+import ContactoSanity from '../components/Contacto/ContactoSanity';
 import {
-  heroContent,
-  heroCtas,
-  credentials,
-  stocksInitial,
-  panelCopy,
   serviciosContent,
   servicePillars,
   instrumentGroups,
@@ -17,25 +11,12 @@ import {
   quienesValues,
 } from '../data/placeholders';
 
-/** Home = Hero + Servicios + Quiénes somos + Equipo + Contacto (antes vivían directo en App.tsx, sin routing). */
+/** Home = Hero + Servicios + Quiénes somos + Equipo + Contacto (antes vivían directo en App.tsx, sin routing).
+ * Hero y Contacto leen de Sanity (componentes *Sanity); el resto sigue leyendo de src/data/. */
 export default function Home() {
   return (
     <>
-      <Hero
-        kicker={heroContent.kicker}
-        title={heroContent.title}
-        lead={heroContent.lead}
-        ctas={heroCtas}
-        credentials={credentials}
-        leaders={ACCIONES_LIDERES}
-        fallbackStocks={stocksInitial}
-        panelTitle={panelCopy.title}
-        panelTag={panelCopy.tag}
-        panelFootnote={panelCopy.footnote}
-        panelHref={panelCopy.href}
-        panelLinkLabel={panelCopy.linkLabel}
-        panelLinkAriaLabel={panelCopy.linkAriaLabel}
-      />
+      <HeroSanity />
       <Servicios
         kicker={serviciosContent.kicker}
         title={serviciosContent.title}
@@ -55,7 +36,7 @@ export default function Home() {
         values={quienesValues}
       />
       <Equipo />
-      <Contacto />
+      <ContactoSanity />
     </>
   );
 }

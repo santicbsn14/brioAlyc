@@ -3,7 +3,7 @@
 ## Estado actual
 Front nuevo (`brio-nuevo`, separado de la web puente) con routing (React Router): home (`/`, header + hero + Servicios + Quiénes somos + Equipo + Contacto — ya completa, las 5 secciones de esta etapa), página propia de comisiones (`/comisiones`, con las tablas completas del PDF por pestañas), página de productos (`/servicios/productos`, carrusel animado de instrumentos por categoría), página de Financiamiento PyME (`/servicios/financiamiento-pyme`, con el paso a paso animado de 4 etapas), página de Informes (`/informes`, colgada del menú Herramientas: listado de PDFs filtrable por categoría, con descarga directa) y ahora también el Panel de Renta Fija (`/herramientas/renta-fija`, colgada del menú Herramientas: ONs, Deuda Soberana + LECAPs/BONCAPs, Calendario de pagos y Cartera propia, con datos y cálculos reales vía un proxy propio a data912; clickear cualquier ticker abre un panel lateral con su flujo de fondos futuro, recalculable para un monto a invertir). El header (Navbar) ya quedó terminado: logo real, menú con dropdowns funcionales (Servicios y Herramientas), link nuevo a Equipo, fondo que cambia al scrollear y los 3 anchors de la home (Quiénes somos/Equipo/Contacto) funcionando cross-página (navegan a la home y scrollean, parados en cualquier ruta). Ahora también hay Footer institucional (montado en `App.tsx`, visible en todas las páginas) y dos páginas legales (`/codigo-de-conducta`, texto real de Brio; `/terminos-y-condiciones`, borrador genérico a reemplazar). Quiénes somos ya tiene la foto real de oficina y quedó en 2 bloques (relato + valores), sin el bloque de números. En Servicios, las descripciones de los 3 pilares ya son texto real (rescatado del sitio anterior). Equipo muestra 3 socios (tarjeta con bio corta + "Ver más" que despliega la bio completa) y 9 empleados (grilla simple), con contenido real: nómina, cargos, bios y fotos de 11 de las 12 personas (falta solo la foto de Claudio Adrián Iglesias, que se ve con avatar de iniciales). Contacto tiene formulario funcional con validación, honeypot y un endpoint real de envío por mail (Resend, en `api/contacto.ts`) — falta que Vercel tenga configuradas las variables de entorno reales para que mande mails de verdad. Los botones "Consultá por tu PyME" de Financiamiento PyME ya llevan a Contacto con el motivo correcto preseleccionado, y "Abrí tu cuenta" (Hero y Navbar) hace lo mismo con el motivo "Abrir mi cuenta"; "Operá online" abre el login del broker. En producción ya se puede entrar directo a cualquier página (recargar o abrir un link compartido) sin el 404 de Vercel. Los datos reales de contacto (teléfono, email, dirección) ya están sincronizados entre `data/footer.ts` y `data/contacto.ts`; solo quedan de ejemplo WhatsApp, horario e Instagram/LinkedIn. En Informes, el primer informe ya es real (PDF real, descarga funcional); los otros tres son de ejemplo para mostrar el filtro funcionando. El resto del contenido sigue en placeholder salvo los valores de comisiones (ya reales, transcriptos y cruzados contra el PDF fuente) y los datos financieros de Renta Fija (ONs, soberanos, LECAPs, BONCAPs — reales, portados de la herramienta vieja). El panel de acciones del Hero ya muestra precios reales de BYMA (8 acciones líderes, vía `/api/mercado/arg-stocks` → data912), con fallback a precios de ejemplo mientras carga o si falla. Todo ese panel es además un link al Panel de Cotizaciones (`/herramientas/acciones`), con "Ver panel completo →" en el pie. Esas mismas 8 acciones tienen su tabla completa en el Panel de Cotizaciones (`/herramientas/acciones`, colgado del menú Herramientas: compra/venta/último/variación/volumen, ordenable, con buscador, auto-refresh elegible y export CSV). Con esto la home queda completa para esta etapa; falta el resto del sitio.
 
-**Rama `feature/sanity` (en curso, no está en producción):** conecta el front al Sanity Studio (`brio-studio`). Ya tiene la base (`src/sanity/`: cliente sin token, hook con caché, queries y tipos, y el recuadro "Falta cargar en Sanity") y el Navbar y el Footer leen sus textos de Sanity (Navbar, Footer y Datos de la empresa). El dataset todavía está vacío: Santiago carga el contenido a mano en el Studio. El resto de las secciones sigue leyendo de `src/data/` hasta que se conecten (orden en Pendientes globales).
+**Rama `feature/sanity` (en curso, no está en producción):** conecta el front al Sanity Studio (`brio-studio`). Ya tiene la base (`src/sanity/`: cliente sin token, hook con caché, queries y tipos, y el recuadro "Falta cargar en Sanity") y ya leen sus textos de Sanity el Navbar, el Footer, el Hero y Contacto (más los Datos de la empresa que usan). Santiago está cargando el contenido a mano en el Studio: ya hay Datos de la empresa, Navbar, Footer y un Hero de prueba; Contacto todavía no. El resto de las secciones (Servicios, Quiénes somos, Equipo y las páginas) sigue leyendo de `src/data/` hasta que se conecten (orden en Pendientes globales).
 
 ## Estructura de archivos
 ```
@@ -22,7 +22,8 @@ brio-nuevo/
       config.ts             → projectId/dataset (pisables por env), apiVersion fija, CDN solo en producción con VITE_SANITY_USE_CDN, `mostrarFaltantes`
       client.ts             → cliente de @sanity/client, sin token, solo lo publicado
       useSanityQuery.ts     → hook { data, status: cargando/listo/error } con caché en memoria por query + parámetros y dedup de pedidos en vuelo
-      queries.ts            → queries GROQ, una por componente (hoy: NAVBAR_QUERY, FOOTER_QUERY)
+      queries.ts            → queries GROQ, una por componente (hoy: NAVBAR_QUERY, HERO_QUERY, CONTACTO_QUERY, FOOTER_QUERY)
+      links.ts              → arma los links tel: / mailto: / wa.me a partir de Datos de la empresa (los usan Footer y Contacto)
       types.ts              → tipos de lo que devuelve cada query, escritos a mano desde los schemas
       env.d.ts              → tipos de las variables VITE_SANITY_* / VITE_MOSTRAR_FALTANTES
     styles/
@@ -42,19 +43,18 @@ brio-nuevo/
           lecapsYBoncaps.ts      → LECAPS_DATA y BONCAPS_DATA (tasa de emisión, días, vencimiento), dato ESTÁTICO portado tal cual — mismo candidato a Sanity
     hooks/
       useReveal.ts           → aparición progresiva al scrollear, reusable en toda la home
-      useScrollToTop.ts       → al cambiar de ruta: sin hash scrollea a (0,0); con hash (ej. #contacto) espera a que el elemento exista y hace scrollIntoView
+      useScrollToTop.ts       → al cambiar de ruta: sin hash scrollea a (0,0); con hash (ej. #contacto) espera a que el elemento exista y hace scrollIntoView; si las fuentes todavía cargaban, vuelve a acomodar cuando terminan (salvo que la persona ya haya scrolleado)
       useRentaFija.ts         → hook central del Panel de Renta Fija: fetch a los 3 endpoints propios, precios manuales + localStorage, auto-refresh por grupo (ONs / Soberana+LECAPs), filas calculadas para las 4 pestañas
       useAccionesLideres.ts   → cotizaciones de las acciones líderes (Hero + /herramientas/acciones): fallback → fetch a /api/mercado/arg-stocks, auto-refresh configurable (`intervalSec`, default 90s; 0 = apagado) con la pestaña visible, `status`/`lastUpdated`/`refrescar` para la barra de estado, resaltado de filas que cambiaron; latido simulado opcional (`simularLatido`, solo el Hero) mientras se ven precios de ejemplo
     data/
-      placeholders.ts       → contenido de Hero/Servicios/Quiénes somos (textos, links, credenciales, precios de EJEMPLO del panel de acciones como fallback, pilares, instrumentos), tipado; destinos ABRI_CUENTA_HREF / BROKER_LOGIN_URL y tipos del Navbar. En la rama feature/sanity, `navLinks`/`navActions`/`brand` ya no los usa nadie (el Navbar lee de Sanity)
+      placeholders.ts       → contenido de Servicios/Quiénes somos (pilares, instrumentos, valores), precios de EJEMPLO del panel de acciones del Hero, destinos ABRI_CUENTA_HREF / BROKER_LOGIN_URL y tipos del Navbar y del Hero. En la rama feature/sanity ya no tiene los textos del Navbar ni del Hero (vienen de Sanity)
       accionesLideres.ts     → ACCIONES_LIDERES: los 8 tickers (ticker + nombre) del panel del Hero, dato ESTÁTICO — candidato a Sanity (ver pendientes)
       comisiones.ts         → tablas de comisiones (título/columnas/filas/notas por tabla, agrupadas en pestañas), tipado, valores reales del PDF
       productos.ts          → categorías de productos, sus instrumentos y las líneas explicativas + textos de encabezado de la página, tipado, contenido provisorio
       financiamiento.ts     → textos de la página de Financiamiento PyME (encabezado, beneficios, pasos, cierre y botón), tipado, contenido provisorio
       informes.ts             → contenido de la página de Informes (encabezado, categorías, listado de informes con fecha/categoría/resumen/PDF), tipado; solo el primer informe es real, el resto son de ejemplo
-      contacto.ts            → contenido de la sección Contacto (motivos, canales, redes, textos de estado), tipado; email/teléfono/dirección ya reales, WhatsApp/horario/redes siguen de ejemplo
+      contacto.ts            → lo que queda en código de Contacto: los motivos del formulario (id, label y el campo extra "Nombre de la empresa") y los mensajes de validación. En la rama feature/sanity, el resto viene de Sanity
       equipo.ts               → contenido de la sección Equipo (kicker/título/bajada, 3 socios con bio corta + `bioExtendida?`, 9 empleados), tipado; contenido REAL (nombres/cargos/bios/fotos importadas de `assets/equipo/`), salvo la foto de Claudio Iglesias que falta, con nota sobre el modelo probable en Sanity (un solo tipo "Persona" con flag "esSocio")
-      footer.ts               → contenido del Footer (contacto, dirección, redes, razón social, registro CNV, credenciales, links legales), tipado, datos reales. En la rama feature/sanity ya no lo usa nadie (referencia para cargar el Studio; se borra al cerrar la rama)
       legal.ts                → contenido de las dos páginas legales: `codigoConducta` (texto real de Brio, por capítulos/artículos) y `terminosCondiciones` (borrador genérico, con TODO de asesoría legal)
     hooks/
       useReveal.ts           → aparición progresiva al scrollear, reusable en toda la home
@@ -68,7 +68,8 @@ brio-nuevo/
         NavbarSanity.tsx      → conectado: query `navbar`, arma links/botones (destinos en código), cargando/error → barra con logo, null → FaltaCargar
         Navbar.module.css
       Hero/
-        Hero.tsx
+        Hero.tsx              → portada; recibe los textos por props (los opcionales vacíos no se pintan). Con la prop `cargando` muestra solo el fondo, con el mismo alto (texto de relleno invisible)
+        HeroSanity.tsx        → conectado: query `seccionHero` + sello CNV y credenciales de `datosEmpresa`; destinos, acciones, precios de ejemplo y el link del panel en código; cargando/error → cáscara, null → FaltaCargar
         Hero.module.css
       Servicios/
         Servicios.tsx        → ya NO tiene la tabla de comisiones, ahora es un CTA a /comisiones
@@ -80,7 +81,8 @@ brio-nuevo/
         Equipo.tsx            → sección #equipo: 3 socios (tarjeta con avatar/foto, nombre, cargo, bio) + grilla de 9 empleados (avatar/foto, nombre, cargo, sin tarjeta ni bio); avatar placeholder con iniciales mientras no haya foto real
         Equipo.module.css
       Contacto/
-        Contacto.tsx          → sección #contacto: sello+título+bajada+canales+redes, y formulario con validación/honeypot/estados
+        Contacto.tsx          → sección #contacto: sello+título+bajada+canales+redes, y formulario con validación/honeypot/estados; recibe los textos y datos por props (motivos y mensajes de validación de data/contacto.ts)
+        ContactoSanity.tsx    → conectado: query `seccionContacto` + `datosEmpresa`, arma canales, redes y textos; el ancla #contacto existe siempre (cargando → sección vacía de una pantalla de alto; error → solo el ancla; null → ancla + FaltaCargar)
         Contacto.module.css
       Footer/
         Footer.tsx             → footer institucional: logo / Contacto / Dirección / Seguinos + franja legal (razón social, registro CNV, credenciales, links legales) + copyright; recibe todo por props y no pinta lo vacío (redes sin link, columnas sin contenido)
@@ -95,7 +97,7 @@ brio-nuevo/
         FlujoFondosDrawer.tsx  → panel lateral que se abre al clickear un ticker (ONs, Soberana, LECAPs/BONCAPs y Cartera): resumen del título, monto a invertir (USD/ARS o nominales), 3 tarjetas de totales y tabla de pagos futuros
         FlujoFondosDrawer.module.css
     pages/
-      Home.tsx               → agrupa Hero + Servicios + QuienesSomos + Equipo + Contacto (antes vivía directo en App.tsx)
+      Home.tsx               → agrupa HeroSanity + Servicios + QuienesSomos + Equipo + ContactoSanity (antes vivía directo en App.tsx)
       Comisiones.tsx          → página /comisiones: header + tabs + tablas responsive
       Comisiones.module.css
       Productos.tsx           → página /servicios/productos: header + pestañas + carrusel con banda de progreso + flechas + dots
@@ -119,6 +121,83 @@ brio-nuevo/
 ```
 
 ## Historial
+
+### 2026-10-21 — Rama `feature/sanity`: Hero y Contacto desde Sanity
+Segunda tarea de conexión de la rama. El Hero y Contacto de la home ahora leen sus textos de Sanity, con el mismo criterio de estados que el Navbar y el Footer. Commit `HASH_PENDIENTE`. Antes, en el Studio (`brio-studio`, commit `eda54d1`), se sumó el campo del texto "Ver panel completo" del Hero. `main` no se tocó. No se escribió nada en el dataset.
+
+**Paso 0 — Rama.** `feature/sanity` estaba al día con GitHub y tiene el merge de `main` con el panel del Hero linkeado (`c206bfe`).
+
+**Hero** (`components/Hero/HeroSanity.tsx`, nuevo):
+- Una sola consulta trae los textos del Hero y, de Datos de la empresa, solo el sello CNV y las credenciales.
+- El texto chico de arriba es el sello CNV. Los sellos (BYMA 210, MAV 429…) son las credenciales, sin la palabra "Agente" (esa es solo del Footer).
+- Título, bajada, los dos botones y los textos del panel (título, etiqueta, aclaración y "Ver panel completo") salen del Studio.
+- **Quedan en código:** adónde llevan los botones ("Abrí tu cuenta" → Contacto con el motivo "cuenta"; "Operá online" → login del broker), qué 8 acciones muestra el panel y sus precios de ejemplo, la ruta del link del panel, su nombre para lectores de pantalla y la flecha "→".
+- **Lo que viene vacío no se pinta:** sin bajada no queda el párrafo; sin sello CNV no está el texto de arriba; sin credenciales no está la fila de sellos; sin el texto "Ver panel completo" el panel sigue siendo link (y se anuncia igual a un lector de pantalla), pero el pie muestra solo la aclaración.
+- **Mientras carga:** se ve el fondo del Hero, sin textos, con el mismo alto que va a tener. Para eso el Hero pinta (invisible) un texto de relleno del largo de los textos actuales, que corta en los mismos renglones. Cuando llegan los textos arranca la animación de entrada de siempre.
+- **Sin publicar:** recuadro "Falta cargar en Sanity: Sección Hero (portada)", que dice que se carga en Inicio → Hero (portada). En producción no aparece nada.
+- Si Datos de la empresa no está publicado, el Hero se ve sin el texto de arriba ni los sellos (el recuadro de Datos de la empresa ya lo muestra el Footer).
+- Los precios del panel siguen viniendo de `/api/mercado`, como siempre: no dependen de Sanity y arrancan aunque los textos todavía estén cargando.
+
+**Contacto** (`components/Contacto/ContactoSanity.tsx`, nuevo):
+- Una sola consulta trae los textos de la sección y lo que usa de Datos de la empresa.
+- **Canales:** los valores (WhatsApp, email, teléfono, dirección, horario) salen de Datos de la empresa y los nombres ("WhatsApp", "Email"…) de la sección. Los links de teléfono, email y WhatsApp se arman en código, igual que en el Footer (se pasaron a un archivo compartido, `sanity/links.ts`). La dirección se arma como hoy: "Rosario, Santa Fe" y abajo "Córdoba 1464 Piso 4, CP 2000".
+- **WhatsApp u horario vacíos → ese canal no se muestra.** Lo mismo cualquier otro canal sin dato.
+- **Redes:** solo Instagram y LinkedIn, como hoy; una red sin link no se muestra, y sin ninguna no aparece el bloque "Seguinos".
+- Sello = el sello CNV de Datos de la empresa. Pregunta de los motivos, labels de los campos, textos de ayuda del mensaje (uno por motivo), botones, aviso de privacidad y mensajes de éxito y de error de envío: de la sección. Sello, bajada, aviso, texto de éxito y textos de ayuda vacíos no se pintan.
+- **Quedan en código** (`data/contacto.ts`): los motivos (ids y nombres), el campo "Nombre de la empresa" del motivo PyME, los mensajes de validación de cada campo y el campo oculto anti-spam. `api/contacto.ts` no se tocó y el formulario manda lo mismo que antes.
+- **Sin publicar:** recuadro "Falta cargar en Sanity: Sección Contacto" (Inicio → Contacto). En producción no aparece nada.
+
+**El scroll a #contacto** ("Abrí tu cuenta" del Hero y del Navbar, "Consultá por tu PyME" y "Contacto" del menú):
+- El problema: esos links buscan la sección por un tiempo limitado, y con Sanity la sección puede aparecer recién cuando llegan los datos.
+- La solución: **el ancla `#contacto` existe siempre.** Mientras carga es la sección vacía, con su fondo y el alto de una pantalla (así el scroll la puede dejar arriba de todo aunque abajo todavía no haya nada). Si la consulta falla, queda solo el ancla. Si no está publicada, el ancla con el recuadro (en producción, vacía).
+- El formulario aparece cuando llegan los datos y en ese momento lee el motivo de la dirección (`?motivo=`), así que **el chip queda marcado** aunque aparezca después.
+- **Arreglo en el camino** (`hooks/useScrollToTop.ts`): al entrar en frío a un link con `#contacto`, el scroll se hacía mientras todavía cargaban las fuentes del sitio; al terminar de cargar, todo lo de arriba cambiaba de alto y la sección quedaba corrida (en celular, 375 px más abajo de donde tenía que estar). **Pasa también hoy en producción.** Ahora, cuando terminan las fuentes, el scroll se vuelve a acomodar, salvo que la persona ya haya scrolleado por su cuenta.
+
+**Limpieza de `src/data/`.** Qué quedó y quién lo usa:
+- `placeholders.ts`:
+  - `ABRI_CUENTA_HREF` y `BROKER_LOGIN_URL` → `NavbarSanity` y `HeroSanity`;
+  - `stocksInitial` (precios de ejemplo del panel) → `HeroSanity`;
+  - los tipos del Navbar (`NavLinkItem`, `NavDropdownItem`) → `Navbar` y `NavbarSanity`;
+  - los tipos del Hero (`CtaAction`, `Credential`, `StockRow`) → `Hero`;
+  - todo lo de Servicios y Quiénes somos → `Home.tsx` (no se tocó).
+  - Se borraron los textos del Hero (`heroContent`, `heroCtas`, `credentials`, `panelCopy`) y los del Navbar que ya no usaba nadie (`navLinks`, `navActions`, `brand`).
+- `contacto.ts`: quedan solo los motivos y los mensajes de validación → `Contacto`. Se borró todo lo demás (textos, canales, redes, sello), que ahora sale de Sanity.
+- `accionesLideres.ts` → `HeroSanity`, la página del Panel de Cotizaciones y el hook de cotizaciones (sin cambios).
+- **`footer.ts`: borrado** (no lo usaba nadie desde la tarea anterior).
+- `equipo.ts`, `productos.ts`, `financiamiento.ts`, `informes.ts`, `comisiones.ts`, `legal.ts`: sin cambios (sus secciones no están conectadas).
+
+**Archivos:** nuevos `components/Hero/HeroSanity.tsx`, `components/Contacto/ContactoSanity.tsx` y `sanity/links.ts`. Modificados `Hero.tsx` y `Hero.module.css` (textos opcionales y estado cargando), `Contacto.tsx` y `Contacto.module.css` (todo por props y la reserva del ancla), `FooterSanity.tsx` (usa `sanity/links.ts`), `sanity/queries.ts`, `sanity/types.ts`, `pages/Home.tsx`, `hooks/useScrollToTop.ts`, `data/placeholders.ts` y `data/contacto.ts`. Borrado `data/footer.ts`.
+
+**Verificación** (Playwright, Chromium headless, script en el scratchpad de la sesión; las respuestas de Sanity se interceptaron en el navegador, nada se escribió en el dataset; la API de cotizaciones se cortó a propósito para tener siempre los precios de ejemplo):
+- `npx tsc -b`, `npx tsc -p tsconfig.api.json`, `npx eslint .` y `npm run build`: limpios (solo la advertencia de siempre del JS de más de 500 kB; ahora 594 kB, gzip 172).
+- **Con los mismos textos que `main`**, rama (build) contra producción, a 390 y 1440 px:
+  - Textos, links, destinos, nombre del link del panel, texto de ayuda del mensaje y altos del Hero y de Contacto: **iguales**.
+  - Capturas: **0 píxeles distintos** en Contacto (390) y en la columna de textos del Hero (390 y 1440). En Contacto a 1440 difieren 1557 píxeles, todos en la franja del Navbar fijo que tapa el borde de arriba de la captura: el Navbar del dataset dice "Quiénes Somos" y el de `main` "Quiénes somos" (ver Pendientes globales). La sección en sí es igual.
+  - Sin scroll horizontal.
+- **Alto del Hero mientras carga** (Sanity demorado 2,5 s): antes y después de que lleguen los textos, 1193 px a 390 y 900 px a 1440, igual que en producción; la sección siguiente no se mueve. Medido además de 360 a 1920 px: igual en todos los anchos salvo 412 px (16 px menos mientras carga, porque el relleno del título corta en un renglón menos).
+- **Scroll a #contacto**, a 390 y 1440 px, sin demora y con Sanity demorado 2,5 s: en todos los casos la sección queda arriba (a 100 px del borde, el lugar que deja el Navbar) y el chip correcto marcado:
+  - primera carga en frío de `/?motivo=pyme#contacto` (producción, en la misma prueba, queda corrida: 268–435 px en celular y 83 en compu);
+  - desde otra página: "Consultá por tu PyME" en Financiamiento PyME y "Abrí tu cuenta" del Navbar en /comisiones (en celular, desde el menú);
+  - desde la home: "Abrí tu cuenta" del Hero.
+  - Con la demora, mientras carga ya está el ancla en su lugar y el formulario aparece después con el motivo marcado.
+- **Opcionales vacíos:** sin bajada, sello ni credenciales, el Hero no los pinta; sin "Ver panel completo", el panel sigue siendo link a `/herramientas/acciones` con su nombre para lectores de pantalla y el pie muestra solo la aclaración. En Contacto, sin WhatsApp ni horario se ven solo Email, Teléfono y Oficina; sin Instagram, solo LinkedIn; sin ninguna red, no hay bloque "Seguinos"; sin sello, bajada ni aviso, no se pintan. El texto de ayuda cambia al elegir otro motivo.
+- **Formulario:** sin datos muestra los tres mensajes de validación (de código). Lleno, manda a `/api/contacto` lo mismo que antes (motivo, nombre, email, teléfono, empresa, mensaje y el campo anti-spam). Con respuesta buena se ve el mensaje de éxito del Studio; con error, el mensaje de error del Studio.
+- **Dataset real** (sin interceptar): el Hero muestra el que cargó Santiago, sin el texto del pie del panel (todavía no tiene el campo nuevo). Contacto no está publicado: en el build no se ve nada y el ancla queda; en dev aparece el recuadro "Falta cargar en Sanity: Sección Contacto" en el lugar de la sección. Hero sin publicar (interceptado): recuadro en dev, nada en el build.
+- **Error de red** en todas las consultas: la página carga, el Hero queda en su cáscara, Contacto queda como ancla vacía y no hay errores (solo los avisos de red del navegador). Entrar a `/?motivo=cuenta#contacto` así lleva al final de la página, sin romper nada.
+- Sin errores de consola en ninguna prueba, salvo los de la API de cotizaciones cortada a propósito.
+
+**Decisiones propias / desvíos del brief:**
+- **Cáscara del Hero con texto de relleno invisible**, en vez de un alto fijo: el alto del Hero en celular depende del ancho (de 1022 a 1195 px), y el relleno corta en renglones como el texto real en cualquier ancho. Es el mismo componente cuando cargando y cuando ya hay textos, así el pedido de precios no se repite; la animación de entrada se dispara recién con los textos.
+- **Error de red en el Hero = cargando** (queda la cáscara), como en el Navbar: está arriba de todo y sacarlo movería la página.
+- **Contacto con error de red: solo el ancla, sin alto**, como el Footer (está abajo y no tiene sentido una pantalla vacía). Mientras carga sí ocupa una pantalla.
+- **Si falta Datos de la empresa**, Contacto muestra también su recuadro (además del de la sección, si falta), porque sin esos datos no tiene canales.
+- **`useScrollToTop`:** el arreglo de las fuentes no lo pedía el brief, pero sin él la "primera carga en frío" no quedaba bien (tampoco en producción).
+- **Links de teléfono, email y WhatsApp en un archivo compartido** (`sanity/links.ts`), porque ahora los usan el Footer y Contacto.
+- Se borraron también `navLinks`, `navActions` y `brand` de `placeholders.ts` (el brief pedía borrar lo que no usara nadie).
+
+**Pendientes que quedaron abiertos:**
+- Completar el Hero publicado (falta "Ver panel completo") y cargar la Sección Contacto en el Studio (ver Pendientes globales).
+- Seguir con Servicios + Productos.
 
 ### 2026-10-21 — El panel de acciones del Hero lleva al Panel de Cotizaciones (rama `main`)
 Pedido de Agus: al clickear el cuadro "Acciones · BYMA líderes" del Hero, ir directo al Panel de Cotizaciones (`/herramientas/acciones`), que tiene la tabla completa de esas mismas 8 acciones. Commit `93952f9`.
@@ -858,8 +937,8 @@ Dos pendientes técnicos chicos, sin diseño nuevo.
 - **Resuelto:** Renta Fija: las LECAPs/BONCAPs ya vencidas dejaron de aparecer en la tabla de Deuda Soberana (se filtran solas según la fecha de hoy, ver entrada del 2026-10-07). Igual conviene, cuando se actualicen los datos estáticos, sumar las licitaciones nuevas.
 - Fase de integración con Sanity: ver entrada del 2026-10-07 ("Estrategia para la próxima etapa") para la estrategia de ramas y la pregunta abierta de Renta Fija.
 - **Rama `feature/sanity`** (arrancó el 2026-10-15; ver la entrada "Rama `feature/sanity`: base de la conexión + Navbar y Footer desde Sanity"):
-  - **Orden de conexión de las secciones que siguen** (Navbar + Footer + Datos de la empresa: hecho):
-    1. Hero + Contacto (los dos leen también Datos de la empresa);
+  - **Orden de conexión de las secciones que siguen** (Navbar + Footer + Datos de la empresa: hecho; Hero + Contacto: hecho el 2026-10-21):
+    1. ~~Hero + Contacto~~ (hecho);
     2. Servicios + Productos;
     3. Quiénes somos + Equipo;
     4. Financiamiento PyME;
@@ -867,7 +946,11 @@ Dos pendientes técnicos chicos, sin diseño nuevo.
     6. Comisiones;
     7. Legales.
     Cada una sigue el criterio de estados de esa entrada y usa la query y el armado de props de su entrada en `brio-studio/PROGRESO-STUDIO.md`. Al conectar cada una, borrar de `src/data/` lo que deje de usarse.
-  - Al cerrar la rama: borrar `data/footer.ts` y `navLinks` / `navActions` / `brand` de `data/placeholders.ts` (ya no los usa nadie).
+  - ~~Al cerrar la rama: borrar `data/footer.ts` y `navLinks` / `navActions` / `brand` de `data/placeholders.ts`~~ → borrados el 2026-10-21.
+  - **Completar en el Studio el Hero** (Inicio → Hero (portada) → pestaña Panel de acciones → "Texto del link al panel completo": "Ver panel completo") y publicar. Hasta entonces la web muestra el panel sin ese texto en el pie. De paso, revisar sus textos: el que está publicado es de prueba ("Abri tu cuenta" sin tilde, la bajada y la aclaración del panel con letras de menos, "ramirito" al final de la aclaración, "Referencia" en la etiqueta).
+  - **Cargar en el Studio la Sección Contacto** (Inicio → Contacto): hoy no está publicada, así que en producción la sección no aparecería.
+  - **Navbar:** el texto publicado dice "Quiénes Somos" (con S mayúscula); en `main` es "Quiénes somos". Corregir en el Studio si no fue a propósito.
+  - **Arreglo de scroll para `main`:** el re-acomodo del scroll cuando terminan de cargar las fuentes (`hooks/useScrollToTop.ts`, ver la entrada "Hero y Contacto desde Sanity") también arregla producción, que hoy deja la sección corrida al entrar en frío a un link con `#contacto`. Llega a `main` con el merge de la rama; si se quiere antes, se puede llevar solo ese archivo.
   - **Vercel, variables de entorno:** `VITE_MOSTRAR_FALTANTES=true` en el entorno **Preview** (para ver los recuadros en la preview); `VITE_SANITY_USE_CDN=true` solo en **Production**, en el pre-lanzamiento.
   - **Pre-lanzamiento:** sumar a CORS de Sanity el dominio de producción (`brio-alyc.vercel.app` y/o `briovalores.com`), sin credenciales: `npx sanity cors add <url> --no-credentials` desde `brio-studio`. Sin eso, producción no puede leer de Sanity.
-  - **Tamaño del JS:** con `@sanity/client` el JS pasó de 467 a 592 kB (gzip 134 → 171 kB) y Vite avisa "chunk de más de 500 kB". Mirar si conviene partir el JS por página (carga diferida de las páginas que no son la home) antes de mergear a `main`.
+  - **Tamaño del JS:** con `@sanity/client` el JS pasó de 467 a 592 kB (gzip 134 → 171 kB; con Hero y Contacto, 594 kB / gzip 172 kB) y Vite avisa "chunk de más de 500 kB". Mirar si conviene partir el JS por página (carga diferida de las páginas que no son la home) antes de mergear a `main`.

@@ -21,6 +21,13 @@
   box-sizing: border-box;
 }
 
+/* Cargando los textos de Sanity: se ve solo el fondo del Hero. El contenido (texto de reserva,
+   ver Hero.tsx) sigue ocupando su lugar para que el alto sea el mismo, pero no se ve ni se
+   puede enfocar. */
+.cargando .grid {
+  visibility: hidden;
+}
+
 /* ── grid ── */
 .grid {
   flex: 1;

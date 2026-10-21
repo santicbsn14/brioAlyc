@@ -1,6 +1,8 @@
-// Contenido placeholder para maquetar Navbar + Hero.
-// Objetivo: todo esto sale de Sanity más adelante sin tocar los componentes
-// (ver brief 6.0 "todo sale de Sanity") — por eso nada va hardcodeado en el JSX.
+// Contenido placeholder de Servicios y Quiénes somos, tipos del Navbar y del Hero, destinos de
+// los botones y precios de ejemplo del panel del Hero.
+// En la rama feature/sanity el Navbar y el Hero ya leen sus textos de Sanity: de ellos acá
+// quedan solo los destinos (ABRI_CUENTA_HREF, BROKER_LOGIN_URL) y los precios de ejemplo.
+// Servicios y Quiénes somos siguen leyendo de acá hasta que se conecten.
 
 import { ACCIONES_LIDERES } from './accionesLideres';
 
@@ -28,6 +30,8 @@ export interface CtaAction {
 }
 
 export interface Credential {
+  /** Clave única de React (en Sanity, el `_key` de la credencial). */
+  key: string;
   label: string;
   number: string;
 }
@@ -39,37 +43,6 @@ export interface StockRow {
   changePct: number;
 }
 
-export const brand = {
-  logoAlt: 'Brio Valores',
-};
-
-// Los 3 anchors de acá abajo ("Quiénes somos", "Equipo", "Contacto") usan "/#id" (no
-// "#id") a propósito: el Navbar los renderiza con <Link> de React Router, así funcionan
-// parado en cualquier ruta (navegan a "/" y hacen scroll a la sección vía
-// hooks/useScrollToTop.ts) y también como scroll simple estando ya en la home.
-export const navLinks: NavLinkItem[] = [
-  { label: 'Quiénes somos', href: '/#quienes' },
-  {
-    label: 'Servicios',
-    dropdownItems: [
-      { kind: 'internal', label: 'Financiamiento PyME', href: '/servicios/financiamiento-pyme' },
-      { kind: 'internal', label: 'Productos', href: '/servicios/productos' },
-    ],
-  },
-  {
-    label: 'Herramientas',
-    dropdownItems: [
-      { kind: 'internal', label: 'Comisiones', href: '/comisiones' },
-      { kind: 'internal', label: 'Informes', href: '/informes' },
-      { kind: 'external', label: 'Consulta de Portafolio', href: 'https://brio-web.aunesa.com/Irmo/' },
-      { kind: 'internal', label: 'Panel de cotizaciones', href: '/herramientas/acciones' },
-      { kind: 'internal', label: 'Renta fija', href: '/herramientas/renta-fija' },
-    ],
-  },
-  { label: 'Equipo', href: '/#equipo' },
-  { label: 'Contacto', href: '/#contacto' },
-];
-
 /** Login del broker online. Lo usan "Mi Portafolio" (Navbar) y "Operá online" (Hero). */
 export const BROKER_LOGIN_URL = 'https://virtualbroker-brio.aunesa.com/auth/signin';
 
@@ -77,44 +50,6 @@ export const BROKER_LOGIN_URL = 'https://virtualbroker-brio.aunesa.com/auth/sign
  * mismo mecanismo que el CTA de Financiamiento PyME (el id sale de `data/contacto.ts`).
  * TODO(Agus): si Brio tiene link de apertura de cuenta online, apuntar ahí. */
 export const ABRI_CUENTA_HREF = '/?motivo=cuenta#contacto';
-
-export const navActions = {
-  portfolioLabel: 'Mi Portafolio',
-  portfolioHref: BROKER_LOGIN_URL,
-  ctaLabel: 'Abrí tu cuenta',
-  ctaHref: ABRI_CUENTA_HREF,
-};
-
-// TODO(Agus): copy definitivo del hero (H1 + bajada).
-export const heroContent = {
-  kicker: 'Agente registrado en CNV · Mat. 512',
-  title: 'Tu acceso profesional al mercado de capitales',
-  lead:
-    'Financiamiento PyME, asesoramiento e inversiones con la solidez de un agente registrado. Operá en BYMA con acompañamiento real.',
-};
-
-export const heroCtas: CtaAction[] = [
-  { label: 'Abrí tu cuenta', href: ABRI_CUENTA_HREF, variant: 'primary' },
-  { label: 'Operá online', href: BROKER_LOGIN_URL, variant: 'ghost' },
-];
-
-export const credentials: Credential[] = [
-  { label: 'BYMA', number: '210' },
-  { label: 'MAV', number: '429' },
-  { label: 'A3', number: '378' },
-  { label: 'MAE', number: '072' },
-  { label: 'ACDI', number: '108' },
-];
-
-export const panelCopy = {
-  title: 'Acciones · BYMA líderes',
-  tag: 'Referencial',
-  footnote: 'Datos referenciales · no en tiempo real',
-  // Todo el panel es un link al Panel de Cotizaciones (mismas 8 acciones, tabla completa).
-  href: '/herramientas/acciones',
-  linkLabel: 'Ver panel completo', // la flecha "→" la agrega el Hero (se anima en el hover)
-  linkAriaLabel: 'Ver panel de cotizaciones completo',
-};
 
 // FALLBACK del panel de acciones del Hero: precios de EJEMPLO (no reales) que se ven
 // en el primer render, antes de que resuelva /api/mercado/arg-stocks, y si ese fetch

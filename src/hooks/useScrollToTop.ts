@@ -34,11 +34,30 @@ export function useScrollToTop() {
     const id = decodeURIComponent(hash.slice(1));
     let raf = 0;
     let attempts = 0;
+    let vigente = true;
+    // Si la persona scrollea por su cuenta, no se la vuelve a mover (ver abajo).
+    let scrolleoPropio = false;
+    const marcarScrolleo = () => {
+      scrolleoPropio = true;
+    };
+    const eventos = ['wheel', 'touchmove', 'keydown', 'mousedown'] as const;
+    eventos.forEach((e) => window.addEventListener(e, marcarScrolleo, { passive: true }));
 
     const tryScroll = () => {
       const el = document.getElementById(id);
       if (el) {
         el.scrollIntoView({ behavior: 'auto', block: 'start' });
+        // En una carga en frío las fuentes (Google Fonts) suelen terminar de cargar después de
+        // este scroll y cambian el alto de todo lo de arriba: el elemento queda corrido cientos
+        // de píxeles. Cuando terminan, se vuelve a acomodar. Se busca de nuevo por id: la sección
+        // puede haberse reemplazado mientras tanto (ej. Contacto, cuando llegan sus datos de Sanity).
+        if (document.fonts.status !== 'loaded') {
+          document.fonts.ready.then(() => {
+            if (vigente && !scrolleoPropio) {
+              document.getElementById(id)?.scrollIntoView({ behavior: 'auto', block: 'start' });
+            }
+          });
+        }
         return;
       }
       attempts += 1;
@@ -48,6 +67,10 @@ export function useScrollToTop() {
     };
     tryScroll();
 
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      vigente = false;
+      cancelAnimationFrame(raf);
+      eventos.forEach((e) => window.removeEventListener(e, marcarScrolleo));
+    };
   }, [pathname, hash, key]);
 }
