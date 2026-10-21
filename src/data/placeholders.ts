@@ -1,8 +1,8 @@
-// Contenido placeholder de Servicios y Quiénes somos, tipos del Navbar y del Hero, destinos de
+// Contenido placeholder de Quiénes somos, tipos del Navbar, del Hero y de Servicios, destinos de
 // los botones y precios de ejemplo del panel del Hero.
-// En la rama feature/sanity el Navbar y el Hero ya leen sus textos de Sanity: de ellos acá
-// quedan solo los destinos (ABRI_CUENTA_HREF, BROKER_LOGIN_URL) y los precios de ejemplo.
-// Servicios y Quiénes somos siguen leyendo de acá hasta que se conecten.
+// En la rama feature/sanity el Navbar, el Hero y Servicios ya leen sus textos de Sanity: de ellos
+// acá quedan solo los tipos, los destinos (ABRI_CUENTA_HREF, BROKER_LOGIN_URL) y los precios de
+// ejemplo. Quiénes somos sigue leyendo de acá hasta que se conecte.
 
 import { ACCIONES_LIDERES } from './accionesLideres';
 
@@ -78,6 +78,7 @@ export const stocksInitial: StockRow[] = ACCIONES_LIDERES.map((a) => ({
 
 export type ServiceIconName = 'growth' | 'pie' | 'layers';
 
+/** Un pilar. El ícono y el destacado van por posición (los pone ServiciosSanity). */
 export interface ServicePillar {
   icon: ServiceIconName;
   title: string;
@@ -86,64 +87,19 @@ export interface ServicePillar {
   featured?: boolean;
 }
 
-/** Ítem de la lista de instrumentos: texto plano, o `{ label, href }` cuando
- * tiene que ser un link interno (ruta de react-router). */
-export type InstrumentItem = string | { label: string; href: string };
+/** Ítem de la lista de instrumentos. Con `href` es un link interno (ruta de react-router) y
+ * Servicios le agrega la flecha "→" al final. `key`: clave de React (en Sanity, el `_key`). */
+export interface InstrumentItem {
+  key: string;
+  label: string;
+  href?: string;
+}
 
 export interface InstrumentGroup {
+  key: string;
   category: string;
   items: InstrumentItem[];
 }
-
-export const serviciosContent = {
-  kicker: 'Servicios',
-  title: 'Qué hacemos por vos y tu empresa',
-  lead:
-    'Financiamiento, asesoramiento y estructuración en el mercado de capitales, con la solidez de un agente registrado en CNV.',
-  instrumentsTitle: 'Instrumentos que operamos',
-  feesTitle: 'Comisiones',
-  feesLead: 'Aranceles vigentes por plaza y tipo de operación, actualizados a enero 2026.',
-  feesCtaLabel: 'Ver comisiones completas →',
-};
-
-export const servicePillars: ServicePillar[] = [
-  {
-    icon: 'growth',
-    title: 'Financiamiento PyME',
-    text: 'Negociá los cheques de pago diferido de tu PyME en el mercado, propios y de terceros. Con el aval de una SGR accedés a tasas similares a las de una gran empresa, y te acompañamos en todo el armado de la documentación.',
-    featured: true,
-  },
-  {
-    icon: 'pie',
-    title: 'Asesoramiento e inversiones',
-    text: 'Facilitamos a instituciones, empresas y personas el acceso a inversiones en el mercado de capitales, con el respaldo de nuestra trayectoria y conocimiento profesional.',
-  },
-  {
-    icon: 'layers',
-    title: 'Estructuración y colocación',
-    text: 'Asesoramos en las distintas alternativas de financiación en el mercado de capitales: estructuración y colocación de fideicomisos financieros y obligaciones negociables.',
-  },
-];
-
-// TODO(Agus): confirmar el listado fino de instrumentos que operan hoy.
-// No incluir LEBAC: no existen desde 2018 (ver doc de contexto, 6.4).
-export const instrumentGroups: InstrumentGroup[] = [
-  {
-    category: 'Financiamiento',
-    items: ['Cheques de Pago Diferido', 'Obligaciones Negociables', 'Fideicomisos Financieros'],
-  },
-  {
-    category: 'Renta fija',
-    items: ['Títulos públicos y soberanos', 'Obligaciones Negociables', 'LECAPs / letras'],
-  },
-  {
-    category: 'Renta variable',
-    items: [
-      'Acciones (BYMA líderes)',
-      { label: 'Panel de cotizaciones en vivo →', href: '/herramientas/acciones' },
-    ],
-  },
-];
 
 // ── Quiénes somos (sección 6.2) ──────────────────────────────────────────
 

@@ -1,8 +1,55 @@
 import { useState } from 'react';
 import type { CSSProperties, PointerEvent } from 'react';
-import { categorias, productosHeader } from '../data/productos';
 import { useReveal } from '../hooks/useReveal';
+import { reserva } from '../lib/reserva';
 import styles from './Productos.module.css';
+
+/** Un instrumento: `t` = nombre, `d` = línea explicativa. `key`: clave de React (en Sanity, el `_key`). */
+export interface Instrumento {
+  key: string;
+  t: string;
+  d: string;
+}
+
+/** Una categoría del carrusel. El `id` elige la ilustración (ver Ilustracion). */
+export interface Categoria {
+  id: string;
+  nombre: string;
+  claim: string;
+  items: Instrumento[];
+}
+
+/** Los textos de la página (vienen de Sanity, ver ProductosSanity). Antetítulo y bajada vacíos no se
+ * pintan; sin categorías se ve solo el encabezado. */
+export interface ProductosTextos {
+  kicker?: string;
+  title: string;
+  lead?: string;
+  categorias: Categoria[];
+}
+
+/** `cargando`: los textos todavía no llegaron de Sanity. Se ve el fondo de la página con el alto del
+ * encabezado y del carrusel (texto de relleno invisible, ver RESERVA), así el Footer no salta. */
+export type ProductosProps = { cargando: true } | ({ cargando?: false } & ProductosTextos);
+
+/** Lo que se pinta (invisible) mientras carga: los largos de los textos actuales, con la primera
+ * categoría (la que se ve al entrar) de 4 instrumentos, como Renta fija. */
+const RESERVA: ProductosTextos = {
+  kicker: reserva(9),
+  title: reserva(21),
+  lead: reserva(132),
+  categorias: [10, 14, 14, 18].map((largo, i) => ({
+    id: `reserva-${i}`,
+    nombre: reserva(largo),
+    claim: reserva(42),
+    items: [
+      [28, 58],
+      [24, 55],
+      [6, 39],
+      [21, 52],
+    ].map(([t, d], j) => ({ key: String(j), t: reserva(t), d: reserva(d) })),
+  })),
+};
 
 /** Duración de cada slide = lo que tarda en llenarse la banda de progreso. */
 const AUTOPLAY_MS = 5200;
@@ -119,111 +166,125 @@ function Ilustracion({ id }: { id: string }) {
  * llenarse (`onAnimationEnd`), salta a la siguiente categoría. Así banda y avance nunca
  * se desincronizan, y pausar la animación al hacer hover pausa también el avance sin
  * perder lo ya recorrido. Con prefers-reduced-motion la animación no corre → no hay
- * auto-avance (ver CSS). */
-export default function Productos() {
+ * auto-avance (ver CSS).
+ * Recibe los textos por props (ProductosSanity arma las categorías desde Sanity). */
+export default function Productos(props: ProductosProps) {
+  const { cargando } = props;
+  const { kicker, title, lead, categorias } = props.cargando ? RESERVA : props;
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
   const ref = useReveal<HTMLElement>(styles.reveal, styles.isIn);
 
   const total = categorias.length;
   const go = (n: number) => setIdx((n + total) % total);
-  const actual = categorias[idx];
+  const actual = categorias[idx] as Categoria | undefined;
 
   // Solo mouse: en touch, mouseenter/leave sintéticos dejarían el carrusel trabado en pausa.
   const pause = (e: PointerEvent) => e.pointerType === 'mouse' && setPaused(true);
   const resume = (e: PointerEvent) => e.pointerType === 'mouse' && setPaused(false);
 
   return (
-    <section className={styles.productos} ref={ref}>
-      <div className={styles.inner}>
+    <section
+      className={`${styles.productos} ${cargando ? styles.cargando : ''}`}
+      ref={ref}
+      aria-busy={cargando || undefined}
+    >
+      <div className={styles.inner} aria-hidden={cargando || undefined}>
         <header className={`${styles.head} ${styles.reveal}`}>
-          <p className={styles.kicker}>
-            <span className={styles.kickerLine} aria-hidden="true" />
-            {productosHeader.kicker}
-          </p>
-          <h1 className={styles.title}>{productosHeader.title}</h1>
-          <p className={styles.lead}>{productosHeader.lead}</p>
+          {kicker && (
+            <p className={styles.kicker}>
+              <span className={styles.kickerLine} aria-hidden="true" />
+              {kicker}
+            </p>
+          )}
+          <h1 className={styles.title}>{title}</h1>
+          {lead && <p className={styles.lead}>{lead}</p>}
         </header>
 
-        <nav className={`${styles.tabs} ${styles.reveal}`} aria-label="Categorías de productos">
-          {categorias.map((c, i) => (
-            <button
-              key={c.id}
-              type="button"
-              className={`${styles.tab} ${i === idx ? styles.tabActive : ''}`}
-              onClick={() => go(i)}
-              aria-current={i === idx}
+        {actual && (
+          <>
+
+            <nav className={`${styles.tabs} ${styles.reveal}`} aria-label="Categorías de productos">
+              {categorias.map((c, i) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  className={`${styles.tab} ${i === idx ? styles.tabActive : ''}`}
+                  onClick={() => go(i)}
+                  aria-current={i === idx}
+                >
+                  {c.nombre}
+                </button>
+              ))}
+            </nav>
+
+            <div
+              className={`${styles.stage} ${styles.reveal}`}
+              onPointerEnter={pause}
+              onPointerLeave={resume}
             >
-              {c.nombre}
-            </button>
-          ))}
-        </nav>
+              <div className={styles.band} aria-hidden="true">
+                <span
+                  key={idx}
+                  className={`${styles.bandFill} ${paused ? styles.bandPaused : ''}`}
+                  style={{ animationDuration: `${AUTOPLAY_MS}ms` }}
+                  onAnimationEnd={cargando ? undefined : () => go(idx + 1)}
+                />
+              </div>
 
-        <div
-          className={`${styles.stage} ${styles.reveal}`}
-          onPointerEnter={pause}
-          onPointerLeave={resume}
-        >
-          <div className={styles.band} aria-hidden="true">
-            <span
-              key={idx}
-              className={`${styles.bandFill} ${paused ? styles.bandPaused : ''}`}
-              style={{ animationDuration: `${AUTOPLAY_MS}ms` }}
-              onAnimationEnd={() => go(idx + 1)}
-            />
-          </div>
+              <div className={styles.slide} key={actual.id}>
+                <div className={styles.slideIllus}>
+                  <Ilustracion id={actual.id} />
+                </div>
 
-          <div className={styles.slide} key={actual.id}>
-            <div className={styles.slideIllus}>
-              <Ilustracion id={actual.id} />
+                <div className={styles.slideBody}>
+                  <p className={styles.slideClaim}>{actual.claim}</p>
+                  <ul className={styles.list}>
+                    {actual.items.map((it, i) => (
+                      <li key={it.key} className={styles.item} style={{ '--i': i } as CSSProperties}>
+                        <span className={styles.itemDot} aria-hidden="true" />
+                        <div>
+                          <span className={styles.itemT}>{it.t}</span>
+                          <span className={styles.itemD}>{it.d}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className={`${styles.arrow} ${styles.arrowPrev}`}
+                onClick={() => go(idx - 1)}
+                aria-label="Anterior"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                className={`${styles.arrow} ${styles.arrowNext}`}
+                onClick={() => go(idx + 1)}
+                aria-label="Siguiente"
+              >
+                ›
+              </button>
             </div>
 
-            <div className={styles.slideBody}>
-              <p className={styles.slideClaim}>{actual.claim}</p>
-              <ul className={styles.list}>
-                {actual.items.map((it, i) => (
-                  <li key={it.t} className={styles.item} style={{ '--i': i } as CSSProperties}>
-                    <span className={styles.itemDot} aria-hidden="true" />
-                    <div>
-                      <span className={styles.itemT}>{it.t}</span>
-                      <span className={styles.itemD}>{it.d}</span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+            <div className={`${styles.dots} ${styles.reveal}`}>
+              {categorias.map((c, i) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  className={`${styles.dot} ${i === idx ? styles.dotActive : ''}`}
+                  onClick={() => go(i)}
+                  aria-label={c.nombre}
+                  aria-current={i === idx}
+                />
+              ))}
             </div>
-          </div>
-
-          <button
-            type="button"
-            className={`${styles.arrow} ${styles.arrowPrev}`}
-            onClick={() => go(idx - 1)}
-            aria-label="Anterior"
-          >
-            ‹
-          </button>
-          <button
-            type="button"
-            className={`${styles.arrow} ${styles.arrowNext}`}
-            onClick={() => go(idx + 1)}
-            aria-label="Siguiente"
-          >
-            ›
-          </button>
-        </div>
-
-        <div className={`${styles.dots} ${styles.reveal}`}>
-          {categorias.map((c, i) => (
-            <button
-              key={c.id}
-              type="button"
-              className={`${styles.dot} ${i === idx ? styles.dotActive : ''}`}
-              onClick={() => go(i)}
-              aria-label={c.nombre}
-              aria-current={i === idx}
-            />
-          ))}
-        </div>
+          </>
+        )}
       </div>
     </section>
   );

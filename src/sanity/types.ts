@@ -176,3 +176,77 @@ export interface ContactoQueryResult {
   seccion: SeccionContactoDoc | null;
   empresa: DatosEmpresaContacto | null;
 }
+
+// ── Servicios (schemaTypes/singletons/seccionServicios.ts) ──────────────
+
+export interface PilarDoc {
+  titulo?: Texto;
+  texto?: Texto;
+}
+
+export interface SeccionServiciosDoc {
+  /** Opcional. */
+  kicker?: Texto;
+  titulo?: Texto;
+  /** Opcional. */
+  bajada?: Texto;
+  /** "Nuestro diferencial": la etiqueta del pilar destacado (el primero). */
+  textoDestacado?: Texto;
+  pilar1?: PilarDoc | null;
+  pilar2?: PilarDoc | null;
+  pilar3?: PilarDoc | null;
+  tituloInstrumentos?: Texto;
+  /** "Panel de cotizaciones en vivo", sin la flecha (la pone el front). */
+  textoLinkPanel?: Texto;
+  tituloComisiones?: Texto;
+  /** Opcional. */
+  bajadaComisiones?: Texto;
+  /** "Ver comisiones completas", sin la flecha (la pone el front). */
+  textoBotonComisiones?: Texto;
+}
+
+// ── Productos (schemaTypes/singletons/paginaProductos.ts) ───────────────
+
+export interface InstrumentoDoc {
+  _key: string;
+  nombre?: Texto;
+  /** Línea explicativa: solo la pide la página Productos. */
+  linea?: Texto;
+}
+
+export interface CategoriaProductosDoc {
+  nombre?: Texto;
+  /** Solo la pide la página Productos. */
+  frase?: Texto;
+  instrumentos?: InstrumentoDoc[] | null;
+}
+
+/** Las tres categorías de Productos que muestra la home. */
+export interface ProductosParaServicios {
+  categoriaFinanciamiento?: CategoriaProductosDoc | null;
+  categoriaRentaFija?: CategoriaProductosDoc | null;
+  categoriaRentaVariable?: CategoriaProductosDoc | null;
+}
+
+/** SERVICIOS_QUERY: cada documento viene `null` si no está publicado. */
+export interface ServiciosQueryResult {
+  servicios: SeccionServiciosDoc | null;
+  productos: ProductosParaServicios | null;
+}
+
+export interface PaginaProductosDoc {
+  /** Opcional. */
+  kicker?: Texto;
+  titulo?: Texto;
+  /** Opcional. */
+  bajada?: Texto;
+  categorias?: {
+    rentaFija?: CategoriaProductosDoc | null;
+    rentaVariable?: CategoriaProductosDoc | null;
+    financiamiento?: CategoriaProductosDoc | null;
+    futuros?: CategoriaProductosDoc | null;
+  } | null;
+}
+
+/** PRODUCTOS_QUERY: `null` si el documento no está publicado. */
+export type ProductosQueryResult = PaginaProductosDoc | null;

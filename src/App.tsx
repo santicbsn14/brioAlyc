@@ -3,7 +3,7 @@ import NavbarSanity from './components/Navbar/NavbarSanity';
 import FooterSanity from './components/Footer/FooterSanity';
 import Home from './pages/Home';
 import Comisiones from './pages/Comisiones';
-import Productos from './pages/Productos';
+import ProductosSanity from './pages/ProductosSanity';
 import FinanciamientoPyme from './pages/FinanciamientoPyme';
 import Informes from './pages/Informes';
 import RentaFija from './pages/RentaFija';
@@ -23,7 +23,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/comisiones" element={<Comisiones />} />
         <Route path="/servicios/financiamiento-pyme" element={<FinanciamientoPyme />} />
-        <Route path="/servicios/productos" element={<Productos />} />
+        <Route path="/servicios/productos" element={<ProductosSanity />} />
         <Route path="/informes" element={<Informes />} />
         <Route path="/herramientas/acciones" element={<Acciones />} />
         <Route path="/herramientas/renta-fija" element={<RentaFija />} />

@@ -21,3 +21,16 @@ export default function FaltaCargar({ nombre, ubicacion }: FaltaCargarProps) {
     </div>
   );
 }
+
+/** Variante chica, para algo que falta dentro de una sección que sí se muestra (ej. Servicios sin
+ * alguna categoría de Productos). `texto` dice qué falta y dónde se carga. Mismas reglas: solo en
+ * dev o con VITE_MOSTRAR_FALTANTES=true. */
+export function AvisoFaltante({ texto }: { texto: string }) {
+  if (!mostrarFaltantes) return null;
+
+  return (
+    <p className={`${styles.recuadro} ${styles.chico}`} role="note">
+      {texto}
+    </p>
+  );
+}

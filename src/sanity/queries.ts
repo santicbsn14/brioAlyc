@@ -24,6 +24,35 @@ export const HERO_QUERY = /* groq */ `
   }
 }`;
 
+/** Servicios de la home: sus textos + los nombres de las tres categorías de Productos que muestra la
+ * home (los instrumentos no se cargan en Servicios). Entrada "Sección Servicios". */
+export const SERVICIOS_QUERY = /* groq */ `
+{
+  "servicios": *[_type == "seccionServicios" && _id == "seccionServicios"][0]{
+    kicker, titulo, bajada, textoDestacado,
+    pilar1{titulo, texto}, pilar2{titulo, texto}, pilar3{titulo, texto},
+    tituloInstrumentos, textoLinkPanel,
+    tituloComisiones, bajadaComisiones, textoBotonComisiones
+  },
+  "productos": *[_type == "paginaProductos" && _id == "paginaProductos"][0]{
+    categoriaFinanciamiento{nombre, instrumentos[]{_key, nombre}},
+    categoriaRentaFija{nombre, instrumentos[]{_key, nombre}},
+    categoriaRentaVariable{nombre, instrumentos[]{_key, nombre}}
+  }
+}`;
+
+/** Página /servicios/productos. Entrada "Página Productos". */
+export const PRODUCTOS_QUERY = /* groq */ `
+*[_type == "paginaProductos" && _id == "paginaProductos"][0]{
+  kicker, titulo, bajada,
+  "categorias": {
+    "rentaFija": categoriaRentaFija{nombre, frase, instrumentos[]{_key, nombre, linea}},
+    "rentaVariable": categoriaRentaVariable{nombre, frase, instrumentos[]{_key, nombre, linea}},
+    "financiamiento": categoriaFinanciamiento{nombre, frase, instrumentos[]{_key, nombre, linea}},
+    "futuros": categoriaFuturos{nombre, frase, instrumentos[]{_key, nombre, linea}}
+  }
+}`;
+
 /** Contacto de la home. Entrada "Datos de la empresa + Contacto + Footer". */
 export const CONTACTO_QUERY = /* groq */ `
 {

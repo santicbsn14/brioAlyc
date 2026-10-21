@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { CtaAction, Credential, StockRow } from '../../data/placeholders';
 import type { AccionLider } from '../../data/accionesLideres';
 import { useAccionesLideres } from '../../hooks/useAccionesLideres';
+import { reserva } from '../../lib/reserva';
 import styles from './Hero.module.css';
 
 /** Los textos del Hero (vienen de Sanity). Los opcionales vacíos no se pintan. */
@@ -33,14 +34,6 @@ export type HeroProps = {
   /** Nombre accesible del link (así el lector de pantalla no lee las 8 filas como texto del link). */
   panelLinkAriaLabel: string;
 } & ({ cargando: true } | ({ cargando?: false } & HeroTextos));
-
-/** Texto de relleno: letras y largos de palabra parecidos a los de un texto real. */
-const RELLENO =
-  'Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud';
-
-/** Texto invisible de `largo` caracteres: corta en renglones más o menos como el texto de verdad
- * y así reserva su alto en cualquier ancho. */
-const reserva = (largo: number) => RELLENO.slice(0, largo).trim();
 
 /** Lo que se pinta (invisible) mientras carga. Los largos se midieron para que corten en los mismos
  * renglones que los textos actuales del Hero, de 360 a 1920 px (el título y los del panel quedaron
