@@ -125,7 +125,7 @@ brio-nuevo/
 ## Historial
 
 ### 2026-10-22 — Rama `feature/sanity`: Servicios y Productos desde Sanity (+ scroll a secciones)
-Tercera tarea de conexión de la rama. Antes, el arreglo del scroll de la tarea anterior se pasó a `main` (ver la entrada siguiente) y se mergeó `main` en la rama (commit `de2d007`). Commits de esta tarea: `HASH_SCROLL` (scroll a una sección con algo cargando arriba) y `HASH_SERV` (Servicios y Productos). No se escribió nada en el dataset.
+Tercera tarea de conexión de la rama. Antes, el arreglo del scroll de la tarea anterior se pasó a `main` (ver la entrada siguiente) y se mergeó `main` en la rama (commit `de2d007`). Commits de esta tarea: `66b1280` (scroll a una sección con algo cargando arriba) y `1189e80` (Servicios y Productos). No se escribió nada en el dataset.
 
 **Paso 0 — Arreglo del scroll en `main`.** Commit `0dfdeaf` en `main` (solo `hooks/useScrollToTop.ts`), probado en local y en producción. Al mergear `main` en la rama, el código entró sin conflictos (el archivo era igual en las dos ramas); el único conflicto fue en este archivo (dos entradas nuevas arriba del Historial) y se dejaron las dos, por fecha.
 
