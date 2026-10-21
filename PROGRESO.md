@@ -123,7 +123,7 @@ brio-nuevo/
 ## Historial
 
 ### 2026-10-21 — Rama `feature/sanity`: Hero y Contacto desde Sanity
-Segunda tarea de conexión de la rama. El Hero y Contacto de la home ahora leen sus textos de Sanity, con el mismo criterio de estados que el Navbar y el Footer. Commit `HASH_PENDIENTE`. Antes, en el Studio (`brio-studio`, commit `eda54d1`), se sumó el campo del texto "Ver panel completo" del Hero. `main` no se tocó. No se escribió nada en el dataset.
+Segunda tarea de conexión de la rama. El Hero y Contacto de la home ahora leen sus textos de Sanity, con el mismo criterio de estados que el Navbar y el Footer. Commit `68d5317`. Antes, en el Studio (`brio-studio`, commit `eda54d1`), se sumó el campo del texto "Ver panel completo" del Hero. `main` no se tocó. No se escribió nada en el dataset.
 
 **Paso 0 — Rama.** `feature/sanity` estaba al día con GitHub y tiene el merge de `main` con el panel del Hero linkeado (`c206bfe`).
 
