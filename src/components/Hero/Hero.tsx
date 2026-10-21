@@ -18,6 +18,12 @@ export interface HeroProps {
   panelTitle: string;
   panelTag: string;
   panelFootnote: string;
+  /** Ruta interna a la que lleva todo el panel (Panel de Cotizaciones). */
+  panelHref: string;
+  /** Texto visible del pie que indica que el panel es clickeable. */
+  panelLinkLabel: string;
+  /** Nombre accesible del link (así el lector de pantalla no lee las 8 filas como texto del link). */
+  panelLinkAriaLabel: string;
 }
 
 const formatPrice = (n: number) =>
@@ -37,6 +43,9 @@ export default function Hero({
   panelTitle,
   panelTag,
   panelFootnote,
+  panelHref,
+  panelLinkLabel,
+  panelLinkAriaLabel,
 }: HeroProps) {
   const [mounted, setMounted] = useState(false);
   // Precios reales de BYMA (data912 vía /api/mercado/arg-stocks), con fallback de ejemplo
@@ -94,12 +103,9 @@ export default function Hero({
           <div className={styles.glow} aria-hidden="true" />
           <div className={styles.gridLines} aria-hidden="true" />
 
-          <div
-            className={styles.panel}
-            role="img"
-            aria-label="Panel de acciones BYMA (referencial)"
-            data-fuente={fuente}
-          >
+          {/* Todo el panel es un link. El bob sigue en este mismo elemento: el hover
+              solo toca borde/fondo/sombra, nunca transform (ver Hero.module.css). */}
+          <Link to={panelHref} className={styles.panel} aria-label={panelLinkAriaLabel} data-fuente={fuente}>
             <div className={styles.panelHead}>
               <div className={styles.panelTitle}>
                 <span className={styles.live} aria-hidden="true" />
@@ -133,8 +139,16 @@ export default function Hero({
               })}
             </ul>
 
-            <div className={styles.panelFoot}>{panelFootnote}</div>
-          </div>
+            <div className={styles.panelFoot}>
+              <span>{panelFootnote}</span>
+              <span className={styles.panelCta}>
+                {panelLinkLabel}
+                <span className={styles.panelCtaArrow} aria-hidden="true">
+                  →
+                </span>
+              </span>
+            </div>
+          </Link>
         </div>
       </div>
     </section>
