@@ -122,6 +122,14 @@ brio-nuevo/
 
 ## Historial
 
+### 2026-10-22 — Arreglo: el scroll a #contacto quedaba corrido al entrar en frío (rama `main`)
+Al abrir directo un link a Contacto (ej. "Abrí tu cuenta" o "Consultá por tu PyME" compartido, o recargando `/?motivo=pyme#contacto`), la página scrolleaba a la sección mientras todavía cargaban las fuentes del sitio. Cuando terminaban, todo lo de arriba cambiaba de alto y la sección quedaba corrida (en celular, hasta 375 px más abajo de donde tenía que estar).
+
+- **Qué se hizo:** cuando terminan de cargar las fuentes, el scroll se vuelve a acomodar en la sección, salvo que la persona ya haya scrolleado, tocado la pantalla o usado el teclado.
+- Se trajo de la rama `feature/sanity`, donde se había encontrado y arreglado (commit `68d5317`). Se pasó **solo** ese archivo (`hooks/useScrollToTop.ts`), sin el resto de ese commit, que depende de Sanity.
+- **Verificación:** build local (`vite preview`) y producción, con Playwright a 390 y 1440 px, tres cargas en frío de `/?motivo=pyme#contacto` por ancho: la sección queda arriba (a 100 px del borde, el lugar que deja el Navbar) con el chip "Financiamiento para mi PyME" marcado. `tsc` (los dos), `eslint` y `build` limpios.
+- **Merge en `feature/sanity`** (2026-10-22): el código entró sin conflictos (`useScrollToTop.ts` ya era idéntico en las dos ramas). El único conflicto fue en este archivo: las dos ramas habían sumado una entrada arriba del Historial. Se dejaron las dos, por fecha.
+
 ### 2026-10-21 — Rama `feature/sanity`: Hero y Contacto desde Sanity
 Segunda tarea de conexión de la rama. El Hero y Contacto de la home ahora leen sus textos de Sanity, con el mismo criterio de estados que el Navbar y el Footer. Commit `68d5317`. Antes, en el Studio (`brio-studio`, commit `eda54d1`), se sumó el campo del texto "Ver panel completo" del Hero. `main` no se tocó. No se escribió nada en el dataset.
 
