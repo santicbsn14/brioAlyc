@@ -106,6 +106,13 @@ brio-nuevo/
 
 ## Historial
 
+### 2026-10-22 — Arreglo: el scroll a #contacto quedaba corrido al entrar en frío (rama `main`)
+Al abrir directo un link a Contacto (ej. "Abrí tu cuenta" o "Consultá por tu PyME" compartido, o recargando `/?motivo=pyme#contacto`), la página scrolleaba a la sección mientras todavía cargaban las fuentes del sitio. Cuando terminaban, todo lo de arriba cambiaba de alto y la sección quedaba corrida (en celular, hasta 375 px más abajo de donde tenía que estar).
+
+- **Qué se hizo:** cuando terminan de cargar las fuentes, el scroll se vuelve a acomodar en la sección, salvo que la persona ya haya scrolleado, tocado la pantalla o usado el teclado.
+- Se trajo de la rama `feature/sanity`, donde se había encontrado y arreglado (commit `68d5317`). Se pasó **solo** ese archivo (`hooks/useScrollToTop.ts`), sin el resto de ese commit, que depende de Sanity.
+- **Verificación:** build local (`vite preview`) y producción, con Playwright a 390 y 1440 px, tres cargas en frío de `/?motivo=pyme#contacto` por ancho: la sección queda arriba (a 100 px del borde, el lugar que deja el Navbar) con el chip "Financiamiento para mi PyME" marcado. `tsc` (los dos), `eslint` y `build` limpios.
+
 ### 2026-10-21 — El panel de acciones del Hero lleva al Panel de Cotizaciones (rama `main`)
 Pedido de Agus: al clickear el cuadro "Acciones · BYMA líderes" del Hero, ir directo al Panel de Cotizaciones (`/herramientas/acciones`), que tiene la tabla completa de esas mismas 8 acciones. Commit `93952f9`.
 
