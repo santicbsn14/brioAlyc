@@ -32,6 +32,9 @@ export default function Home() {
         panelTitle={panelCopy.title}
         panelTag={panelCopy.tag}
         panelFootnote={panelCopy.footnote}
+        panelHref={panelCopy.href}
+        panelLinkLabel={panelCopy.linkLabel}
+        panelLinkAriaLabel={panelCopy.linkAriaLabel}
       />
       <Servicios
         kicker={serviciosContent.kicker}

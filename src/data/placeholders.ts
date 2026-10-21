@@ -110,6 +110,10 @@ export const panelCopy = {
   title: 'Acciones · BYMA líderes',
   tag: 'Referencial',
   footnote: 'Datos referenciales · no en tiempo real',
+  // Todo el panel es un link al Panel de Cotizaciones (mismas 8 acciones, tabla completa).
+  href: '/herramientas/acciones',
+  linkLabel: 'Ver panel completo', // la flecha "→" la agrega el Hero (se anima en el hover)
+  linkAriaLabel: 'Ver panel de cotizaciones completo',
 };
 
 // FALLBACK del panel de acciones del Hero: precios de EJEMPLO (no reales) que se ven
