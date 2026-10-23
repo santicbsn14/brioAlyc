@@ -3,7 +3,7 @@
 ## Estado actual
 Front nuevo (`brio-nuevo`, separado de la web puente) con routing (React Router): home (`/`, header + hero + Servicios + Quiénes somos + Equipo + Contacto — ya completa, las 5 secciones de esta etapa), página propia de comisiones (`/comisiones`, con las tablas completas del PDF por pestañas), página de productos (`/servicios/productos`, carrusel animado de instrumentos por categoría), página de Financiamiento PyME (`/servicios/financiamiento-pyme`, con el paso a paso animado de 4 etapas), página de Informes (`/informes`, colgada del menú Herramientas: listado de PDFs filtrable por categoría, con descarga directa) y ahora también el Panel de Renta Fija (`/herramientas/renta-fija`, colgada del menú Herramientas: ONs, Deuda Soberana + LECAPs/BONCAPs, Calendario de pagos y Cartera propia, con datos y cálculos reales vía un proxy propio a data912; clickear cualquier ticker abre un panel lateral con su flujo de fondos futuro, recalculable para un monto a invertir). El header (Navbar) ya quedó terminado: logo real, menú con dropdowns funcionales (Servicios y Herramientas), link nuevo a Equipo, fondo que cambia al scrollear y los 3 anchors de la home (Quiénes somos/Equipo/Contacto) funcionando cross-página (navegan a la home y scrollean, parados en cualquier ruta). Ahora también hay Footer institucional (montado en `App.tsx`, visible en todas las páginas) y dos páginas legales (`/codigo-de-conducta`, texto real de Brio; `/terminos-y-condiciones`, borrador genérico a reemplazar). Quiénes somos ya tiene la foto real de oficina y quedó en 2 bloques (relato + valores), sin el bloque de números. En Servicios, las descripciones de los 3 pilares ya son texto real (rescatado del sitio anterior). Equipo muestra 3 socios (tarjeta con bio corta + "Ver más" que despliega la bio completa) y 9 empleados (grilla simple), con contenido real: nómina, cargos, bios y fotos de 11 de las 12 personas (falta solo la foto de Claudio Adrián Iglesias, que se ve con avatar de iniciales). Contacto tiene formulario funcional con validación, honeypot y un endpoint real de envío por mail (Resend, en `api/contacto.ts`) — falta que Vercel tenga configuradas las variables de entorno reales para que mande mails de verdad. Los botones "Consultá por tu PyME" de Financiamiento PyME ya llevan a Contacto con el motivo correcto preseleccionado, y "Abrí tu cuenta" (Hero y Navbar) hace lo mismo con el motivo "Abrir mi cuenta"; "Operá online" abre el login del broker. En producción ya se puede entrar directo a cualquier página (recargar o abrir un link compartido) sin el 404 de Vercel. Los datos reales de contacto (teléfono, email, dirección) ya están sincronizados entre `data/footer.ts` y `data/contacto.ts`; solo quedan de ejemplo WhatsApp, horario e Instagram/LinkedIn. En Informes, el primer informe ya es real (PDF real, descarga funcional); los otros tres son de ejemplo para mostrar el filtro funcionando. El resto del contenido sigue en placeholder salvo los valores de comisiones (ya reales, transcriptos y cruzados contra el PDF fuente) y los datos financieros de Renta Fija (ONs, soberanos, LECAPs, BONCAPs — reales, portados de la herramienta vieja). El panel de acciones del Hero ya muestra precios reales de BYMA (8 acciones líderes, vía `/api/mercado/arg-stocks` → data912), con fallback a precios de ejemplo mientras carga o si falla. Todo ese panel es además un link al Panel de Cotizaciones (`/herramientas/acciones`), con "Ver panel completo →" en el pie. Esas mismas 8 acciones tienen su tabla completa en el Panel de Cotizaciones (`/herramientas/acciones`, colgado del menú Herramientas: compra/venta/último/variación/volumen, ordenable, con buscador, auto-refresh elegible y export CSV). Con esto la home queda completa para esta etapa; falta el resto del sitio.
 
-**Rama `feature/sanity` (en curso, no está en producción):** conecta el front al Sanity Studio (`brio-studio`). Ya tiene la base (`src/sanity/`: cliente sin token, hook con caché, queries y tipos, y el recuadro "Falta cargar en Sanity") y ya leen sus textos de Sanity el Navbar, el Footer, el Hero, Servicios, Quiénes somos, Equipo, Contacto y la página Productos (más los Datos de la empresa que usan). Mientras cargan, las secciones de la home ocupan su lugar, así la página no salta. Santiago está cargando el contenido a mano en el Studio: ya hay Datos de la empresa, Navbar, Footer y un Hero de prueba; Servicios, Productos, Quiénes somos, Equipo y Contacto todavía no. El resto (las demás páginas) sigue leyendo de `src/data/` hasta que se conecte (orden en Pendientes globales).
+**Rama `feature/sanity` (en curso, no está en producción):** conecta el front al Sanity Studio (`brio-studio`). Ya tiene la base (`src/sanity/`: cliente sin token, hook con caché, queries y tipos, y el recuadro "Falta cargar en Sanity") y ya leen sus textos de Sanity el Navbar, el Footer, el Hero, Servicios, Quiénes somos, Equipo, Contacto y las páginas Productos, Financiamiento PyME e Informes (más los Datos de la empresa que usan). Mientras cargan, las secciones de la home y esas tres páginas ocupan su lugar, así la página no salta. Santiago está cargando el contenido a mano en el Studio: ya hay Datos de la empresa, Navbar, Footer y un Hero de prueba; Servicios, Productos, Quiénes somos, Equipo, Contacto, Financiamiento PyME e Informes todavía no. El resto (Comisiones y las legales) sigue leyendo de `src/data/` hasta que se conecte (orden en Pendientes globales).
 
 ## Estructura de archivos
 ```
@@ -22,14 +22,16 @@ brio-nuevo/
       config.ts             → projectId/dataset (pisables por env), apiVersion fija, CDN solo en producción con VITE_SANITY_USE_CDN, `mostrarFaltantes`
       client.ts             → cliente de @sanity/client, sin token, solo lo publicado
       useSanityQuery.ts     → hook { data, status: cargando/listo/error } con caché en memoria por query + parámetros y dedup de pedidos en vuelo
-      queries.ts            → queries GROQ, una por componente (hoy: NAVBAR_QUERY, HERO_QUERY, SERVICIOS_QUERY, PRODUCTOS_QUERY, CONTACTO_QUERY, FOOTER_QUERY)
+      queries.ts            → queries GROQ, una por componente (hoy: NAVBAR_QUERY, HERO_QUERY, SERVICIOS_QUERY, PRODUCTOS_QUERY, CONTACTO_QUERY, FOOTER_QUERY, QUIENES_SOMOS_QUERY, EQUIPO_QUERY, FINANCIAMIENTO_QUERY, INFORMES_QUERY)
       links.ts              → arma los links tel: / mailto: / wa.me a partir de Datos de la empresa (los usan Footer y Contacto)
       types.ts              → tipos de lo que devuelve cada query, escritos a mano desde los schemas
+      TextoResaltado.tsx    → pinta cualquier campo "Texto con resaltado" de Sanity (los resaltados como <strong>, que cada página pinta con su CSS)
+      resaltado.ts          → ayudas de ese tipo: `tieneTexto` (vacío o sin texto → no se pinta el párrafo) y el nombre de la marca
       env.d.ts              → tipos de las variables VITE_SANITY_* / VITE_MOSTRAR_FALTANTES
     styles/
       tokens.css            → paleta de marca + fuentes (Poppins/Sora)
     lib/
-      reserva.ts             → texto de relleno invisible para las cáscaras de carga (Hero, Productos)
+      reserva.ts             → texto de relleno invisible para las cáscaras de carga (Hero, Servicios, Quiénes somos, Equipo, Productos, Financiamiento PyME, Informes)
       mercado/
         accionesLideres.ts    → parser de arg_stocks (tipo `CotizacionAccion`) para el panel del Hero y la tabla de /herramientas/acciones: precio `c`, `pct_change`, puntas `px_bid`/`px_ask` y volumen `v`, sin exigir volumen; null por dato faltante, null si no vino ningún ticker
       rentaFija/
@@ -51,8 +53,6 @@ brio-nuevo/
       placeholders.ts       → contenido de Quiénes somos (relato y valores), precios de EJEMPLO del panel de acciones del Hero, destinos ABRI_CUENTA_HREF / BROKER_LOGIN_URL y tipos del Navbar, del Hero y de Servicios. En la rama feature/sanity ya no tiene los textos del Navbar, del Hero ni de Servicios (vienen de Sanity)
       accionesLideres.ts     → ACCIONES_LIDERES: los 8 tickers (ticker + nombre) del panel del Hero, dato ESTÁTICO — candidato a Sanity (ver pendientes)
       comisiones.ts         → tablas de comisiones (título/columnas/filas/notas por tabla, agrupadas en pestañas), tipado, valores reales del PDF
-      financiamiento.ts     → textos de la página de Financiamiento PyME (encabezado, beneficios, pasos, cierre y botón), tipado, contenido provisorio
-      informes.ts             → contenido de la página de Informes (encabezado, categorías, listado de informes con fecha/categoría/resumen/PDF), tipado; solo el primer informe es real, el resto son de ejemplo
       contacto.ts            → lo que queda en código de Contacto: los motivos del formulario (id, label y el campo extra "Nombre de la empresa") y los mensajes de validación. En la rama feature/sanity, el resto viene de Sanity
       equipo.ts               → contenido de la sección Equipo (kicker/título/bajada, 3 socios con bio corta + `bioExtendida?`, 9 empleados), tipado; contenido REAL (nombres/cargos/bios/fotos importadas de `assets/equipo/`), salvo la foto de Claudio Iglesias que falta, con nota sobre el modelo probable en Sanity (un solo tipo "Persona" con flag "esSocio")
       legal.ts                → contenido de las dos páginas legales: `codigoConducta` (texto real de Brio, por capítulos/artículos) y `terminosCondiciones` (borrador genérico, con TODO de asesoría legal)
@@ -104,9 +104,11 @@ brio-nuevo/
       Productos.tsx           → página /servicios/productos: header + pestañas + carrusel con banda de progreso + flechas + dots; recibe los textos por props (tipos Categoria / Instrumento acá); con `cargando` muestra el fondo con el mismo alto (texto de relleno invisible)
       ProductosSanity.tsx     → conectado: query `paginaProductos`, arma el carrusel con la lista ORDEN (orden e ilustración en código); cargando/error → cáscara, null → FaltaCargar
       Productos.module.css
-      FinanciamientoPyme.tsx → página /servicios/financiamiento-pyme: intro + 3 beneficios + paso a paso de 4 etapas (horizontal en desktop, vertical en celular) + cierre con botón (ya apunta a Contacto con motivo=pyme)
+      FinanciamientoPyme.tsx → página /servicios/financiamiento-pyme: intro + 3 beneficios + paso a paso de 4 etapas (horizontal en desktop, vertical en celular) + cierre con botón; recibe los textos por props (tipo BloqueTexto acá; números de los pasos por posición); con `cargando` muestra el fondo con el mismo alto
+      FinanciamientoSanity.tsx → conectado: query `paginaFinanciamiento`, bajada con TextoResaltado, beneficios/pasos desde los campos fijos, destino del botón (`/?motivo=pyme#contacto`) en código; cargando/error → cáscara, null → FaltaCargar
       FinanciamientoPyme.module.css
-      Informes.tsx            → página /informes: header + chips de filtro por categoría + listado de informes (ordenado por fecha descendente) con descarga
+      Informes.tsx            → página /informes: header + chips de filtro por categoría + listado de informes con descarga; recibe textos y listado por props (tipos CategoriaInforme / Informe acá); fecha "AAAA-MM-DD" formateada a mano; con `cargando` muestra el fondo con el alto del encabezado y 3 filas
+      InformesSanity.tsx      → conectado: query `paginaInformes` + listado de `informe` (solo con PDF, el más nuevo arriba); ids de categorías en código, nombres de Sanity; descarga con `?dl=<nombre original>`; cargando/error → cáscara, página null → FaltaCargar, sin informes → texto de vacío
       Informes.module.css
       Acciones.tsx + .module.css → página /herramientas/acciones (Panel de Cotizaciones): header con reveal + buscador + status bar (estado, hora, intervalo, Actualizar, Exportar CSV) + tabla ordenable de las 8 acciones líderes + disclaimer. Usa `hooks/useAccionesLideres.ts` (el mismo del Hero)
       RentaFija.tsx            → página /herramientas/renta-fija: header + 4 tabs con indicador real (refs) + status bar (por grupo ONs / Soberana+LECAPs) + panel con slide + disclaimer. Usa `hooks/useRentaFija.ts` para todo el estado/datos y los componentes de `components/RentaFija/` para cada pestaña
@@ -114,7 +116,7 @@ brio-nuevo/
       TerminosCondiciones.tsx → página /terminos-y-condiciones: borrador genérico (TODO asesoría legal)
       LegalDoc.module.css     → estilos compartidos por las dos páginas legales (documento navy, sin tarjetas)
       ComingSoon.tsx          → placeholder mínimo ("Próximamente") para rutas que todavía no tienen página real — hoy ninguna ruta lo usa (se deja por si aparece una ruta nueva sin página)
-    App.tsx                  → NavbarSanity fuera de <Routes> (siempre visible) + <Routes> ("/" → Home, "/comisiones" → Comisiones, "/servicios/productos" → ProductosSanity, "/servicios/financiamiento-pyme" → FinanciamientoPyme, "/informes" → Informes, "/herramientas/acciones" → Acciones, "/herramientas/renta-fija" → RentaFija, "/codigo-de-conducta" → CodigoConducta, "/terminos-y-condiciones" → TerminosCondiciones) + FooterSanity fuera de <Routes> (siempre visible, en todas las páginas)
+    App.tsx                  → NavbarSanity fuera de <Routes> (siempre visible) + <Routes> ("/" → Home, "/comisiones" → Comisiones, "/servicios/productos" → ProductosSanity, "/servicios/financiamiento-pyme" → FinanciamientoSanity, "/informes" → InformesSanity, "/herramientas/acciones" → Acciones, "/herramientas/renta-fija" → RentaFija, "/codigo-de-conducta" → CodigoConducta, "/terminos-y-condiciones" → TerminosCondiciones) + FooterSanity fuera de <Routes> (siempre visible, en todas las páginas)
     main.tsx                 → envuelve <App/> en <BrowserRouter>
     index.css
   tsconfig.api.json          → proyecto TS aparte para tipar api/ (Node, no browser)
@@ -123,6 +125,94 @@ brio-nuevo/
 ```
 
 ## Historial
+
+### 2026-10-23 — Rama `feature/sanity`: Financiamiento PyME e Informes desde Sanity
+Quinta tarea de conexión de la rama. Las páginas Financiamiento PyME e Informes ya leen de Sanity, con el mismo criterio de estados que las anteriores. Commit `187d128` (código); este PROGRESO va en el commit siguiente. No se escribió nada en el dataset.
+
+**Paso 1 — Financiamiento PyME** (`pages/FinanciamientoSanity.tsx`, nuevo):
+- La query de referencia del Studio.
+- **Bajada:** se pinta con un componente nuevo, `sanity/TextoResaltado.tsx`, que sirve para cualquier campo de tipo "Texto con resaltado" que se use más adelante. La frase resaltada sale en negrita (`<strong>`), igual que hoy, así que el CSS no se tocó: se sigue viendo en blanco y semibold. Si la bajada está vacía, o es un párrafo sin texto, no se pinta.
+- **Beneficios y pasos:** se arman con los campos fijos del Studio (3 beneficios, 4 pasos), en ese orden. Los números de los pasos (1 a 4) los pone la web según la posición.
+- **Botones:** los dos (arriba y en el cierre) usan el mismo texto del Studio. Adónde llevan (Contacto, con el motivo "Financiamiento para mi PyME" marcado) queda en código.
+- Antetítulo, bajada y bajada del paso a paso vacíos: no se pintan.
+- **Mientras carga, o si falla la red:** se ve el fondo de la página con el alto que va a tener (el mismo texto de relleno invisible de Productos y la home), así el Footer no salta. Al llegar los textos la página se monta de nuevo y las animaciones arrancan como siempre.
+- **Sin publicar:** recuadro "Página Financiamiento PyME" (Páginas → Financiamiento PyME). En producción, la página queda vacía entre el Navbar y el Footer.
+- `FinanciamientoPyme.tsx` ahora recibe los textos por props (antes importaba `data/financiamiento.ts`). Lo que pinta es lo mismo.
+
+**Paso 2 — Informes** (`pages/InformesSanity.tsx`, nuevo):
+- La query de referencia: los textos de la página y el listado, que trae solo los informes con PDF, del más nuevo al más viejo (si dos tienen la misma fecha, primero el creado último).
+- **Categorías:** los tres ids (semanal / mensual / especial) quedan en código; los nombres que se ven ("Informes semanales"…) salen del Studio. "Todos", el botón de descarga y el mensaje de vacío, también.
+- **Botones de filtro:** igual que hoy, se muestran siempre "Todos" y las tres categorías, tengan informes o no. **Si una categoría no tiene informes**, al tocarla se ve el mensaje de vacío ("Todavía no hay informes en esta categoría."). Con el único informe real que se va a cargar (semanal), "Informes mensuales" e "Informes especiales" van a mostrar ese mensaje hasta que haya informes de esas categorías (ver el TODO de Agus en Pendientes globales).
+- **Fecha:** se arma a mano a partir del "AAAA-MM-DD" del Studio, en el mismo formato de hoy ("13 de julio de 2026"). No depende de la hora ni de la zona horaria de quien mira (si se interpretara como fecha y hora, en Argentina a la noche podría mostrar el día anterior).
+- **Descarga:** el botón lleva al PDF en Sanity con `?dl=` y el nombre con que se subió el archivo, así se descarga con ese nombre (en vez de abrirse o bajar con un nombre raro). Si no hay nombre, `?dl=` vacío.
+- Resumen vacío: no se pinta. Cada informe se identifica por su id de Sanity.
+- **Mientras carga, o si falla la red:** el fondo con el alto del encabezado y de 3 filas del listado, sin nada a la vista.
+- **Página sin publicar:** recuadro "Página Informes" (Páginas → Informes → Textos de la página). **Página publicada sin ningún informe:** se ve el encabezado, los botones y el mensaje de vacío, como hoy (no es un faltante).
+- `Informes.tsx` ahora recibe todo por props (antes importaba `data/informes.ts`). Lo que pinta es lo mismo.
+
+**Paso 3 — Limpieza:**
+- Se borraron `data/financiamiento.ts` y `data/informes.ts`. Sus tipos pasaron a `FinanciamientoPyme.tsx` e `Informes.tsx`.
+- **El PDF real de Informes NO se borró** (`src/assets/informes/informe-2026-07-13.pdf`): Santiago lo sube a mano al Studio. Verificado: como ya no lo importa nadie, **no entra al build** (0 PDFs en `dist/`). Se borra en la limpieza antes del merge a `main`, junto con las fotos (anotado en Pendientes globales). Los 3 informes de ejemplo no se cargan en el Studio.
+- **Qué queda en `src/data/` y quién lo usa:**
+  - `placeholders.ts`:
+    - `ABRI_CUENTA_HREF` y `BROKER_LOGIN_URL` → `NavbarSanity` y `HeroSanity`;
+    - `stocksInitial` (precios de ejemplo del panel) → `HeroSanity`;
+    - tipos del Navbar → `Navbar` y `NavbarSanity`;
+    - tipos del Hero → `Hero`;
+    - tipos de Servicios → `Servicios` y `ServiciosSanity`;
+  - `contacto.ts` (motivos y mensajes de validación) → `Contacto`;
+  - `accionesLideres.ts` → `HeroSanity`, el Panel de Cotizaciones y su hook;
+  - `comisiones.ts` → página Comisiones (todavía no conectada);
+  - `legal.ts` → Código de conducta y Términos (todavía no conectadas).
+
+**Archivos:**
+- Nuevos: `pages/FinanciamientoSanity.tsx`, `pages/InformesSanity.tsx`, `sanity/TextoResaltado.tsx` y `sanity/resaltado.ts`.
+- Modificados: `pages/FinanciamientoPyme.tsx` y su CSS, `pages/Informes.tsx` y su CSS (la clase de la cáscara), `sanity/queries.ts`, `sanity/types.ts`, `App.tsx` y un comentario de `data/contacto.ts`.
+- Borrados: `data/financiamiento.ts` y `data/informes.ts`.
+
+**Verificación** (Playwright, Chromium headless, script en el scratchpad de la sesión; build local en 4173 y dev en 5173):
+- **Cómo se probó:** Sanity se interceptó en el navegador con los datos de `main` (los 4 informes, con PDFs de mentira en `cdn.sanity.io`); no se escribió nada en el dataset. La API de cotizaciones se cortó a propósito.
+- `npx tsc -b`, `npx tsc -p tsconfig.api.json`, `npx eslint .` y `npm run build`: limpios (solo la advertencia de siempre del JS de más de 500 kB).
+- **JS:** 603,6 kB (gzip 175,5). Antes, 603 kB (gzip 175,6): prácticamente igual.
+- **Financiamiento PyME contra producción, a 390, 1024 y 1440:**
+  - texto, alto de la página y posición del Footer: iguales;
+  - la frase resaltada, en blanco (`rgb(255, 255, 255)`) y semibold (600), con el mismo HTML;
+  - capturas de la página: **0 píxeles distintos** en los tres anchos;
+  - el paso a paso animado (sin "reducir movimiento", a 1440 y 390): qué aparece, cuándo y con qué demora escalonada, igual que en producción, al entrar y al scrollear;
+  - los dos botones (intro y cierre), a 1440 y 390: llevan a `/?motivo=pyme#contacto`, con el chip "Financiamiento para mi PyME" marcado y la sección a 100 px del borde.
+- **Informes contra producción, a 390, 1024 y 1440** (con los 4 informes de `main`):
+  - texto, alto y posición del Footer: iguales; capturas: **0 píxeles distintos**;
+  - filtro: "Todos" (4), semanales (2), mensuales (1) y especiales (1), con el mismo listado que producción;
+  - fechas con el reloj del navegador a las **23:30 hora de Argentina** (13/7/2026): iguales a producción ("13 de julio de 2026"…). También con la zona de Los Ángeles y con la de Kiritimati (UTC+14, donde ya es el día siguiente): las mismas fechas;
+  - descarga: `…/ddd444.pdf?dl=especial-elecciones.pdf`; con un nombre con espacios y eñe, `?dl=con%20espacios%20y%20%C3%B1.pdf`; sin nombre, `?dl=`.
+- **Cáscara mientras carga** (Sanity demorado 2,5 s):
+  - Financiamiento PyME: **el mismo alto** cargando y con los textos, a 390, 1024 y 1440 (1982, 1512 y 1645 px). Primero salía corta (hasta 53 px a 1440): se ajustaron los largos del relleno de cinco textos hasta que diera justo en los tres anchos.
+  - Informes: con 3 informes, el mismo alto (a 390 le erra por 24 px). Con 4 (los de `main`), al llegar crece 150–210 px; con 1 solo (lo que va a cargar Santiago), achica 310–520 px y el Footer sube. Ver decisiones.
+- **Casos borde:**
+  - Bajada sin resaltado: el párrafo sin negrita. Con 2 resaltados: las dos frases en negrita. Con un Shift+Enter adentro: se ve como un espacio, en un solo renglón.
+  - Bajada vacía o con un párrafo sin texto: no queda el `<p>`. Sin antetítulo, bajada ni bajada del paso a paso: no queda ningún párrafo vacío.
+  - Informes con 1 solo informe: se ve; "Todos" y "Semanales" lo muestran y "Mensuales" y "Especiales", el mensaje de vacío.
+  - Sin ningún informe: encabezado, los 4 botones y el mensaje de vacío.
+  - Informe sin resumen: sin el párrafo del resumen.
+  - Dos informes con la misma fecha: los dos, en el orden que manda la query.
+  - Sin antetítulo ni bajada de Informes: solo el título.
+  - A 390 y 1440: sin scroll horizontal en ninguno.
+- **Error de red** en cada página (dev y build): la cáscara, sin errores (fuera de los de red provocados).
+- **Sin publicar:** en dev, los recuadros "Página Financiamiento PyME" e "Página Informes", con dónde se cargan; en el build, nada.
+- **Dataset real** (solo lectura): las dos páginas todavía no están publicadas. En dev aparece su recuadro; en el build, nada. Sin scroll horizontal ni errores.
+- En dev, con datos, a 390 y 1440: sin errores ni avisos de consola (tampoco de claves de React), usando el filtro y scrolleando.
+
+**Decisiones propias / desvíos del brief:**
+- **3 filas en la cáscara de Informes.** Con 3, a partir de 3 informes el encabezado y el listado ya llenan la pantalla, así que lo que se acomoda al llegar los datos queda fuera de la vista. Con el único informe que se va a cargar al principio, el Footer sube al llegar los datos. Se eligió pensando en cuando haya más informes (se suman todas las semanas). Si molesta mientras haya uno solo, se cambia a 1 fila (es un número en `Informes.tsx`).
+- **La fecha no usa la fecha del navegador para nada:** se arma con una lista de meses en español. Así no depende de la zona horaria ni del idioma del navegador. Una fecha con otro formato no se muestra (no debería pasar: el Studio la guarda siempre como "AAAA-MM-DD").
+- **Un nombre de categoría vacío oculta su botón y su etiqueta**, y un "Todos" vacío oculta ese botón (no debería pasar: en el Studio son obligatorios). Un informe sin título no se muestra.
+- **La función que decide si la bajada tiene texto va en un archivo aparte** (`sanity/resaltado.ts`), porque la regla del proyecto no deja mezclar componentes con otras funciones exportadas en el mismo archivo.
+- **Mientras carga, los botones de Financiamiento no son links** (son texto invisible), para que no se pueda llegar a ellos con el teclado.
+
+**Pendientes que quedaron abiertos:**
+- Cargar Financiamiento PyME e Informes en el Studio (ver "Cómo probar la rama en local" y Pendientes globales).
+- Antes del merge a `main`: borrar el PDF de `src/assets/informes/` (junto con las fotos).
+- Seguir con Comisiones.
 
 ### 2026-10-22 — Rama `feature/sanity`: Quiénes somos y Equipo desde Sanity (+ reservar el alto de las secciones mientras cargan)
 Cuarta tarea de conexión de la rama. Quiénes somos y Equipo ya leen de Sanity. Mientras cargan, Servicios, Quiénes somos y Equipo ocupan el lugar que van a tener, así la página ya no salta. Commit `7f23095` (código); este PROGRESO va en el commit siguiente. No se escribió nada en el dataset.
@@ -553,6 +643,8 @@ Primera tarea de la rama que conecta el front al Sanity Studio (repo hermano `br
    - Servicios se carga en Inicio → Servicios; sus instrumentos salen de Páginas → Productos (categorías Financiamiento, Renta fija y Renta variable).
    - Quiénes somos se carga en Inicio → Quiénes somos (pestañas Relato y Valores; la foto, con su punto de interés, en la pestaña Relato). Los títulos de los valores se escriben normal ("Especialistas"): las mayúsculas las pone la web. Las fotos actuales están en `src/assets/` para subirlas a mano.
    - Equipo se carga en Inicio → Equipo: "Textos de la sección", y las personas en "Socios" y "Empleados" (botón "+" de cada lista). **Antes de ordenarlas a mano**, usá una vez "Reset Order" en el menú de cada lista (Socios y Empleados): el plugin lo necesita para generar las posiciones. Después arrastrá hasta dejarlas en el orden de hoy. Las fotos actuales están en `src/assets/equipo/`.
+   - Financiamiento PyME se carga en Páginas → Financiamiento PyME (cuatro pestañas: Encabezado / Beneficios / Paso a paso / Cierre). En la bajada, escribí el párrafo entero, seleccioná "segmento avalado por una SGR" y tocá el botón "Resaltado". El texto del botón es uno solo para los dos botones de la página.
+   - Informes: los textos fijos en Páginas → Informes → Textos de la página (incluidos los nombres de las tres categorías). Cada informe en Páginas → Informes → Listado de informes → "+": título, fecha, **categoría** (Semanal / Mensual / Especial), resumen (opcional) y **el PDF** (sin PDF no se puede publicar ni aparece en la web). El PDF real está en `src/assets/informes/informe-2026-07-13.pdf` para subirlo a mano; se descarga con el nombre con que lo subas. Los otros tres informes de `main` son de ejemplo: no se cargan.
 6. **Para ver cómo queda en producción** (sin recuadros): `npm run build` y después `npx vite preview` → `http://localhost:4173`.
 7. **Las cotizaciones** (panel del Hero, `/herramientas/acciones` y Renta fija) con `npm run dev` muestran precios de ejemplo o vacíos: las funciones de `/api` no corren con Vite. Es normal y no tiene que ver con Sanity.
 8. La preview de Vercel de la rama (`brio-alyc-git-feature-sanity-santicbsn14s-projects.vercel.app`) ya puede leer de Sanity (CORS listo). Ahí los recuadros no se ven hasta que se cargue `VITE_MOSTRAR_FALTANTES=true` en el entorno Preview de Vercel.
@@ -1140,7 +1232,7 @@ Dos pendientes técnicos chicos, sin diseño nuevo.
 - **Resuelto:** fotos, nómina y bios reales de Equipo (ver entrada del 2026-10-05), salvo un pendiente puntual:
   - TODO(Agus): foto de Claudio Adrián Iglesias (hoy se ve con avatar de iniciales "CI"). Cuando llegue: en `main`, WebP 960x1200 en `src/assets/equipo/claudio-iglesias.webp`, import + campo `foto` en `data/equipo.ts`. En la rama `feature/sanity` (y después del merge), se sube en el Studio: Inicio → Equipo → Socios → su ficha → Foto.
 - Noviembre 2026: se suma una décima persona al equipo (área Comercial). Es solo sumar un objeto al array `empleados` de `data/equipo.ts` (con su foto); la grilla se reacomoda sola. Con Sanity (rama `feature/sanity`), la suma Agus desde el Studio: Inicio → Equipo → Empleados → "+" (probado con 10 empleados: la grilla se reacomoda).
-- TODO(Agus): confirmar si las categorías "mensual" y "especial" de Informes aplican o hay que ajustarlas/sacarlas; solo el primer informe (semanal) es contenido real, los otros tres son de ejemplo.
+- TODO(Agus): confirmar si las categorías "mensual" y "especial" de Informes aplican o hay que ajustarlas/sacarlas; solo el primer informe (semanal) es contenido real, los otros tres son de ejemplo. En la rama `feature/sanity`, mientras no tengan informes, sus botones de filtro siguen apareciendo y muestran "Todavía no hay informes en esta categoría." (ver la entrada "Financiamiento PyME e Informes desde Sanity").
 - Configurar en Vercel `RESEND_API_KEY` y `CONTACTO_DESTINATARIO` (variables reales del envío de Contacto) y verificar un dominio propio de Brio en Resend para el remitente del mail.
 - TODO(Agus): email, teléfono y dirección ya son reales (footer y home). Falta confirmar WhatsApp, horario de atención, y los links reales de Instagram y LinkedIn (hoy son placeholder en `footer.ts` y `contacto.ts`).
 - TODO(Agus/asesoría legal): el texto de Términos y condiciones es un borrador genérico, falta el texto definitivo de la asesoría legal de Brio.
@@ -1164,12 +1256,12 @@ Dos pendientes técnicos chicos, sin diseño nuevo.
 - **Resuelto:** Renta Fija: las LECAPs/BONCAPs ya vencidas dejaron de aparecer en la tabla de Deuda Soberana (se filtran solas según la fecha de hoy, ver entrada del 2026-10-07). Igual conviene, cuando se actualicen los datos estáticos, sumar las licitaciones nuevas.
 - Fase de integración con Sanity: ver entrada del 2026-10-07 ("Estrategia para la próxima etapa") para la estrategia de ramas y la pregunta abierta de Renta Fija.
 - **Rama `feature/sanity`** (arrancó el 2026-10-15; ver la entrada "Rama `feature/sanity`: base de la conexión + Navbar y Footer desde Sanity"):
-  - **Orden de conexión de las secciones que siguen** (Navbar + Footer + Datos de la empresa: hecho; Hero + Contacto: hecho el 2026-10-21; Servicios + Productos: hecho el 2026-10-22; Quiénes somos + Equipo: hecho el 2026-10-22):
+  - **Orden de conexión de las secciones que siguen** (Navbar + Footer + Datos de la empresa: hecho; Hero + Contacto: hecho el 2026-10-21; Servicios + Productos: hecho el 2026-10-22; Quiénes somos + Equipo: hecho el 2026-10-22; Financiamiento PyME + Informes: hecho el 2026-10-23):
     1. ~~Hero + Contacto~~ (hecho);
     2. ~~Servicios + Productos~~ (hecho el 2026-10-22);
     3. ~~Quiénes somos + Equipo~~ (hecho el 2026-10-22);
-    4. Financiamiento PyME;
-    5. Informes;
+    4. ~~Financiamiento PyME~~ (hecho el 2026-10-23);
+    5. ~~Informes~~ (hecho el 2026-10-23);
     6. Comisiones;
     7. Legales.
     Cada una sigue el criterio de estados de esa entrada y usa la query y el armado de props de su entrada en `brio-studio/PROGRESO-STUDIO.md`. Al conectar cada una, borrar de `src/data/` lo que deje de usarse.
@@ -1181,7 +1273,8 @@ Dos pendientes técnicos chicos, sin diseño nuevo.
   - **Cargar en el Studio Servicios y Productos** (Inicio → Servicios y Páginas → Productos): hoy no están publicados. Sin Productos, la home muestra Servicios sin la lista de instrumentos.
   - ~~**Scroll con algo cargando arriba, si la persona ya scrolleó**~~ → resuelto el 2026-10-22: Servicios, Quiénes somos y Equipo reservan su alto mientras cargan (ver la entrada "Quiénes somos y Equipo desde Sanity"). Ahora la sección no se corre.
   - **Cargar en el Studio Quiénes somos y Equipo** (Inicio → Quiénes somos e Inicio → Equipo; ver "Cómo probar la rama en local", incluido el "Reset Order" de cada lista). Hoy no están publicados, así que en producción esas secciones no aparecerían.
-  - **Limpieza antes del merge a `main`:** borrar las fotos de `src/assets/equipo/` y `src/assets/oficina-quienes.jpeg`. Ya no las usa el código (no entran al build), pero quedan para que Santiago las suba a mano al Studio.
+  - **Cargar en el Studio Financiamiento PyME e Informes** (Páginas → Financiamiento PyME y Páginas → Informes; ver "Cómo probar la rama en local"). Hoy no están publicadas, así que en producción esas páginas quedarían vacías entre el Navbar y el Footer. De Informes se carga solo el informe real (con su PDF y la categoría Semanal), no los tres de ejemplo.
+  - **Limpieza antes del merge a `main`:** borrar las fotos de `src/assets/equipo/` y `src/assets/oficina-quienes.jpeg`, y el PDF `src/assets/informes/informe-2026-07-13.pdf` (con su carpeta). Ya no los usa el código (no entran al build), pero quedan para que Santiago los suba a mano al Studio.
   - **Vercel, variables de entorno:** `VITE_MOSTRAR_FALTANTES=true` en el entorno **Preview** (para ver los recuadros en la preview); `VITE_SANITY_USE_CDN=true` solo en **Production**, en el pre-lanzamiento.
   - **Pre-lanzamiento:** sumar a CORS de Sanity el dominio de producción (`brio-alyc.vercel.app` y/o `briovalores.com`), sin credenciales: `npx sanity cors add <url> --no-credentials` desde `brio-studio`. Sin eso, producción no puede leer de Sanity.
-  - **Tamaño del JS:** con `@sanity/client` el JS pasó de 467 a 592 kB (gzip 134 → 171 kB; con Hero y Contacto, 594 kB / gzip 172 kB; con `@sanity/image-url`, Quiénes somos y Equipo, 603 kB / gzip 175,6 kB) y Vite avisa "chunk de más de 500 kB". Mirar si conviene partir el JS por página (carga diferida de las páginas que no son la home) antes de mergear a `main`.
+  - **Tamaño del JS:** con `@sanity/client` el JS pasó de 467 a 592 kB (gzip 134 → 171 kB; con Hero y Contacto, 594 kB / gzip 172 kB; con `@sanity/image-url`, Quiénes somos y Equipo, 603 kB / gzip 175,6 kB; con Financiamiento PyME e Informes, 603,6 kB / gzip 175,5 kB) y Vite avisa "chunk de más de 500 kB". Mirar si conviene partir el JS por página (carga diferida de las páginas que no son la home) antes de mergear a `main`.
