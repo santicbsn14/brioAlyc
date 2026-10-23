@@ -15,6 +15,11 @@
   margin: 0 auto;
 }
 
+/* Mientras cargan los textos de Sanity: el alto de la página, sin nada a la vista. */
+.cargando .inner {
+  visibility: hidden;
+}
+
 /* ── intro ── */
 .hero {
   max-width: 44rem;

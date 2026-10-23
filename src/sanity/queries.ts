@@ -105,3 +105,28 @@ export const EQUIPO_QUERY = /* groq */ `
     foto{asset->{_id, url, metadata{dimensions, lqip}}, crop, hotspot}
   }
 }`;
+
+/** Página /servicios/financiamiento-pyme. Entrada "Página Financiamiento PyME + tipo 'Texto con
+ * resaltado'". */
+export const FINANCIAMIENTO_QUERY = /* groq */ `
+*[_type == "paginaFinanciamiento" && _id == "paginaFinanciamiento"][0]{
+  kicker, titulo, bajada, textoBoton,
+  beneficio1{titulo, texto}, beneficio2{titulo, texto}, beneficio3{titulo, texto},
+  tituloPasos, bajadaPasos,
+  paso1{titulo, texto}, paso2{titulo, texto}, paso3{titulo, texto}, paso4{titulo, texto},
+  textoCierre
+}`;
+
+/** Página /informes: textos de la página + el listado (solo los informes con PDF, el más nuevo
+ * arriba; misma fecha → el creado último primero). Entrada "Base del Studio + sección Informes". */
+export const INFORMES_QUERY = /* groq */ `
+{
+  "pagina": *[_type == "paginaInformes" && _id == "paginaInformes"][0]{
+    kicker, titulo, bajada, textoFiltroTodos, etiquetasCategorias, textoVacio, textoBotonDescarga
+  },
+  "informes": *[_type == "informe" && defined(archivo.asset)] | order(fecha desc, _createdAt desc){
+    _id, titulo, fecha, categoria, resumen,
+    "archivoUrl": archivo.asset->url,
+    "archivoNombre": archivo.asset->originalFilename
+  }
+}`;

@@ -320,3 +320,87 @@ export interface EquipoQueryResult {
   socios: PersonaDoc[] | null;
   empleados: PersonaDoc[] | null;
 }
+
+// ── Texto con resaltado (schemaTypes/objects/textoResaltado.tsx) ─────────
+
+/** Un pedazo de texto del párrafo. Los resaltados traen "resaltado" en `marks`. */
+export interface SpanDoc {
+  _key: string;
+  _type?: string;
+  text?: Texto;
+  marks?: string[] | null;
+}
+
+/** Un párrafo con partes resaltadas: un array con un solo bloque (el Studio no deja publicar dos). */
+export type TextoResaltadoDoc = { _key?: string; _type?: string; children?: SpanDoc[] | null }[];
+
+// ── Financiamiento PyME (schemaTypes/singletons/paginaFinanciamiento.ts) ─
+
+export interface BloqueFijoDoc {
+  titulo?: Texto;
+  texto?: Texto;
+}
+
+export interface PaginaFinanciamientoDoc {
+  /** Opcional. */
+  kicker?: Texto;
+  titulo?: Texto;
+  /** Opcional. */
+  bajada?: TextoResaltadoDoc | null;
+  /** El mismo texto para los dos botones (intro y cierre). */
+  textoBoton?: Texto;
+  beneficio1?: BloqueFijoDoc | null;
+  beneficio2?: BloqueFijoDoc | null;
+  beneficio3?: BloqueFijoDoc | null;
+  tituloPasos?: Texto;
+  /** Opcional. */
+  bajadaPasos?: Texto;
+  paso1?: BloqueFijoDoc | null;
+  paso2?: BloqueFijoDoc | null;
+  paso3?: BloqueFijoDoc | null;
+  paso4?: BloqueFijoDoc | null;
+  textoCierre?: Texto;
+}
+
+/** FINANCIAMIENTO_QUERY: `null` si el documento no está publicado. */
+export type FinanciamientoQueryResult = PaginaFinanciamientoDoc | null;
+
+// ── Informes (schemaTypes/singletons/paginaInformes.ts + documents/informe.ts) ─
+
+/** Ids de las categorías: los mismos que CATEGORIAS_INFORME del Studio. */
+export type CategoriaInformeId = 'semanal' | 'mensual' | 'especial';
+
+export interface PaginaInformesDoc {
+  /** Opcional. */
+  kicker?: Texto;
+  titulo?: Texto;
+  /** Opcional. */
+  bajada?: Texto;
+  /** "Todos". */
+  textoFiltroTodos?: Texto;
+  /** Nombre visible de cada categoría ("Informes semanales"…). */
+  etiquetasCategorias?: Partial<Record<CategoriaInformeId, Texto>> | null;
+  /** Opcional: cuando no hay informes en la categoría elegida. */
+  textoVacio?: Texto;
+  /** "Descargar PDF". */
+  textoBotonDescarga?: Texto;
+}
+
+export interface InformeDoc {
+  _id: string;
+  titulo?: Texto;
+  /** "AAAA-MM-DD". */
+  fecha?: Texto;
+  categoria?: Texto;
+  /** Opcional. */
+  resumen?: Texto;
+  archivoUrl?: Texto;
+  /** Nombre con el que se subió el PDF. */
+  archivoNombre?: Texto;
+}
+
+/** INFORMES_QUERY: `pagina` viene `null` si no está publicada; `informes`, vacío si no hay. */
+export interface InformesQueryResult {
+  pagina: PaginaInformesDoc | null;
+  informes: InformeDoc[] | null;
+}
