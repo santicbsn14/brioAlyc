@@ -250,3 +250,73 @@ export interface PaginaProductosDoc {
 
 /** PRODUCTOS_QUERY: `null` si el documento no está publicado. */
 export type ProductosQueryResult = PaginaProductosDoc | null;
+
+// ── Imágenes (tipo `image` de Sanity, con crop/hotspot) ──────────────────
+
+/** Una imagen como la piden las queries: el asset expandido + el recorte y el punto de interés. */
+export interface ImagenDoc {
+  /** Solo en las que tienen descripción (ej. la foto de Quiénes somos). */
+  alt?: Texto;
+  crop?: { top: number; bottom: number; left: number; right: number } | null;
+  hotspot?: { x: number; y: number; height: number; width: number } | null;
+  /** `null` si se cargó la descripción pero no se subió la foto. */
+  asset?: {
+    _id: string;
+    url?: Texto;
+    metadata?: { dimensions?: { width: number; height: number } | null; lqip?: Texto } | null;
+  } | null;
+}
+
+// ── Quiénes somos (schemaTypes/singletons/seccionQuienesSomos.ts) ───────
+
+export interface ValorDoc {
+  titulo?: Texto;
+  texto?: Texto;
+}
+
+export interface SeccionQuienesSomosDoc {
+  /** Opcional. */
+  kicker?: Texto;
+  titulo?: Texto;
+  /** Un solo texto: los párrafos van separados por un renglón en blanco. */
+  relato?: Texto;
+  foto?: ImagenDoc | null;
+  valor1?: ValorDoc | null;
+  valor2?: ValorDoc | null;
+  valor3?: ValorDoc | null;
+  valor4?: ValorDoc | null;
+}
+
+/** QUIENES_SOMOS_QUERY: `null` si el documento no está publicado. */
+export type QuienesSomosQueryResult = SeccionQuienesSomosDoc | null;
+
+// ── Equipo (schemaTypes/singletons/seccionEquipo.ts + documents/persona.ts) ─
+
+export interface SeccionEquipoDoc {
+  /** Opcional. */
+  kicker?: Texto;
+  titulo?: Texto;
+  /** Opcional. */
+  bajada?: Texto;
+  rotuloEmpleados?: Texto;
+  textoVerMas?: Texto;
+  textoVerMenos?: Texto;
+}
+
+export interface PersonaDoc {
+  _id: string;
+  nombre?: Texto;
+  cargo?: Texto;
+  /** Solo socios. */
+  bio?: Texto;
+  /** Solo socios, opcional: si está, aparece "Ver más". */
+  bioExtendida?: Texto;
+  foto?: ImagenDoc | null;
+}
+
+/** EQUIPO_QUERY: `seccion` viene `null` si no está publicada; las listas, vacías si no hay nadie. */
+export interface EquipoQueryResult {
+  seccion: SeccionEquipoDoc | null;
+  socios: PersonaDoc[] | null;
+  empleados: PersonaDoc[] | null;
+}

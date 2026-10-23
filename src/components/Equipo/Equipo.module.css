@@ -11,6 +11,10 @@
 .equipo * {
   box-sizing: border-box;
 }
+/* Cargando: el fondo con el alto de la sección, sin nada a la vista (ver RESERVA en Equipo.tsx). */
+.cargando .inner {
+  visibility: hidden;
+}
 
 /* ── Encabezado ── */
 .head {

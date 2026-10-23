@@ -80,3 +80,28 @@ export const FOOTER_QUERY = /* groq */ `
     razonSocial, leyendaCnv, credenciales[]{_key, entidad, numero}
   }
 }`;
+
+/** Quiénes somos de la home. Entrada "Flechas fuera del texto + sección Quiénes somos". */
+export const QUIENES_SOMOS_QUERY = /* groq */ `
+*[_type == "seccionQuienesSomos" && _id == "seccionQuienesSomos"][0]{
+  kicker, titulo, relato,
+  foto{alt, crop, hotspot, asset->{_id, url, metadata{dimensions, lqip}}},
+  valor1{titulo, texto}, valor2{titulo, texto}, valor3{titulo, texto}, valor4{titulo, texto}
+}`;
+
+/** Equipo de la home: textos de la sección + socios y empleados en el orden de cada lista del
+ * Studio (orderRank). Entrada "Sección Equipo". */
+export const EQUIPO_QUERY = /* groq */ `
+{
+  "seccion": *[_type == "seccionEquipo" && _id == "seccionEquipo"][0]{
+    kicker, titulo, bajada, rotuloEmpleados, textoVerMas, textoVerMenos
+  },
+  "socios": *[_type == "persona" && tipo == "socio"] | order(orderRank){
+    _id, nombre, cargo, bio, bioExtendida,
+    foto{asset->{_id, url, metadata{dimensions, lqip}}, crop, hotspot}
+  },
+  "empleados": *[_type == "persona" && tipo == "empleado"] | order(orderRank){
+    _id, nombre, cargo,
+    foto{asset->{_id, url, metadata{dimensions, lqip}}, crop, hotspot}
+  }
+}`;

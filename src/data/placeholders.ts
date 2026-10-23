@@ -1,8 +1,8 @@
-// Contenido placeholder de Quiénes somos, tipos del Navbar, del Hero y de Servicios, destinos de
-// los botones y precios de ejemplo del panel del Hero.
+// Tipos del Navbar, del Hero y de Servicios, destinos de los botones y precios de ejemplo del
+// panel del Hero.
 // En la rama feature/sanity el Navbar, el Hero y Servicios ya leen sus textos de Sanity: de ellos
 // acá quedan solo los tipos, los destinos (ABRI_CUENTA_HREF, BROKER_LOGIN_URL) y los precios de
-// ejemplo. Quiénes somos sigue leyendo de acá hasta que se conecte.
+// ejemplo. Quiénes somos y Equipo también leen de Sanity (sus tipos viven en sus componentes).
 
 import { ACCIONES_LIDERES } from './accionesLideres';
 
@@ -100,32 +100,3 @@ export interface InstrumentGroup {
   category: string;
   items: InstrumentItem[];
 }
-
-// ── Quiénes somos (sección 6.2) ──────────────────────────────────────────
-
-export type QuienesValueIcon = 'target' | 'clock' | 'compass' | 'shield';
-
-export interface QuienesValue {
-  icon: QuienesValueIcon;
-  title: string;
-  text: string;
-}
-
-// TODO(Agus): relato = copy base del sitio actual, provisorio hasta que confirme el texto definitivo.
-export const quienesContent = {
-  kicker: 'Quiénes somos',
-  title: 'Un agente de bolsa con mirada de largo plazo',
-  paragraphs: [
-    'Brio Valores es un Agente de Liquidación y Compensación registrado en la CNV, con base en Rosario y presencia en todo el país. Acompañamos a empresas e inversores en el mercado de capitales argentino.',
-    'Combinamos experiencia, especialización y un trato cercano para que cada cliente —desde una PyME que busca financiarse hasta un inversor que arma su cartera— tenga asesoramiento profesional y honesto.',
-  ],
-  photoAlt: 'Oficinas de Brio Valores en Rosario',
-};
-
-// TODO: contenido definitivo de valores viene de Sanity.
-export const quienesValues: QuienesValue[] = [
-  { icon: 'target', title: 'ESPECIALISTAS', text: 'Foco en el mercado de capitales argentino y sus instrumentos.' },
-  { icon: 'clock', title: 'EXPERIENCIA', text: 'Años operando y acompañando a empresas e inversores.' },
-  { icon: 'compass', title: 'ASESORAMIENTO', text: 'Estrategias a medida según el perfil de cada cliente.' },
-  { icon: 'shield', title: 'HONESTIDAD', text: 'Transparencia en cada operación y recomendación.' },
-];

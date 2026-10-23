@@ -47,15 +47,18 @@ function armarInstrumentos(productos: ProductosParaServicios | null, textoLinkPa
 
 /** Servicios con "seccionServicios" + las tres categorías de "paginaProductos" que muestra la home,
  * en una sola query (entrada "Sección Servicios" de PROGRESO-STUDIO.md).
- *  - cargando o error de red → nada (está abajo del Hero; si alguien llegó con un link a una
- *    sección de más abajo, useScrollToTop la mantiene alineada cuando esta aparece);
+ *  - cargando o error de red → la cáscara (el fondo con el alto de la sección), así lo de abajo no
+ *    salta cuando llegan los textos (useScrollToTop cubre la diferencia si alguien llegó con un
+ *    link a una sección de más abajo);
  *  - seccionServicios sin publicar → recuadro FaltaCargar (en producción, nada);
  *  - Productos sin publicar o sin alguna de las tres categorías → Servicios sin esa columna de
- *    instrumentos, y en dev un aviso chico. */
+ *    instrumentos, y en dev un aviso chico.
+ * La `key` hace que la sección se monte de nuevo al llegar los textos: así la aparición al
+ * scrollear arranca desde cero, como siempre. */
 export default function ServiciosSanity() {
   const { data, status } = useSanityQuery<ServiciosQueryResult>(SERVICIOS_QUERY);
 
-  if (status !== 'listo') return null;
+  if (status !== 'listo') return <Servicios key="cargando" cargando />;
 
   const s = data?.servicios;
   if (!s) return <FaltaCargar nombre="Sección Servicios" ubicacion="Inicio → Servicios" />;
@@ -64,6 +67,7 @@ export default function ServiciosSanity() {
 
   return (
     <Servicios
+      key="listo"
       kicker={texto(s.kicker)}
       title={s.titulo ?? ''}
       lead={texto(s.bajada)}

@@ -1,16 +1,51 @@
-import type { CSSProperties, SVGProps } from 'react';
-import type { QuienesValue, QuienesValueIcon } from '../../data/placeholders';
+import type { CSSProperties, ReactNode, SVGProps } from 'react';
 import { useReveal } from '../../hooks/useReveal';
-import oficinaFoto from '../../assets/oficina-quienes.jpeg';
+import { reserva } from '../../lib/reserva';
 import styles from './QuienesSomos.module.css';
 
-export interface QuienesSomosProps {
-  kicker: string;
+export type QuienesValueIcon = 'target' | 'clock' | 'compass' | 'shield';
+
+export interface QuienesValue {
+  icon: QuienesValueIcon;
+  title: string;
+  text: string;
+}
+
+/** Los textos y la foto de la sección (vienen de Sanity). Los opcionales vacíos no se pintan. */
+export interface QuienesSomosTextos {
+  kicker?: string;
   title: string;
   paragraphs: string[];
+  /** Sin foto, el relato ocupa el ancho entero. */
+  photoSrc?: string;
+  photoSrcSet?: string;
+  /** Qué ancho ocupa la foto en pantalla, para que el navegador elija del `photoSrcSet`. */
+  photoSizes?: string;
   photoAlt: string;
   values: QuienesValue[];
+  /** Aviso debajo del relato (ej. el recuadro "Falta…" cuando falta la foto). */
+  note?: ReactNode;
 }
+
+/** `cargando`: los textos todavía no llegaron de Sanity. Se ve el fondo de la sección con el alto
+ * que va a tener (texto de relleno invisible, ver RESERVA), así lo de abajo no salta. */
+export type QuienesSomosProps = { cargando: true } | ({ cargando?: false } & QuienesSomosTextos);
+
+/** Lo que se pinta (invisible) mientras carga: los largos de los textos actuales. */
+const RESERVA: QuienesSomosTextos = {
+  kicker: reserva(13),
+  title: reserva(44),
+  paragraphs: [reserva(212), reserva(212)],
+  photoAlt: '',
+  values: (
+    [
+      ['target', 13, 61],
+      ['clock', 11, 52],
+      ['compass', 13, 53],
+      ['shield', 10, 48],
+    ] as const
+  ).map(([icon, title, text]) => ({ icon, title: reserva(title), text: reserva(text) })),
+};
 
 const iconProps: SVGProps<SVGSVGElement> = {
   width: 24,
@@ -62,37 +97,60 @@ function staggerStyle(index: number): CSSProperties {
   return { '--i': index } as CSSProperties;
 }
 
-export default function QuienesSomos({ kicker, title, paragraphs, photoAlt, values }: QuienesSomosProps) {
+/** Recibe los textos y la foto por props (QuienesSomosSanity los arma desde Sanity). */
+export default function QuienesSomos(props: QuienesSomosProps) {
+  const { cargando } = props;
+  const { kicker, title, paragraphs, photoSrc, photoSrcSet, photoSizes, photoAlt, values, note } = props.cargando
+    ? RESERVA
+    : props;
   const ref = useReveal<HTMLElement>(styles.reveal, styles.isIn);
+  // Mientras carga, la foto es un recuadro vacío con su misma proporción.
+  const conFoto = cargando || !!photoSrc;
 
   return (
-    <section id="quienes" className={styles.quienesSomos} ref={ref}>
-      <div className={styles.inner}>
+    <section
+      id="quienes"
+      className={`${styles.quienesSomos} ${cargando ? styles.cargando : ''}`}
+      ref={ref}
+      aria-busy={cargando || undefined}
+    >
+      <div className={styles.inner} aria-hidden={cargando || undefined}>
         {/* ── Bloque 1 — Relato ── */}
-        <div className={styles.relato}>
+        <div className={`${styles.relato} ${conFoto ? '' : styles.relatoSinFoto}`}>
           <div className={`${styles.relatoTxt} ${styles.reveal}`}>
-            <p className={styles.kicker}>
-              <span className={styles.kickerLine} aria-hidden="true" />
-              {kicker}
-            </p>
+            {kicker && (
+              <p className={styles.kicker}>
+                <span className={styles.kickerLine} aria-hidden="true" />
+                {kicker}
+              </p>
+            )}
             <h2 className={styles.title}>{title}</h2>
-            {paragraphs.map((paragraph) => (
-              <p key={paragraph} className={styles.p}>
+            {/* Los párrafos no se reordenan: alcanza con el índice como key. */}
+            {paragraphs.map((paragraph, i) => (
+              <p key={i} className={styles.p}>
                 {paragraph}
               </p>
             ))}
           </div>
 
-          {/* foto real de oficina */}
-          <div className={`${styles.relatoFoto} ${styles.reveal}`}>
-            <img src={oficinaFoto} alt={photoAlt} className={styles.foto} />
-          </div>
+          {/* foto de la oficina */}
+          {conFoto && (
+            <div className={`${styles.relatoFoto} ${styles.reveal}`}>
+              {photoSrc ? (
+                <img src={photoSrc} srcSet={photoSrcSet} sizes={photoSizes} alt={photoAlt} className={styles.foto} />
+              ) : (
+                <div className={styles.foto} />
+              )}
+            </div>
+          )}
         </div>
+        {note}
 
         {/* ── Bloque 2 — Valores ── */}
         <div className={styles.values}>
+          {/* 4 valores fijos que no se reordenan (el ícono va por posición): el índice alcanza como key. */}
           {values.map((value, i) => (
-            <article key={value.title} className={`${styles.value} ${styles.reveal}`} style={staggerStyle(i)}>
+            <article key={i} className={`${styles.value} ${styles.reveal}`} style={staggerStyle(i)}>
               <span className={styles.valueIco}>
                 <ValueIcon name={value.icon} />
               </span>
