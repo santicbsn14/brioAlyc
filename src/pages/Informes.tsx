@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useReveal } from '../hooks/useReveal';
 import { reserva } from '../lib/reserva';
+import { partirFecha } from '../lib/fecha';
 import styles from './Informes.module.css';
 
 /** Una categoría del filtro: `id` fijo en código (semanal / mensual / especial), `label` de Sanity. */
@@ -58,27 +59,11 @@ const RESERVA: InformesTextos = {
   downloadLabel: reserva(13),
 };
 
-const MESES = [
-  'enero',
-  'febrero',
-  'marzo',
-  'abril',
-  'mayo',
-  'junio',
-  'julio',
-  'agosto',
-  'septiembre',
-  'octubre',
-  'noviembre',
-  'diciembre',
-];
-
-/** "AAAA-MM-DD" → "13 de julio de 2026". Se parte a mano: `new Date("AAAA-MM-DD")` la toma como
- * medianoche UTC, que en Argentina es el día anterior. Una fecha con otro formato no se muestra. */
+/** "AAAA-MM-DD" → "13 de julio de 2026", partida a mano (ver lib/fecha.ts). Una fecha con otro
+ * formato no se muestra. */
 function formatFecha(iso: string) {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
-  const mes = m && MESES[Number(m[2]) - 1];
-  return m && mes ? `${Number(m[3])} de ${mes} de ${m[1]}` : '';
+  const f = partirFecha(iso);
+  return f ? `${f.dia} de ${f.mes} de ${f.anio}` : '';
 }
 
 function IconDoc() {

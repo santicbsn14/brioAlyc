@@ -1,32 +1,43 @@
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { terminosCondiciones } from '../data/legal';
 import styles from './LegalDoc.module.css';
 
-/** Página /terminos-y-condiciones: borrador genérico (ver TODO en `data/legal.ts`), mismo
- * layout de documento que /codigo-de-conducta (`LegalDoc.module.css` compartido). */
-export default function TerminosCondiciones() {
+/** Los textos de la página (vienen de Sanity, ver TerminosSanity). El cierre vacío no se pinta. */
+export interface TerminosTextos {
+  titulo: string;
+  /** El cuerpo ya armado (las secciones numeradas con su texto). */
+  cuerpo: ReactNode;
+  cierre?: string;
+  /** "Volver al inicio", sin la flecha (la "← " va acá). */
+  textoVolver: string;
+}
+
+/** `cargando`: los textos todavía no llegaron de Sanity. Se ve el fondo de la página, de una pantalla
+ * de alto, así el Footer no aparece arriba y salta. */
+export type TerminosProps = { cargando: true } | ({ cargando?: false } & TerminosTextos);
+
+/** Página /terminos-y-condiciones: hoy un borrador genérico (TODO asesoría legal: Agus lo reemplaza
+ * en el Studio), mismo layout de documento que /codigo-de-conducta (`LegalDoc.module.css`
+ * compartido). */
+export default function TerminosCondiciones(props: TerminosProps) {
+  if (props.cargando) return <section className={styles.page} style={{ minHeight: '100vh' }} aria-busy />;
+  const { titulo, cuerpo, cierre, textoVolver } = props;
+
   return (
     <section className={styles.page}>
       <div className={styles.inner}>
         <Link to="/" className={styles.back}>
-          ← Volver al inicio
+          {`← ${textoVolver}`}
         </Link>
 
-        <h1 className={styles.title}>{terminosCondiciones.titulo}</h1>
+        <h1 className={styles.title}>{titulo}</h1>
 
-        {terminosCondiciones.secciones.map((seccion) => (
-          <div key={seccion.numero} className={styles.section}>
-            <h2 className={styles.sectionTitle}>
-              {seccion.numero}. {seccion.titulo}
-            </h2>
-            <p className={styles.p}>{seccion.texto}</p>
-          </div>
-        ))}
+        {cuerpo}
 
-        <p className={`${styles.p} ${styles.cierre}`}>{terminosCondiciones.cierre}</p>
+        {cierre && <p className={`${styles.p} ${styles.cierre}`}>{cierre}</p>}
 
         <Link to="/" className={`${styles.back} ${styles.backBottom}`}>
-          ← Volver al inicio
+          {`← ${textoVolver}`}
         </Link>
       </div>
     </section>

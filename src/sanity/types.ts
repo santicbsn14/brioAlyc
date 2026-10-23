@@ -404,3 +404,79 @@ export interface InformesQueryResult {
   pagina: PaginaInformesDoc | null;
   informes: InformeDoc[] | null;
 }
+
+// ── Comisiones (schemaTypes/singletons/paginaComisiones.ts + documents/pestanaComisiones.ts) ─
+
+export interface PaginaComisionesDoc {
+  titulo?: Texto;
+  /** "Vigencia:" (el espacio antes de la fecha lo pone el front). */
+  textoVigencia?: Texto;
+  /** "AAAA-MM-DD"; en la web se muestra solo mes y año. */
+  fechaVigencia?: Texto;
+  /** Opcional. */
+  aclaracion?: Texto;
+}
+
+export interface TablaComisionesDoc {
+  _key: string;
+  titulo?: Texto;
+  /** La grilla, fila por fila: la primera son los títulos de las columnas, el resto los datos. */
+  filas?: (Texto[] | null)[] | null;
+  /** Opcional. */
+  notas?: Texto[] | null;
+}
+
+export interface PestanaComisionesDoc {
+  _id: string;
+  nombre?: Texto;
+  tablas?: TablaComisionesDoc[] | null;
+}
+
+/** COMISIONES_QUERY: `pagina` viene `null` si no está publicada; `pestanas`, vacío si no hay. */
+export interface ComisionesQueryResult {
+  pagina: PaginaComisionesDoc | null;
+  pestanas: PestanaComisionesDoc[] | null;
+}
+
+// ── Legales (schemaTypes/objects/textoLegal.ts + singletons/paginaCodigoConducta.ts y paginaTerminos.ts) ─
+
+/** Un bloque de Portable Text del cuerpo: estilo `normal` (párrafo), `h2` (título de capítulo) o
+ * `h3` (título de sección); los ítems de lista traen `listItem: 'bullet'` y `level` 1 o 2. */
+export interface BloqueLegalDoc {
+  _key: string;
+  _type: string;
+  style?: string;
+  listItem?: string;
+  level?: number;
+  children?: SpanDoc[] | null;
+  markDefs?: unknown[] | null;
+}
+
+export interface PaginaCodigoConductaDoc {
+  titulo?: Texto;
+  cuerpo?: BloqueLegalDoc[] | null;
+  /** Opcional. */
+  cierre?: Texto;
+  /** Opcional: sin nombre, la firma no se muestra. */
+  firma?: { nombre?: Texto; cargo?: Texto } | null;
+  /** "Volver al inicio", sin la flecha. */
+  textoVolver?: Texto;
+}
+
+/** CODIGO_CONDUCTA_QUERY: cada documento viene `null` si no está publicado. */
+export interface CodigoConductaQueryResult {
+  pagina: PaginaCodigoConductaDoc | null;
+  /** Un renglón por línea (`\n`). */
+  empresa: { razonSocial?: Texto } | null;
+}
+
+export interface PaginaTerminosDoc {
+  titulo?: Texto;
+  cuerpo?: BloqueLegalDoc[] | null;
+  /** Opcional. */
+  cierre?: Texto;
+  textoVolver?: Texto;
+}
+
+/** TERMINOS_QUERY: `null` si el documento no está publicado. */
+export type TerminosQueryResult = PaginaTerminosDoc | null;

@@ -130,3 +130,31 @@ export const INFORMES_QUERY = /* groq */ `
     "archivoNombre": archivo.asset->originalFilename
   }
 }`;
+
+/** Página /comisiones: textos de la página + las pestañas en el orden del Studio (orderRank). Cada
+ * tabla trae la grilla como filas de celdas: la primera fila son los títulos de las columnas.
+ * Entrada "Página Comisiones". */
+export const COMISIONES_QUERY = /* groq */ `
+{
+  "pagina": *[_type == "paginaComisiones" && _id == "paginaComisiones"][0]{
+    titulo, textoVigencia, fechaVigencia, aclaracion
+  },
+  "pestanas": *[_type == "pestanaComisiones"] | order(orderRank) {
+    _id, nombre,
+    tablas[]{ _key, titulo, "filas": grilla.rows[].cells, notas }
+  }
+}`;
+
+/** Página /codigo-de-conducta: la página + la razón social de Datos de la empresa (arriba del
+ * título y debajo de la firma). Entrada "Legales (Código de conducta + Términos y condiciones)". */
+export const CODIGO_CONDUCTA_QUERY = /* groq */ `
+{
+  "pagina": *[_type == "paginaCodigoConducta" && _id == "paginaCodigoConducta"][0]{
+    titulo, cuerpo, cierre, firma{nombre, cargo}, textoVolver
+  },
+  "empresa": *[_type == "datosEmpresa" && _id == "datosEmpresa"][0]{ razonSocial }
+}`;
+
+/** Página /terminos-y-condiciones (no lee Datos de la empresa). Misma entrada que la anterior. */
+export const TERMINOS_QUERY = /* groq */ `
+*[_type == "paginaTerminos" && _id == "paginaTerminos"][0]{ titulo, cuerpo, cierre, textoVolver }`;
