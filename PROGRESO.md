@@ -3,7 +3,7 @@
 ## Estado actual
 Front nuevo (`brio-nuevo`, separado de la web puente) con routing (React Router): home (`/`, header + hero + Servicios + Quiénes somos + Equipo + Contacto — ya completa, las 5 secciones de esta etapa), página propia de comisiones (`/comisiones`, con las tablas completas del PDF por pestañas), página de productos (`/servicios/productos`, carrusel animado de instrumentos por categoría), página de Financiamiento PyME (`/servicios/financiamiento-pyme`, con el paso a paso animado de 4 etapas), página de Informes (`/informes`, colgada del menú Herramientas: listado de PDFs filtrable por categoría, con descarga directa) y ahora también el Panel de Renta Fija (`/herramientas/renta-fija`, colgada del menú Herramientas: ONs, Deuda Soberana + LECAPs/BONCAPs, Calendario de pagos y Cartera propia, con datos y cálculos reales vía un proxy propio a data912; clickear cualquier ticker abre un panel lateral con su flujo de fondos futuro, recalculable para un monto a invertir). El header (Navbar) ya quedó terminado: logo real, menú con dropdowns funcionales (Servicios y Herramientas), link nuevo a Equipo, fondo que cambia al scrollear y los 3 anchors de la home (Quiénes somos/Equipo/Contacto) funcionando cross-página (navegan a la home y scrollean, parados en cualquier ruta). Ahora también hay Footer institucional (montado en `App.tsx`, visible en todas las páginas) y dos páginas legales (`/codigo-de-conducta`, texto real de Brio; `/terminos-y-condiciones`, borrador genérico a reemplazar). Quiénes somos ya tiene la foto real de oficina y quedó en 2 bloques (relato + valores), sin el bloque de números. En Servicios, las descripciones de los 3 pilares ya son texto real (rescatado del sitio anterior). Equipo muestra 3 socios (tarjeta con bio corta + "Ver más" que despliega la bio completa) y 9 empleados (grilla simple), con contenido real: nómina, cargos, bios y fotos de 11 de las 12 personas (falta solo la foto de Claudio Adrián Iglesias, que se ve con avatar de iniciales). Contacto tiene formulario funcional con validación, honeypot y un endpoint real de envío por mail (Resend, en `api/contacto.ts`) — falta que Vercel tenga configuradas las variables de entorno reales para que mande mails de verdad. Los botones "Consultá por tu PyME" de Financiamiento PyME ya llevan a Contacto con el motivo correcto preseleccionado, y "Abrí tu cuenta" (Hero y Navbar) hace lo mismo con el motivo "Abrir mi cuenta"; "Operá online" abre el login del broker. En producción ya se puede entrar directo a cualquier página (recargar o abrir un link compartido) sin el 404 de Vercel. Los datos reales de contacto (teléfono, email, dirección) ya están sincronizados entre `data/footer.ts` y `data/contacto.ts`; solo quedan de ejemplo WhatsApp, horario e Instagram/LinkedIn. En Informes, el primer informe ya es real (PDF real, descarga funcional); los otros tres son de ejemplo para mostrar el filtro funcionando. El resto del contenido sigue en placeholder salvo los valores de comisiones (ya reales, transcriptos y cruzados contra el PDF fuente) y los datos financieros de Renta Fija (ONs, soberanos, LECAPs, BONCAPs — reales, portados de la herramienta vieja). El panel de acciones del Hero ya muestra precios reales de BYMA (8 acciones líderes, vía `/api/mercado/arg-stocks` → data912), con fallback a precios de ejemplo mientras carga o si falla. Todo ese panel es además un link al Panel de Cotizaciones (`/herramientas/acciones`), con "Ver panel completo →" en el pie. Esas mismas 8 acciones tienen su tabla completa en el Panel de Cotizaciones (`/herramientas/acciones`, colgado del menú Herramientas: compra/venta/último/variación/volumen, ordenable, con buscador, auto-refresh elegible y export CSV). Con esto la home queda completa para esta etapa; falta el resto del sitio.
 
-**Rama `feature/sanity` (en curso, no está en producción):** conecta el front al Sanity Studio (`brio-studio`). Ya tiene la base (`src/sanity/`: cliente sin token, hook con caché, queries y tipos, y el recuadro "Falta cargar en Sanity") y ya leen sus textos de Sanity el Navbar, el Footer, el Hero, Servicios, Contacto y la página Productos (más los Datos de la empresa que usan). Santiago está cargando el contenido a mano en el Studio: ya hay Datos de la empresa, Navbar, Footer y un Hero de prueba; Servicios, Productos y Contacto todavía no. El resto (Quiénes somos, Equipo y las demás páginas) sigue leyendo de `src/data/` hasta que se conecte (orden en Pendientes globales).
+**Rama `feature/sanity` (en curso, no está en producción):** conecta el front al Sanity Studio (`brio-studio`). Ya tiene la base (`src/sanity/`: cliente sin token, hook con caché, queries y tipos, y el recuadro "Falta cargar en Sanity") y ya leen sus textos de Sanity el Navbar, el Footer, el Hero, Servicios, Quiénes somos, Equipo, Contacto y la página Productos (más los Datos de la empresa que usan). Mientras cargan, las secciones de la home ocupan su lugar, así la página no salta. Santiago está cargando el contenido a mano en el Studio: ya hay Datos de la empresa, Navbar, Footer y un Hero de prueba; Servicios, Productos, Quiénes somos, Equipo y Contacto todavía no. El resto (las demás páginas) sigue leyendo de `src/data/` hasta que se conecte (orden en Pendientes globales).
 
 ## Estructura de archivos
 ```
@@ -123,6 +123,128 @@ brio-nuevo/
 ```
 
 ## Historial
+
+### 2026-10-22 — Rama `feature/sanity`: Quiénes somos y Equipo desde Sanity (+ reservar el alto de las secciones mientras cargan)
+Cuarta tarea de conexión de la rama. Quiénes somos y Equipo ya leen de Sanity. Mientras cargan, Servicios, Quiénes somos y Equipo ocupan el lugar que van a tener, así la página ya no salta. Commit `7f23095` (código); este PROGRESO va en el commit siguiente. No se escribió nada en el dataset.
+
+**Hubo un corte y se retomó:** la tarea se frenó a mitad de la verificación (había quedado un commit "WIP"). Al retomar se revisó el estado contra el brief y se terminó la verificación. Ese commit se reemplazó por uno solo de la tarea, así que en el historial no queda ningún "WIP".
+
+**Paso 1 — Las secciones de la home reservan su alto mientras cargan.**
+- **Qué cambia:** Servicios, Quiénes somos y Equipo, mientras cargan (o si falla la red), muestran su fondo con el alto que van a tener, sin nada a la vista (sin esqueletos ni animaciones).
+- **Cómo se hizo:** con el texto de relleno invisible de `lib/reserva.ts`, el mismo del Hero y de Productos, en lugar de un alto fijo por ancho. Así el alto sale parecido en cualquier ancho, no solo en tres. `reserva` ahora acepta textos más largos que el relleno (lo repite).
+- Cuando llegan los datos, la sección se monta de nuevo y la animación de aparición arranca como siempre.
+- Sin publicar: recuadro en dev; en el build no se pinta nada, y ahí el alto desaparece (es lo esperado).
+- El seguimiento del scroll a una sección (`useScrollToTop`) no se tocó: sigue cubriendo la diferencia que quede.
+- **Alto mientras carga contra el alto real** (datos de `main`): **igual** a 390, 1024, 1280, 1440 y 1920 px en las tres secciones. En otros anchos le erra por un renglón como mucho (por ejemplo, a 412 y 900 px: Quiénes somos +52, Equipo +23 y Servicios −23 a −25; a 360 px, −20 a −46).
+- **CLS de la home** (medido con PerformanceObserver de layout-shift, Sanity demorado 2,5 s, 3 corridas, a 390 y 1440 px):
+  - Entrar a la home sin scrollear: 0 antes y 0 después. Lo que aparecía estaba debajo del Hero, fuera de la pantalla, y Google no lo cuenta.
+  - Entrar a la home y scrollear 1400 px antes de que llegue Sanity: **antes 1** (el máximo: se corría todo lo de la pantalla), **después 0**.
+  - Entrar en frío a `/#equipo`: a 1440, **antes 1, después 0,04**; a 390, 0 antes y después. Ese 0,04 pasa en el primer medio segundo, también sin demora de Sanity: son las fuentes cargando, no la reserva. Google lo considera "bueno" (menos de 0,1).
+- **La prueba de la entrada anterior** (ir a `/#quienes` o `/#equipo` desde /comisiones y scrollear mientras carga): antes la sección se corría 2434 px a 390 y 1491 px a 1440. **Ahora no se corre (0 px).**
+
+**Paso 2 — Quiénes somos** (`components/QuienesSomos/QuienesSomosSanity.tsx`, nuevo):
+- La query de referencia del Studio.
+- **Foto:**
+  - se arma con `@sanity/image-url` (instalado) y un archivo compartido con Equipo, `sanity/imagen.ts`;
+  - 4:3, respetando recorte y punto de interés, en formato automático, con 4 tamaños (600 a 1600 px) para que el navegador elija;
+  - pasa a `QuienesSomos.tsx` por props nuevas, en lugar del import fijo;
+  - sin descripción, usa "Oficinas de Brio Valores en Rosario".
+- **Relato:** se parte en párrafos por los renglones en blanco. Un Enter suelto queda dentro del mismo párrafo.
+- **Valores:** íconos por posición, en código. Los títulos pasan a mayúsculas por CSS (en Sanity se escriben normal).
+- **Tarjetas de valores:** las 4 columnas arrancan recién a los 956 px (antes, a los 861). Entre 861 y 955 px van en 2×2.
+- Antetítulo vacío: no se pinta. Las claves de React son por índice.
+- **Sin publicar:** recuadro "Sección Quiénes somos" (Inicio → Quiénes somos).
+
+**Paso 3 — Equipo** (`components/Equipo/EquipoSanity.tsx`, nuevo):
+- La query de referencia: sección + socios + empleados, en el orden de cada lista del Studio. La clave de cada persona es su id de Sanity.
+- **Fotos:** 4:5 con recorte y punto de interés, en formato automático. Los tamaños van según lo que mide hoy cada avatar en pantalla: 120 px los socios y 84 px los empleados, a 1x, 2x y 3x. No hace falta llegar a 960×1200, porque los avatares son chicos.
+- Sin foto: iniciales, como hoy.
+- **"Ver más" / "Ver menos":** salen de la sección del Studio. Sin bio completa, no aparece "Ver más".
+- Iniciales, colores alternados y animaciones: en código, como hoy.
+- Antetítulo y bajada vacíos: no se pintan.
+- **Sin personas:** sin socios no se pinta su bloque; sin empleados, tampoco el suyo ni su rótulo. Sin ninguna persona queda solo el encabezado y, en dev, el aviso "Faltan las personas: se cargan en Inicio → Equipo → Socios / Empleados".
+- **Sin publicar:** recuadro "Sección Equipo" (Inicio → Equipo → Textos de la sección).
+- Los tipos de socio y empleado pasaron a `Equipo.tsx`.
+
+**Paso 4 — Limpieza:**
+- Se borró todo lo de Quiénes somos de `data/placeholders.ts` (los tipos pasaron a `QuienesSomos.tsx`).
+- Se borró `data/equipo.ts`.
+- **Las fotos NO se borraron** (`src/assets/equipo/` y `src/assets/oficina-quienes.jpeg`): Santiago las usa para cargarlas a mano en el Studio. Verificado: como ya no las importa nadie, **no entran al build** (0 fotos en `dist/`). **Se borran en la limpieza antes del merge a `main`** (anotado en Pendientes globales).
+- **Qué queda en `src/data/` y quién lo usa:**
+  - `placeholders.ts`:
+    - `ABRI_CUENTA_HREF` y `BROKER_LOGIN_URL` → `NavbarSanity` y `HeroSanity`;
+    - `stocksInitial` (precios de ejemplo del panel) → `HeroSanity`;
+    - tipos del Navbar → `Navbar` y `NavbarSanity`;
+    - tipos del Hero → `Hero`;
+    - tipos de Servicios → `Servicios` y `ServiciosSanity`;
+  - `contacto.ts` (motivos y mensajes de validación) → `Contacto`;
+  - `accionesLideres.ts` → `HeroSanity`, el Panel de Cotizaciones y su hook;
+  - `financiamiento.ts`, `informes.ts`, `comisiones.ts` y `legal.ts`: sin cambios (sus páginas todavía no están conectadas).
+
+**Archivos:**
+- Nuevos:
+  - `components/QuienesSomos/QuienesSomosSanity.tsx`;
+  - `components/Equipo/EquipoSanity.tsx`;
+  - `sanity/imagen.ts`.
+- Modificados:
+  - `QuienesSomos.tsx` y su CSS;
+  - `Equipo.tsx` y su CSS;
+  - `Servicios.tsx` y su CSS, y `ServiciosSanity.tsx` (la cáscara);
+  - `lib/reserva.ts`;
+  - `sanity/queries.ts` y `sanity/types.ts`;
+  - `pages/Home.tsx` y `data/placeholders.ts`;
+  - `package.json` (`@sanity/image-url`).
+- Borrado: `data/equipo.ts`.
+
+**Verificación** (Playwright, Chromium headless, script en el scratchpad de la sesión; build local en 4173 y dev en 5173):
+- **Cómo se probó:**
+  - Sanity se interceptó en el navegador y no se escribió nada en el dataset.
+  - Las fotos se sirvieron desde los archivos locales en las mismas direcciones de `cdn.sanity.io` que arma la web.
+  - La API de cotizaciones se cortó a propósito.
+- `npx tsc -b`, `npx tsc -p tsconfig.api.json`, `npx eslint .` y `npm run build`: limpios.
+- **JS:** 603 kB (gzip 175,6). Antes eran 595 kB (gzip 172); `@sanity/image-url` suma unos 8 kB.
+- **Contra producción, con los datos de `main`, a 390, 1024 y 1440:**
+  - texto (incluidas las mayúsculas de los valores), alt de la foto y altos de Quiénes somos y Equipo: iguales;
+  - sin scroll horizontal ni errores de consola;
+  - las capturas difieren entre 14 y 881 píxeles, todos en filas sueltas dentro de las fotos y en alguna esquina redondeada. Es el reescalado de la imagen (ahora el navegador la elige de una lista de tamaños); textos y medidas, iguales.
+- **A 900 px** (la diferencia esperada, capturada aparte): en producción, las 4 tarjetas de valores van en una fila y desparejas; en la rama van en 2×2, parejas. Quiénes somos pasa de 898 a 1057 px de alto.
+- **Tarjetas de valores, de 861 a 1100 px** (cada 15 px, y de a 1 px entre 951 y 960):
+  - las 4 miden siempre lo mismo (369 px a 861; 410 a 955; 195 a 956; 227 a 1100);
+  - ningún título se sale de su tarjeta y no hay scroll horizontal.
+- **"Ver más" / "Ver menos":** se comportan igual que en producción a 390, 900, 1024 y 1440: mismo texto, `aria-expanded`, `aria-controls` (apunta a la bio), `inert` y alto de la bio abierta.
+- **Recorte de las fotos:**
+  - Con recorte y punto de interés simulados, la URL lleva el recorte (ej. `…/oficinaquienes-1600x1200.jpg?rect=320,120,1280,960&w=600&h=450&fit=crop&auto=format`; en un socio, `rect=96,120,768,960`).
+  - Un punto de interés solo, sin recorte, en una foto que ya es 4:5 no cambia la URL: no hay nada que recortar.
+- **Casos borde:**
+  - Un socio y un empleado sin foto: iniciales ("CA", "LM").
+  - 10 empleados: la grilla pasa a 5 filas en celular y 2 en 1024 px, sin scroll horizontal.
+  - Socio sin bio completa: sin "Ver más" (los otros dos sí).
+  - Relato:
+    - de 1 párrafo (con un Enter suelto): 1 párrafo;
+    - de 4 (con renglones en blanco de más y uno con un espacio): 4 párrafos.
+  - Título de valor de 20 caracteres ("Especialistas reales") y de 19 ("Asesoramiento ético"), a 390 y 1024: en mayúsculas y sin desbordar.
+  - Sin socios, ni antetítulo, ni bajada: solo el título y los empleados.
+  - Sin ninguna persona: encabezado + el aviso en dev; en el build, solo el encabezado.
+  - Quiénes somos sin foto subida (solo la descripción): sin foto, el relato a todo el ancho y el aviso chico en dev.
+- **Sin publicar:** en dev, los recuadros "Sección Quiénes somos" y "Sección Equipo"; en el build, nada (ni las anclas).
+- **Error de red:**
+  - En todas las queries: Servicios, Quiénes somos y Equipo quedan en su cáscara (con su alto, invisible), sin excepciones, en dev y en build.
+  - Solo en Quiénes somos y Equipo: esas dos en su cáscara y el resto de la home normal.
+- **Dataset real** (solo lectura): Quiénes somos y Equipo todavía no están publicados (tampoco Servicios ni Contacto). En dev aparecen sus recuadros; en el build, nada. Sin scroll horizontal ni errores.
+- **Scroll a `/#quienes`, `/#equipo` y `/#contacto` desde /comisiones**, con Sanity demorado 2,5 s, a 390 (desde el menú) y 1440 px: la sección queda a 100 px del borde (el lugar que deja el Navbar) al hacer click, al segundo y al final.
+- Sin errores de consola en ninguna prueba, salvo los de red provocados a propósito.
+
+**Decisiones propias / desvíos del brief:**
+- **Relleno invisible en lugar de `min-height` por ancho:** el brief daba las dos opciones. Con el relleno, el alto sale bien en cualquier ancho, y es el mismo patrón del Hero y de Productos.
+- **Servicios ahora también tiene cáscara** (antes no ocupaba nada mientras cargaba). Era la causa del salto anotado en la entrada anterior.
+- **Fotos de Equipo más chicas que 960×1200:** los avatares miden 120 y 84 px, así que con 360 px de ancho alcanza para pantallas 3x. Pedir 960 sería bajar fotos 8 veces más grandes de lo que se ven.
+- **Quiénes somos sin foto subida** (no debería pasar: en el Studio es obligatoria): el relato ocupa todo el ancho y en dev aparece un aviso chico, en vez de dejar media sección vacía.
+- **Una persona sin nombre no se muestra**, y un valor sin título ni línea tampoco.
+
+**Pendientes que quedaron abiertos:**
+- Cargar Quiénes somos y Equipo en el Studio (ver "Cómo probar la rama en local" y Pendientes globales).
+- Antes del merge a `main`: borrar las fotos de `src/assets/equipo/` y `src/assets/oficina-quienes.jpeg`.
+- Seguir con Financiamiento PyME.
 
 ### 2026-10-22 — Rama `feature/sanity`: Servicios y Productos desde Sanity (+ scroll a secciones)
 Tercera tarea de conexión de la rama. Antes, el arreglo del scroll de la tarea anterior se pasó a `main` (ver la entrada siguiente) y se mergeó `main` en la rama (commit `de2d007`). Commits de esta tarea: `66b1280` (scroll a una sección con algo cargando arriba) y `1189e80` (Servicios y Productos). No se escribió nada en el dataset.
@@ -429,6 +551,8 @@ Primera tarea de la rama que conecta el front al Sanity Studio (repo hermano `br
 4. **Cargar:** en el Studio, General → Menú de navegación (Navbar), Footer y Datos de la empresa. Completá los campos y tocá **Publicar** (abajo a la derecha). Si no publicás, el sitio no lo ve: los borradores no salen.
 5. **Ver el cambio:** recargá la página del sitio (F5). No hace falta reiniciar nada.
    - Servicios se carga en Inicio → Servicios; sus instrumentos salen de Páginas → Productos (categorías Financiamiento, Renta fija y Renta variable).
+   - Quiénes somos se carga en Inicio → Quiénes somos (pestañas Relato y Valores; la foto, con su punto de interés, en la pestaña Relato). Los títulos de los valores se escriben normal ("Especialistas"): las mayúsculas las pone la web. Las fotos actuales están en `src/assets/` para subirlas a mano.
+   - Equipo se carga en Inicio → Equipo: "Textos de la sección", y las personas en "Socios" y "Empleados" (botón "+" de cada lista). **Antes de ordenarlas a mano**, usá una vez "Reset Order" en el menú de cada lista (Socios y Empleados): el plugin lo necesita para generar las posiciones. Después arrastrá hasta dejarlas en el orden de hoy. Las fotos actuales están en `src/assets/equipo/`.
 6. **Para ver cómo queda en producción** (sin recuadros): `npm run build` y después `npx vite preview` → `http://localhost:4173`.
 7. **Las cotizaciones** (panel del Hero, `/herramientas/acciones` y Renta fija) con `npm run dev` muestran precios de ejemplo o vacíos: las funciones de `/api` no corren con Vite. Es normal y no tiene que ver con Sanity.
 8. La preview de Vercel de la rama (`brio-alyc-git-feature-sanity-santicbsn14s-projects.vercel.app`) ya puede leer de Sanity (CORS listo). Ahí los recuadros no se ven hasta que se cargue `VITE_MOSTRAR_FALTANTES=true` en el entorno Preview de Vercel.
@@ -1014,8 +1138,8 @@ Dos pendientes técnicos chicos, sin diseño nuevo.
 ## Pendientes globales
 - Informes, Productos, Financiamiento PyME, Contacto, Equipo, Footer y las dos páginas legales ya tienen su página/sección real. Con Equipo, la home queda completa para esta etapa.
 - **Resuelto:** fotos, nómina y bios reales de Equipo (ver entrada del 2026-10-05), salvo un pendiente puntual:
-  - TODO(Agus): foto de Claudio Adrián Iglesias (hoy se ve con avatar de iniciales "CI"). Cuando llegue: WebP 960x1200 en `src/assets/equipo/claudio-iglesias.webp`, import + campo `foto` en `data/equipo.ts`.
-- Noviembre 2026: se suma una décima persona al equipo (área Comercial). Es solo sumar un objeto al array `empleados` de `data/equipo.ts` (con su foto); la grilla se reacomoda sola.
+  - TODO(Agus): foto de Claudio Adrián Iglesias (hoy se ve con avatar de iniciales "CI"). Cuando llegue: en `main`, WebP 960x1200 en `src/assets/equipo/claudio-iglesias.webp`, import + campo `foto` en `data/equipo.ts`. En la rama `feature/sanity` (y después del merge), se sube en el Studio: Inicio → Equipo → Socios → su ficha → Foto.
+- Noviembre 2026: se suma una décima persona al equipo (área Comercial). Es solo sumar un objeto al array `empleados` de `data/equipo.ts` (con su foto); la grilla se reacomoda sola. Con Sanity (rama `feature/sanity`), la suma Agus desde el Studio: Inicio → Equipo → Empleados → "+" (probado con 10 empleados: la grilla se reacomoda).
 - TODO(Agus): confirmar si las categorías "mensual" y "especial" de Informes aplican o hay que ajustarlas/sacarlas; solo el primer informe (semanal) es contenido real, los otros tres son de ejemplo.
 - Configurar en Vercel `RESEND_API_KEY` y `CONTACTO_DESTINATARIO` (variables reales del envío de Contacto) y verificar un dominio propio de Brio en Resend para el remitente del mail.
 - TODO(Agus): email, teléfono y dirección ya son reales (footer y home). Falta confirmar WhatsApp, horario de atención, y los links reales de Instagram y LinkedIn (hoy son placeholder en `footer.ts` y `contacto.ts`).
@@ -1031,7 +1155,7 @@ Dos pendientes técnicos chicos, sin diseño nuevo.
 - Agendar con Agus: candidato a Sanity para `ACCIONES_LIDERES` (`data/accionesLideres.ts`, los 8 tickers del panel del Hero y de /herramientas/acciones) — mismo criterio que `LECAPS_DATA`: hoy estático, solo lo edita el desarrollador; a futuro Agus podría elegir desde el CMS qué acciones mostrar y en qué orden.
 - **Resuelto:** `/api/mercado/arg-stocks` probado contra data912 real en producción (ver entrada del 2026-10-07, fix de ERR_MODULE_NOT_FOUND).
 - TODO(Agus): ¿Brio tiene link de apertura de cuenta online? Si sí, "Abrí tu cuenta" apunta ahí en vez de a Contacto.
-- Quiénes somos: entre 861 y ~950 px las 4 tarjetas de valores no miden lo mismo (la de "Asesoramiento" es más ancha). Decidir si se emparejan subiendo el corte a ~955 px (ver entrada del 2026-10-15).
+- Quiénes somos: entre 861 y ~950 px las 4 tarjetas de valores no miden lo mismo (la de "Asesoramiento" es más ancha). Decidir si se emparejan subiendo el corte a ~955 px (ver entrada del 2026-10-15). → **Decidido y hecho en la rama `feature/sanity`** (2026-10-22): 4 columnas desde 956 px; llega a `main` con el merge.
 - **Resuelto:** el Panel de Renta Fija (antes vivía aparte, en Netlify) ya está portado a `/herramientas/renta-fija`, con proxy propio y motor de cálculo verificado contra el original.
 - Agendar con Agus: candidato a Sanity para `BONDS`/`SOVEREIGN_BONDS`/`LECAPS_DATA`/`BONCAPS_DATA` de Renta Fija (hoy estáticos, solo los edita el desarrollador).
 - **Resuelto:** proxy de Renta Fija (`api/mercado/*`) probado contra data912 real en producción (ver entrada del 2026-10-07).
@@ -1040,10 +1164,10 @@ Dos pendientes técnicos chicos, sin diseño nuevo.
 - **Resuelto:** Renta Fija: las LECAPs/BONCAPs ya vencidas dejaron de aparecer en la tabla de Deuda Soberana (se filtran solas según la fecha de hoy, ver entrada del 2026-10-07). Igual conviene, cuando se actualicen los datos estáticos, sumar las licitaciones nuevas.
 - Fase de integración con Sanity: ver entrada del 2026-10-07 ("Estrategia para la próxima etapa") para la estrategia de ramas y la pregunta abierta de Renta Fija.
 - **Rama `feature/sanity`** (arrancó el 2026-10-15; ver la entrada "Rama `feature/sanity`: base de la conexión + Navbar y Footer desde Sanity"):
-  - **Orden de conexión de las secciones que siguen** (Navbar + Footer + Datos de la empresa: hecho; Hero + Contacto: hecho el 2026-10-21; Servicios + Productos: hecho el 2026-10-22):
+  - **Orden de conexión de las secciones que siguen** (Navbar + Footer + Datos de la empresa: hecho; Hero + Contacto: hecho el 2026-10-21; Servicios + Productos: hecho el 2026-10-22; Quiénes somos + Equipo: hecho el 2026-10-22):
     1. ~~Hero + Contacto~~ (hecho);
     2. ~~Servicios + Productos~~ (hecho el 2026-10-22);
-    3. Quiénes somos + Equipo;
+    3. ~~Quiénes somos + Equipo~~ (hecho el 2026-10-22);
     4. Financiamiento PyME;
     5. Informes;
     6. Comisiones;
@@ -1055,7 +1179,9 @@ Dos pendientes técnicos chicos, sin diseño nuevo.
   - **Navbar:** el texto publicado dice "Quiénes Somos" (con S mayúscula); en `main` es "Quiénes somos". Corregir en el Studio si no fue a propósito.
   - ~~**Arreglo de scroll para `main`**~~ → pasado a `main` el 2026-10-22 (commit `0dfdeaf`, ver la entrada "Arreglo: el scroll a #contacto quedaba corrido al entrar en frío"). Ojo: en la rama, `useScrollToTop.ts` ya cambió otra vez (la versión general del paso 1 de la entrada "Servicios y Productos desde Sanity"); llega a `main` con el merge de la rama.
   - **Cargar en el Studio Servicios y Productos** (Inicio → Servicios y Páginas → Productos): hoy no están publicados. Sin Productos, la home muestra Servicios sin la lista de instrumentos.
-  - **Scroll con algo cargando arriba, si la persona ya scrolleó:** ver "Decisiones" de la entrada "Servicios y Productos desde Sanity". Si molesta, la alternativa es reservar el alto de Servicios mientras carga.
+  - ~~**Scroll con algo cargando arriba, si la persona ya scrolleó**~~ → resuelto el 2026-10-22: Servicios, Quiénes somos y Equipo reservan su alto mientras cargan (ver la entrada "Quiénes somos y Equipo desde Sanity"). Ahora la sección no se corre.
+  - **Cargar en el Studio Quiénes somos y Equipo** (Inicio → Quiénes somos e Inicio → Equipo; ver "Cómo probar la rama en local", incluido el "Reset Order" de cada lista). Hoy no están publicados, así que en producción esas secciones no aparecerían.
+  - **Limpieza antes del merge a `main`:** borrar las fotos de `src/assets/equipo/` y `src/assets/oficina-quienes.jpeg`. Ya no las usa el código (no entran al build), pero quedan para que Santiago las suba a mano al Studio.
   - **Vercel, variables de entorno:** `VITE_MOSTRAR_FALTANTES=true` en el entorno **Preview** (para ver los recuadros en la preview); `VITE_SANITY_USE_CDN=true` solo en **Production**, en el pre-lanzamiento.
   - **Pre-lanzamiento:** sumar a CORS de Sanity el dominio de producción (`brio-alyc.vercel.app` y/o `briovalores.com`), sin credenciales: `npx sanity cors add <url> --no-credentials` desde `brio-studio`. Sin eso, producción no puede leer de Sanity.
-  - **Tamaño del JS:** con `@sanity/client` el JS pasó de 467 a 592 kB (gzip 134 → 171 kB; con Hero y Contacto, 594 kB / gzip 172 kB) y Vite avisa "chunk de más de 500 kB". Mirar si conviene partir el JS por página (carga diferida de las páginas que no son la home) antes de mergear a `main`.
+  - **Tamaño del JS:** con `@sanity/client` el JS pasó de 467 a 592 kB (gzip 134 → 171 kB; con Hero y Contacto, 594 kB / gzip 172 kB; con `@sanity/image-url`, Quiénes somos y Equipo, 603 kB / gzip 175,6 kB) y Vite avisa "chunk de más de 500 kB". Mirar si conviene partir el JS por página (carga diferida de las páginas que no son la home) antes de mergear a `main`.
