@@ -3,7 +3,7 @@
 ## Estado actual
 Front nuevo (`brio-nuevo`, separado de la web puente) con routing (React Router): home (`/`, header + hero + Servicios + Quiénes somos + Equipo + Contacto — ya completa, las 5 secciones de esta etapa), página propia de comisiones (`/comisiones`, con las tablas completas del PDF por pestañas), página de productos (`/servicios/productos`, carrusel animado de instrumentos por categoría), página de Financiamiento PyME (`/servicios/financiamiento-pyme`, con el paso a paso animado de 4 etapas), página de Informes (`/informes`, colgada del menú Herramientas: listado de PDFs filtrable por categoría, con descarga directa) y ahora también el Panel de Renta Fija (`/herramientas/renta-fija`, colgada del menú Herramientas: ONs, Deuda Soberana + LECAPs/BONCAPs, Calendario de pagos y Cartera propia, con datos y cálculos reales vía un proxy propio a data912; clickear cualquier ticker abre un panel lateral con su flujo de fondos futuro, recalculable para un monto a invertir). El header (Navbar) ya quedó terminado: logo real, menú con dropdowns funcionales (Servicios y Herramientas), link nuevo a Equipo, fondo que cambia al scrollear y los 3 anchors de la home (Quiénes somos/Equipo/Contacto) funcionando cross-página (navegan a la home y scrollean, parados en cualquier ruta). Ahora también hay Footer institucional (montado en `App.tsx`, visible en todas las páginas) y dos páginas legales (`/codigo-de-conducta`, texto real de Brio; `/terminos-y-condiciones`, borrador genérico a reemplazar). Quiénes somos ya tiene la foto real de oficina y quedó en 2 bloques (relato + valores), sin el bloque de números. En Servicios, las descripciones de los 3 pilares ya son texto real (rescatado del sitio anterior). Equipo muestra 3 socios (tarjeta con bio corta + "Ver más" que despliega la bio completa) y 9 empleados (grilla simple), con contenido real: nómina, cargos, bios y fotos de 11 de las 12 personas (falta solo la foto de Claudio Adrián Iglesias, que se ve con avatar de iniciales). Contacto tiene formulario funcional con validación, honeypot y un endpoint real de envío por mail (Resend, en `api/contacto.ts`) — falta que Vercel tenga configuradas las variables de entorno reales para que mande mails de verdad. Los botones "Consultá por tu PyME" de Financiamiento PyME ya llevan a Contacto con el motivo correcto preseleccionado, y "Abrí tu cuenta" (Hero y Navbar) hace lo mismo con el motivo "Abrir mi cuenta"; "Operá online" abre el login del broker. En producción ya se puede entrar directo a cualquier página (recargar o abrir un link compartido) sin el 404 de Vercel. Los datos reales de contacto (teléfono, email, dirección) ya están sincronizados entre `data/footer.ts` y `data/contacto.ts`; solo quedan de ejemplo WhatsApp, horario e Instagram/LinkedIn. En Informes, el primer informe ya es real (PDF real, descarga funcional); los otros tres son de ejemplo para mostrar el filtro funcionando. El resto del contenido sigue en placeholder salvo los valores de comisiones (ya reales, transcriptos y cruzados contra el PDF fuente) y los datos financieros de Renta Fija (ONs, soberanos, LECAPs, BONCAPs — reales, portados de la herramienta vieja). El panel de acciones del Hero ya muestra precios reales de BYMA (8 acciones líderes, vía `/api/mercado/arg-stocks` → data912), con fallback a precios de ejemplo mientras carga o si falla. Todo ese panel es además un link al Panel de Cotizaciones (`/herramientas/acciones`), con "Ver panel completo →" en el pie. Esas mismas 8 acciones tienen su tabla completa en el Panel de Cotizaciones (`/herramientas/acciones`, colgado del menú Herramientas: compra/venta/último/variación/volumen, ordenable, con buscador, auto-refresh elegible y export CSV). Con esto la home queda completa para esta etapa; falta el resto del sitio.
 
-**Rama `feature/sanity` (conexión terminada, no está en producción):** conecta el front al Sanity Studio (`brio-studio`). **El sitio entero ya lee sus textos de Sanity:** el Navbar, el Footer, toda la home (Hero, Servicios, Quiénes somos, Equipo, Contacto) y las páginas Productos, Financiamiento PyME, Informes, Comisiones, Código de conducta y Términos y condiciones (más los Datos de la empresa que usan). En `src/data/` queda solo lo que es lógica o código (destinos de los botones, motivos del formulario de Contacto, las acciones líderes, los precios de ejemplo y tipos); Renta fija y el Panel de Cotizaciones no pasan por Sanity en esta etapa. Mientras cargan, las secciones y las páginas ocupan su lugar, así la página no salta. Santiago está cargando el contenido a mano en el Studio: ya hay Datos de la empresa, Navbar, Footer y un Hero de prueba; todo lo demás todavía no. Lo que falta antes de mergear a `main` está juntado en Pendientes globales, "Antes del merge a `main`".
+**Rama `feature/sanity` (conexión terminada, no está en producción):** conecta el front al Sanity Studio (`brio-studio`). **El sitio entero ya lee sus textos de Sanity:** el Navbar, el Footer, toda la home (Hero, Servicios, Quiénes somos, Equipo, Contacto) y las páginas Productos, Financiamiento PyME, Informes, Comisiones, Código de conducta y Términos y condiciones (más los Datos de la empresa que usan). Además tiene una página que `main` no tiene, **"Abrí tu cuenta"** (`/abri-tu-cuenta`, 2026-10-27): encabezado con el botón a la apertura online, preguntas frecuentes en acordeón y cierre a Contacto; los "Abrí tu cuenta" del Hero y del Navbar llevan ahí. En `src/data/` queda solo lo que es lógica o código (destinos de los botones, motivos del formulario de Contacto, las acciones líderes, los precios de ejemplo y tipos); Renta fija y el Panel de Cotizaciones no pasan por Sanity en esta etapa. Mientras cargan, las secciones y las páginas ocupan su lugar, así la página no salta. Santiago está cargando el contenido a mano en el Studio: ya hay Datos de la empresa, Navbar, Footer y un Hero de prueba; todo lo demás todavía no. Lo que falta antes de mergear a `main` está juntado en Pendientes globales, "Antes del merge a `main`".
 
 ## Estructura de archivos
 ```
@@ -22,7 +22,7 @@ brio-nuevo/
       config.ts             → projectId/dataset (pisables por env), apiVersion fija, CDN solo en producción con VITE_SANITY_USE_CDN, `mostrarFaltantes`
       client.ts             → cliente de @sanity/client, sin token, solo lo publicado
       useSanityQuery.ts     → hook { data, status: cargando/listo/error } con caché en memoria por query + parámetros y dedup de pedidos en vuelo
-      queries.ts            → queries GROQ, una por componente (hoy: NAVBAR_QUERY, HERO_QUERY, SERVICIOS_QUERY, PRODUCTOS_QUERY, CONTACTO_QUERY, FOOTER_QUERY, QUIENES_SOMOS_QUERY, EQUIPO_QUERY, FINANCIAMIENTO_QUERY, INFORMES_QUERY, COMISIONES_QUERY, CODIGO_CONDUCTA_QUERY, TERMINOS_QUERY)
+      queries.ts            → queries GROQ, una por componente (hoy: NAVBAR_QUERY, HERO_QUERY, SERVICIOS_QUERY, PRODUCTOS_QUERY, CONTACTO_QUERY, FOOTER_QUERY, QUIENES_SOMOS_QUERY, EQUIPO_QUERY, FINANCIAMIENTO_QUERY, ABRIR_CUENTA_QUERY, INFORMES_QUERY, COMISIONES_QUERY, CODIGO_CONDUCTA_QUERY, TERMINOS_QUERY)
       links.ts              → arma los links tel: / mailto: / wa.me a partir de Datos de la empresa (los usan Footer y Contacto)
       types.ts              → tipos de lo que devuelve cada query, escritos a mano desde los schemas
       TextoResaltado.tsx    → pinta cualquier campo "Texto con resaltado" de Sanity (los resaltados como <strong>, que cada página pinta con su CSS)
@@ -31,7 +31,7 @@ brio-nuevo/
     styles/
       tokens.css            → paleta de marca + fuentes (Poppins/Sora)
     lib/
-      reserva.ts             → texto de relleno invisible para las cáscaras de carga (Hero, Servicios, Quiénes somos, Equipo, Productos, Financiamiento PyME, Informes, Comisiones)
+      reserva.ts             → texto de relleno invisible para las cáscaras de carga (Hero, Servicios, Quiénes somos, Equipo, Productos, Financiamiento PyME, Abrí tu cuenta, Informes, Comisiones)
       fecha.ts               → parte a mano las fechas "AAAA-MM-DD" de Sanity (lista de meses en español, sin `new Date()`): la usan Informes y la vigencia de Comisiones
       mercado/
         accionesLideres.ts    → parser de arg_stocks (tipo `CotizacionAccion`) para el panel del Hero y la tabla de /herramientas/acciones: precio `c`, `pct_change`, puntas `px_bid`/`px_ask` y volumen `v`, sin exigir volumen; null por dato faltante, null si no vino ningún ticker
@@ -51,7 +51,7 @@ brio-nuevo/
       useRentaFija.ts         → hook central del Panel de Renta Fija: fetch a los 3 endpoints propios, precios manuales + localStorage, auto-refresh por grupo (ONs / Soberana+LECAPs), filas calculadas para las 4 pestañas
       useAccionesLideres.ts   → cotizaciones de las acciones líderes (Hero + /herramientas/acciones): fallback → fetch a /api/mercado/arg-stocks, auto-refresh configurable (`intervalSec`, default 90s; 0 = apagado) con la pestaña visible, `status`/`lastUpdated`/`refrescar` para la barra de estado, resaltado de filas que cambiaron; latido simulado opcional (`simularLatido`, solo el Hero) mientras se ven precios de ejemplo
     data/
-      placeholders.ts       → lo que queda en código del Navbar, el Hero y Servicios: destinos ABRI_CUENTA_HREF / BROKER_LOGIN_URL, precios de EJEMPLO del panel de acciones del Hero (`stocksInitial`) y tipos. Los textos vienen de Sanity
+      placeholders.ts       → lo que queda en código del Navbar, el Hero y Servicios: destinos ABRI_CUENTA_HREF / APERTURA_CUENTA_URL / BROKER_LOGIN_URL, precios de EJEMPLO del panel de acciones del Hero (`stocksInitial`) y tipos. Los textos vienen de Sanity
       accionesLideres.ts     → ACCIONES_LIDERES: los 8 tickers (ticker + nombre) del panel del Hero y del Panel de Cotizaciones, dato ESTÁTICO — candidato a Sanity (ver pendientes)
       contacto.ts            → lo que queda en código de Contacto: los motivos del formulario (id, label y el campo extra "Nombre de la empresa") y los mensajes de validación. El resto viene de Sanity
     hooks/
@@ -106,6 +106,9 @@ brio-nuevo/
       FinanciamientoPyme.tsx → página /servicios/financiamiento-pyme: intro + 3 beneficios + paso a paso de 4 etapas (horizontal en desktop, vertical en celular) + cierre con botón; recibe los textos por props (tipo BloqueTexto acá; números de los pasos por posición); con `cargando` muestra el fondo con el mismo alto
       FinanciamientoSanity.tsx → conectado: query `paginaFinanciamiento`, bajada con TextoResaltado, beneficios/pasos desde los campos fijos, destino del botón (`/?motivo=pyme#contacto`) en código; cargando/error → cáscara, null → FaltaCargar
       FinanciamientoPyme.module.css
+      AbrirCuenta.tsx        → (rama feature/sanity) página /abri-tu-cuenta: encabezado con "Empezar" (otra pestaña), preguntas frecuentes en acordeón (varias abiertas, respuesta inert cerrada, animación de alto) y cierre con botón a Contacto; recibe los textos por props; con `cargando` muestra el fondo con el mismo alto
+      AbrirCuentaSanity.tsx  → conectado: query `paginaAbrirCuenta`, respuestas partidas en párrafos, destinos de los botones en código (APERTURA_CUENTA_URL y `/?motivo=cuenta#contacto`); cargando/error → cáscara, null → FaltaCargar
+      AbrirCuenta.module.css
       Informes.tsx            → página /informes: header + chips de filtro por categoría + listado de informes con descarga; recibe textos y listado por props (tipos CategoriaInforme / Informe acá); fecha "AAAA-MM-DD" formateada a mano; con `cargando` muestra el fondo con el alto del encabezado y 3 filas
       InformesSanity.tsx      → conectado: query `paginaInformes` + listado de `informe` (solo con PDF, el más nuevo arriba); ids de categorías en código, nombres de Sanity; descarga con `?dl=<nombre original>`; cargando/error → cáscara, página null → FaltaCargar, sin informes → texto de vacío
       Informes.module.css
@@ -118,7 +121,7 @@ brio-nuevo/
       componentesLegales.tsx  → cómo se pinta el cuerpo de las dos legales con @portabletext/react: mismas etiquetas y clases que antes (capítulo, sección, viñetas y subviñetas), sin párrafos vacíos
       LegalDoc.module.css     → estilos compartidos por las dos páginas legales (documento navy, sin tarjetas)
       ComingSoon.tsx          → placeholder mínimo ("Próximamente") para rutas que todavía no tienen página real — hoy ninguna ruta lo usa (se deja por si aparece una ruta nueva sin página)
-    App.tsx                  → NavbarSanity fuera de <Routes> (siempre visible) + <Routes> ("/" → Home, "/comisiones" → ComisionesSanity, "/servicios/productos" → ProductosSanity, "/servicios/financiamiento-pyme" → FinanciamientoSanity, "/informes" → InformesSanity, "/herramientas/acciones" → Acciones, "/herramientas/renta-fija" → RentaFija, "/codigo-de-conducta" → CodigoConductaSanity, "/terminos-y-condiciones" → TerminosSanity) + FooterSanity fuera de <Routes> (siempre visible, en todas las páginas)
+    App.tsx                  → NavbarSanity fuera de <Routes> (siempre visible) + <Routes> ("/" → Home, "/comisiones" → ComisionesSanity, "/servicios/productos" → ProductosSanity, "/servicios/financiamiento-pyme" → FinanciamientoSanity, "/abri-tu-cuenta" → AbrirCuentaSanity (rama feature/sanity), "/informes" → InformesSanity, "/herramientas/acciones" → Acciones, "/herramientas/renta-fija" → RentaFija, "/codigo-de-conducta" → CodigoConductaSanity, "/terminos-y-condiciones" → TerminosSanity) + FooterSanity fuera de <Routes> (siempre visible, en todas las páginas)
     main.tsx                 → envuelve <App/> en <BrowserRouter>
     index.css
   tsconfig.api.json          → proyecto TS aparte para tipar api/ (Node, no browser)
@@ -127,6 +130,56 @@ brio-nuevo/
 ```
 
 ## Historial
+
+### 2026-10-27 — Rama `feature/sanity`: página nueva "Abrí tu cuenta" (`/abri-tu-cuenta`), editable desde Sanity
+Página nueva, la que tenía la web vieja: cómo abrir la cuenta y las preguntas frecuentes. Se modeló en el Studio, se cargó su contenido en el dataset y se conectó en el front. Commits: front `0fe478f` (código; este PROGRESO va en el siguiente), Studio `a29a950` (modelo) y `01fa6d0` (carga + su PROGRESO). Solo en `feature/sanity`: `main` no se tocó.
+
+**Qué tiene la página** (misma línea visual que Financiamiento PyME: fondo, tipografía, colores, botones naranjas, recuadro de cierre y aparición al scrollear):
+- **Encabezado:** antetítulo, título, bajada y el botón **"Empezar"**, que abre la apertura de cuenta online (`app.briovalores.com/registro`) en otra pestaña, con la flechita "↗" que ya usan los links externos del Navbar. **El título ("Empezá a invertir con Brio") y la bajada ("La apertura es online y gratuita. Te acompañamos en cada paso.") son provisorios hasta que los confirme Agus**; los cambia ella desde el Studio.
+- **Preguntas frecuentes:** las 10 de la web vieja, textuales y en el mismo orden, en un **acordeón** hecho a medida (sin librerías). Cada pregunta es una tarjeta; al tocarla se despliega la respuesta con una animación de alto y el "+" gira hasta quedar "×". Se pueden tener varias abiertas a la vez; al entrar están todas cerradas. Si la respuesta tiene un renglón en blanco en el Studio, se parte en párrafos.
+- **Cierre:** recuadro como el de Financiamiento PyME, con título ("¿Te quedó alguna duda?"), texto y el botón **"Consultanos"**, que lleva a Contacto de la home con el motivo "Abrir mi cuenta" ya marcado.
+- **Accesibilidad del acordeón:** cada pregunta es un botón real que avisa si está abierta o cerrada y qué respuesta controla; la respuesta cerrada no se lee ni se puede enfocar. Funciona con teclado (Tab para moverse, Enter o Espacio para abrir y cerrar). Con "reducir movimiento" activado en el sistema, abre y cierra sin animación.
+- **Estados** (mismo criterio que el resto de las páginas): mientras carga o si falla la red, el fondo de la página con el alto que va a tener (las preguntas cerradas), así el Footer no salta; sin publicar, el recuadro "Falta cargar en Sanity: Página Abrí tu cuenta" (Páginas → Abrí tu cuenta), que solo se ve en dev. Antetítulo, bajada y texto del cierre vacíos no se pintan.
+
+**"Abrí tu cuenta" ahora lleva a esta página:** el botón del Hero, el del Navbar y el del menú del celular van a `/abri-tu-cuenta` (antes iban a Contacto con el motivo "Abrir mi cuenta"). El motivo sigue existiendo en Contacto: lo usa el botón del cierre. Los dos destinos nuevos quedan en código, junto a los otros de `data/placeholders.ts`.
+
+**Archivos:**
+- Nuevos: `pages/AbrirCuenta.tsx` (la página, recibe los textos por props), `pages/AbrirCuenta.module.css` y `pages/AbrirCuentaSanity.tsx` (la query, los destinos de los botones y los estados).
+- Modificados: `App.tsx` (la ruta), `data/placeholders.ts` (`ABRI_CUENTA_HREF` pasa a `/abri-tu-cuenta` y se suma `APERTURA_CUENTA_URL`), `sanity/queries.ts` y `sanity/types.ts` (query y tipos de la página), y comentarios en `data/contacto.ts`, `components/Contacto/ContactoSanity.tsx`, `hooks/useScrollToTop.ts` y `lib/reserva.ts`.
+
+**Verificación** (Playwright, Chromium headless, script en el scratchpad de la sesión; build local en 4173 y dev en 5173, **contra el dataset real, sin escribir nada**; los casos borde, interceptando la respuesta de Sanity en el navegador). 43 chequeos, todos OK, en dos corridas seguidas:
+- `npx tsc -b`, `npx tsc -p tsconfig.api.json`, `npx eslint .` y `npm run build`: limpios (solo la advertencia de siempre del JS de más de 500 kB).
+- **JS:** 595,9 kB (gzip 171,9). Antes, 591,9 kB (gzip 171,0): suma unos 4 kB.
+- **Capturas a 390, 1024 y 1440:** encabezado, acordeón cerrado, la pregunta 6 abierta y el cierre. Coherente con Financiamiento PyME. Sin scroll horizontal, ni con todo cerrado ni con las 10 abiertas; ninguna pregunta ni respuesta se sale de su tarjeta. Las más largas (la 6 y la 10) a 390 bajan a 3–4 renglones y entran bien.
+- **Acordeón:**
+  - 10 preguntas, todas cerradas y con la respuesta bloqueada al entrar;
+  - con mouse, la 1 y la 3 abiertas a la vez; al volver a tocar, se cierran;
+  - abre y cierra con animación de alto (medido a mitad de camino), y el "+" queda girado 45°;
+  - con teclado: Tab desde "Empezar" llega a la primera pregunta, Enter abre, Tab pasa a la siguiente (la respuesta abierta no tiene nada que enfocar), Espacio abre y cierra, Shift+Tab vuelve; con todo cerrado, Tab recorre las 10 preguntas y sigue en "Consultanos" (las respuestas cerradas se saltean);
+  - cada botón apunta a su respuesta y está dentro de un título de nivel 3;
+  - con "reducir movimiento": abre de una, sin transición, y todo se ve sin la animación de entrada.
+- **Links:**
+  - en la home, los 3 "Abrí tu cuenta" (Navbar, menú del celular y Hero) apuntan a `/abri-tu-cuenta`;
+  - Navbar desde la home y desde Comisiones, Hero a 1440 y a 390, y el menú del celular desde la home y desde Productos: todos llegan a la página, arriba de todo, y el menú queda cerrado;
+  - "Empezar": abre `https://app.briovalores.com/registro` en otra pestaña (`target="_blank"`, `rel="noopener"`) y la página queda donde estaba;
+  - "Consultanos": Contacto de la home con el chip "Abrir mi cuenta" marcado y la sección arriba (a 100 px del borde, el lugar del Navbar).
+- **Casos borde:**
+  - sin antetítulo, sin bajada (o solo con espacios) y sin texto del cierre: no se pintan;
+  - una sola pregunta: se ve sola, bien;
+  - respuesta con 2 párrafos: 2 párrafos (un Enter solo no corta el párrafo);
+  - error de red: la cáscara, sin nada a la vista;
+  - cargando (Sanity demorado): la cáscara mide 1791 px contra 1781 de la página real a 390, y 1831 contra 1831 a 1440;
+  - sin publicar: el recuadro "Página Abrí tu cuenta" con "Páginas → Abrí tu cuenta".
+- **0 errores de consola** (fuera de las cotizaciones del Hero, que en local no existen y se cortaron a propósito, y del error de red provocado).
+
+**Decisiones propias / desvíos del brief:**
+- **"↗" en "Empezar":** es la flecha que el sitio ya usa para lo que abre en otra pestaña; queda en código.
+- **`rel="noopener"` sin `noreferrer`**, como dice el brief: así la apertura de cuenta puede saber que la visita vino de la web.
+- **El acordeón no usa la clase de "abierta" en la tarjeta entera:** la aparición al scrollear le pone su propia clase a la tarjeta y React se la borraría al abrir. El estado abierto lo lee el CSS del botón y de la respuesta.
+
+**Pendientes que quedaron abiertos:**
+- Agus confirma el título y la bajada (Páginas → Abrí tu cuenta → Encabezado, en el Studio).
+- La página llega a producción con el merge de `feature/sanity` a `main`.
 
 ### 2026-10-23 — Rama `feature/sanity`: Comisiones y Legales desde Sanity (fin de la conexión)
 Sexta y última tarea de conexión de la rama. Comisiones, Código de conducta y Términos y condiciones ya leen de Sanity, con el mismo criterio de estados que las anteriores. **Con esto, todo el sitio lee sus textos de Sanity.** Commit `15f266d` (código); este PROGRESO va en el commit siguiente. No se escribió nada en el dataset.
@@ -1353,7 +1406,8 @@ Dos pendientes técnicos chicos, sin diseño nuevo.
 - **Resuelto:** conexión al backend de cotizaciones para reemplazar el mock de acciones del Hero (`/api/mercado/arg-stocks`, ver entrada del 2026-10-05).
 - Agendar con Agus: candidato a Sanity para `ACCIONES_LIDERES` (`data/accionesLideres.ts`, los 8 tickers del panel del Hero y de /herramientas/acciones) — mismo criterio que `LECAPS_DATA`: hoy estático, solo lo edita el desarrollador; a futuro Agus podría elegir desde el CMS qué acciones mostrar y en qué orden.
 - **Resuelto:** `/api/mercado/arg-stocks` probado contra data912 real en producción (ver entrada del 2026-10-07, fix de ERR_MODULE_NOT_FOUND).
-- TODO(Agus): ¿Brio tiene link de apertura de cuenta online? Si sí, "Abrí tu cuenta" apunta ahí en vez de a Contacto.
+- ~~TODO(Agus): ¿Brio tiene link de apertura de cuenta online? Si sí, "Abrí tu cuenta" apunta ahí en vez de a Contacto.~~ → **Resuelto en la rama `feature/sanity`** (2026-10-27): "Abrí tu cuenta" lleva a la página nueva `/abri-tu-cuenta`, y su botón "Empezar" abre la apertura online (`app.briovalores.com/registro`). Llega a `main` con el merge.
+- TODO(Agus): confirmar el título y la bajada de `/abri-tu-cuenta` (hoy provisorios: "Empezá a invertir con Brio" / "La apertura es online y gratuita. Te acompañamos en cada paso."). Se cambian en el Studio, Páginas → Abrí tu cuenta.
 - Quiénes somos: entre 861 y ~950 px las 4 tarjetas de valores no miden lo mismo (la de "Asesoramiento" es más ancha). Decidir si se emparejan subiendo el corte a ~955 px (ver entrada del 2026-10-15). → **Decidido y hecho en la rama `feature/sanity`** (2026-10-22): 4 columnas desde 956 px; llega a `main` con el merge.
 - **Resuelto:** el Panel de Renta Fija (antes vivía aparte, en Netlify) ya está portado a `/herramientas/renta-fija`, con proxy propio y motor de cálculo verificado contra el original.
 - Agendar con Agus: candidato a Sanity para `BONDS`/`SOVEREIGN_BONDS`/`LECAPS_DATA`/`BONCAPS_DATA` de Renta Fija (hoy estáticos, solo los edita el desarrollador).
