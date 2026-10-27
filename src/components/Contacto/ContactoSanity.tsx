@@ -6,8 +6,8 @@ import { hrefEmail, hrefTelefono, hrefWhatsapp } from '../../sanity/links';
 import type { ContactoQueryResult, DatosEmpresaContacto, SeccionContactoDoc } from '../../sanity/types';
 import styles from './Contacto.module.css';
 
-/** Id del ancla de la sección: lo usan "/#contacto" (Navbar), ABRI_CUENTA_HREF y el botón de
- * Financiamiento PyME ("/?motivo=…#contacto"). */
+/** Id del ancla de la sección: lo usan "/#contacto" (Navbar) y los botones de Financiamiento PyME
+ * y del cierre de Abrí tu cuenta ("/?motivo=…#contacto"). */
 const ANCLA = 'contacto';
 
 /** Orden e ícono de las redes en código (Contacto solo tiene íconos de estas dos); el link sale

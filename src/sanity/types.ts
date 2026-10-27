@@ -365,6 +365,33 @@ export interface PaginaFinanciamientoDoc {
 /** FINANCIAMIENTO_QUERY: `null` si el documento no está publicado. */
 export type FinanciamientoQueryResult = PaginaFinanciamientoDoc | null;
 
+// ── Abrí tu cuenta (schemaTypes/singletons/paginaAbrirCuenta.ts) ─
+
+export interface PreguntaFrecuenteDoc {
+  _key: string;
+  pregunta?: Texto;
+  /** Texto plano: un renglón en blanco separa párrafos. */
+  respuesta?: Texto;
+}
+
+export interface PaginaAbrirCuentaDoc {
+  /** Opcional. */
+  kicker?: Texto;
+  titulo?: Texto;
+  /** Opcional. */
+  bajada?: Texto;
+  textoBotonEmpezar?: Texto;
+  tituloPreguntas?: Texto;
+  preguntas?: PreguntaFrecuenteDoc[] | null;
+  tituloCierre?: Texto;
+  /** Opcional. */
+  textoCierre?: Texto;
+  textoBotonContacto?: Texto;
+}
+
+/** ABRIR_CUENTA_QUERY: `null` si el documento no está publicado. */
+export type AbrirCuentaQueryResult = PaginaAbrirCuentaDoc | null;
+
 // ── Informes (schemaTypes/singletons/paginaInformes.ts + documents/informe.ts) ─
 
 /** Ids de las categorías: los mismos que CATEGORIAS_INFORME del Studio. */

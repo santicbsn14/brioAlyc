@@ -117,6 +117,14 @@ export const FINANCIAMIENTO_QUERY = /* groq */ `
   textoCierre
 }`;
 
+/** Página /abri-tu-cuenta. Entrada "Página Abrí tu cuenta (modelo + carga)". */
+export const ABRIR_CUENTA_QUERY = /* groq */ `
+*[_type == "paginaAbrirCuenta" && _id == "paginaAbrirCuenta"][0]{
+  kicker, titulo, bajada, textoBotonEmpezar,
+  tituloPreguntas, preguntas[]{_key, pregunta, respuesta},
+  tituloCierre, textoCierre, textoBotonContacto
+}`;
+
 /** Página /informes: textos de la página + el listado (solo los informes con PDF, el más nuevo
  * arriba; misma fecha → el creado último primero). Entrada "Base del Studio + sección Informes". */
 export const INFORMES_QUERY = /* groq */ `

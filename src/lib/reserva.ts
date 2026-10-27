@@ -1,5 +1,5 @@
 // Texto de relleno para las "cáscaras" de carga (Hero, Servicios, Quiénes somos, Equipo, Productos,
-// Financiamiento PyME, Informes y Comisiones):
+// Financiamiento PyME, Abrí tu cuenta, Informes y Comisiones):
 // mientras llegan los textos de Sanity, el componente pinta este texto invisible para ocupar el
 // mismo alto que el real y que la página no salte. Nunca se ve.
 

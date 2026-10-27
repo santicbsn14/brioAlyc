@@ -1,7 +1,7 @@
 // Tipos del Navbar, del Hero y de Servicios, destinos de los botones y precios de ejemplo del
 // panel del Hero.
 // En la rama feature/sanity el Navbar, el Hero y Servicios ya leen sus textos de Sanity: de ellos
-// acá quedan solo los tipos, los destinos (ABRI_CUENTA_HREF, BROKER_LOGIN_URL) y los precios de
+// acá quedan solo los tipos, los destinos (ABRI_CUENTA_HREF, APERTURA_CUENTA_URL, BROKER_LOGIN_URL) y los precios de
 // ejemplo. Quiénes somos y Equipo también leen de Sanity (sus tipos viven en sus componentes).
 
 import { ACCIONES_LIDERES } from './accionesLideres';
@@ -46,10 +46,11 @@ export interface StockRow {
 /** Login del broker online. Lo usan "Mi Portafolio" (Navbar) y "Operá online" (Hero). */
 export const BROKER_LOGIN_URL = 'https://virtualbroker-brio.aunesa.com/auth/signin';
 
-/** "Abrí tu cuenta" (Navbar y Hero): Contacto de la home con el motivo "cuenta" preseleccionado,
- * mismo mecanismo que el CTA de Financiamiento PyME (el id sale de `data/contacto.ts`).
- * TODO(Agus): si Brio tiene link de apertura de cuenta online, apuntar ahí. */
-export const ABRI_CUENTA_HREF = '/?motivo=cuenta#contacto';
+/** "Abrí tu cuenta" (Navbar, también en el menú del celular, y Hero): la página /abri-tu-cuenta. */
+export const ABRI_CUENTA_HREF = '/abri-tu-cuenta';
+
+/** Apertura de cuenta online (botón "Empezar" de /abri-tu-cuenta; abre en otra pestaña). */
+export const APERTURA_CUENTA_URL = 'https://app.briovalores.com/registro';
 
 // FALLBACK del panel de acciones del Hero: precios de EJEMPLO (no reales) que se ven
 // en el primer render, antes de que resuelva /api/mercado/arg-stocks, y si ese fetch

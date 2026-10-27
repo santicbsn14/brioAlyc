@@ -5,7 +5,7 @@
 // CÓMO EDITAR:
 //   - Agregar/quitar un motivo de consulta → sumar/borrar un `ContactoMotivo` en `motivos`.
 //     El id de cada motivo es el valor que se usa en el query param `?motivo=` que llega desde
-//     otras páginas (ver `components/Contacto/Contacto.tsx`, ABRI_CUENTA_HREF y
+//     otras páginas (ver `components/Contacto/Contacto.tsx`, `pages/AbrirCuentaSanity.tsx` y
 //     `pages/FinanciamientoSanity.tsx`). Opcionalmente un motivo pide un campo extra (hoy solo "pyme"
 //     pide el nombre de la empresa).
 //   - Si se suma un motivo, actualizar a mano los otros dos lados que tienen los mismos ids:

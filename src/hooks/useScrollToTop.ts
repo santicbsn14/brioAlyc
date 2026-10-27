@@ -24,7 +24,7 @@ const SEGUIR_MS = 4000;
  * no quedar reintentando para siempre si el id no existe).
  *
  * Depende también de `key` (cambia en cada navegación): así un link a la misma URL en la
- * que ya estamos (ej. tocar dos veces "Abrí tu cuenta" estando en la home) vuelve a scrollear.
+ * que ya estamos (ej. tocar dos veces "Contacto" del Navbar estando en la home) vuelve a scrollear.
  */
 export function useScrollToTop() {
   const { pathname, hash, key } = useLocation();

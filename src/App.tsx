@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import ComisionesSanity from './pages/ComisionesSanity';
 import ProductosSanity from './pages/ProductosSanity';
 import FinanciamientoSanity from './pages/FinanciamientoSanity';
+import AbrirCuentaSanity from './pages/AbrirCuentaSanity';
 import InformesSanity from './pages/InformesSanity';
 import RentaFija from './pages/RentaFija';
 import Acciones from './pages/Acciones';
@@ -24,6 +25,7 @@ function App() {
         <Route path="/comisiones" element={<ComisionesSanity />} />
         <Route path="/servicios/financiamiento-pyme" element={<FinanciamientoSanity />} />
         <Route path="/servicios/productos" element={<ProductosSanity />} />
+        <Route path="/abri-tu-cuenta" element={<AbrirCuentaSanity />} />
         <Route path="/informes" element={<InformesSanity />} />
         <Route path="/herramientas/acciones" element={<Acciones />} />
         <Route path="/herramientas/renta-fija" element={<RentaFija />} />
