@@ -1,20 +1,19 @@
+import { useMemo } from 'react';
 import Hero, { type HeroTextos } from './Hero';
-import FaltaCargar from '../FaltaCargar/FaltaCargar';
+import FaltaCargar, { AvisoFaltante } from '../FaltaCargar/FaltaCargar';
 import { useSanityQuery } from '../../sanity/useSanityQuery';
 import { HERO_QUERY } from '../../sanity/queries';
 import type { DatosEmpresaHero, HeroQueryResult, SeccionHeroDoc } from '../../sanity/types';
-import { ACCIONES_LIDERES } from '../../data/accionesLideres';
-import { ABRI_CUENTA_HREF, BROKER_LOGIN_URL, stocksInitial } from '../../data/placeholders';
+import { accionesElegidas } from '../../lib/mercado/accionesLideres';
+import { ABRI_CUENTA_HREF, BROKER_LOGIN_URL } from '../../data/placeholders';
 
-/** Todo el panel es un link al Panel de Cotizaciones (mismas 8 acciones, tabla completa).
+/** Todo el panel es un link al Panel de Cotizaciones (mismas acciones, tabla completa).
  * Ruta y nombre para lectores de pantalla en código; de Sanity viene solo el texto del pie. */
 const PANEL_HREF = '/herramientas/acciones';
 const PANEL_ARIA_LABEL = 'Ver panel de cotizaciones completo';
 
-/** Lo que no viene de Sanity: qué acciones muestra el panel, sus precios de ejemplo y el link. */
+/** Lo que no viene de Sanity: el link del panel. */
 const EN_CODIGO = {
-  leaders: ACCIONES_LIDERES,
-  fallbackStocks: stocksInitial,
   panelHref: PANEL_HREF,
   panelLinkAriaLabel: PANEL_ARIA_LABEL,
 };
@@ -45,15 +44,29 @@ function armarTextos(hero: SeccionHeroDoc, empresa: DatosEmpresaHero | null): He
  *  - cargando o error de red → la cáscara del Hero (el fondo, con el mismo alto: está arriba de
  *    todo y su alto mueve la página);
  *  - seccionHero sin publicar → recuadro FaltaCargar (en producción, nada). Si falta Datos de la
- *    empresa, el Hero se pinta sin antetítulo ni sellos (su recuadro ya lo muestra el Footer).
- * Los precios del panel no dependen de Sanity: siguen viniendo de /api/mercado. */
+ *    empresa, el Hero se pinta sin antetítulo ni sellos (su recuadro ya lo muestra el Footer);
+ *  - sin acciones del panel (no debería pasar: en el Studio es obligatorio) → el Hero sin el panel
+ *    y, en dev, un aviso chico en su lugar.
+ * Las acciones del panel salen de Sanity (solo tickers; los nombres, de data/accionesBYMA.ts). Los
+ * precios no dependen de Sanity: siguen viniendo de /api/mercado. */
 export default function HeroSanity() {
   const { data, status } = useSanityQuery<HeroQueryResult>(HERO_QUERY);
+  const hero = data?.hero;
+  // Memo: el hook de cotizaciones arma las filas con esta lista en cada cambio.
+  const leaders = useMemo(() => accionesElegidas(hero?.accionesPanel), [hero]);
 
   if (status !== 'listo') return <Hero {...EN_CODIGO} cargando />;
 
-  const hero = data?.hero;
   if (!hero) return <FaltaCargar nombre="Sección Hero (portada)" ubicacion="Inicio → Hero (portada)" />;
 
-  return <Hero {...EN_CODIGO} {...armarTextos(hero, data?.empresa ?? null)} />;
+  return (
+    <Hero
+      {...EN_CODIGO}
+      {...armarTextos(hero, data?.empresa ?? null)}
+      leaders={leaders}
+      avisoPanel={
+        <AvisoFaltante texto="Faltan las acciones del panel: Inicio → Hero (portada) → Panel de acciones" />
+      }
+    />
+  );
 }

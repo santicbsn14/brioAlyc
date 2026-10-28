@@ -1,6 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { AccionLider } from '../data/accionesLideres';
-import { parseAccionesLideres, parseTodasLasAcciones, type CotizacionAccion } from '../lib/mercado/accionesLideres';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  filasLideres,
+  parsePanelBYMA,
+  todasLasAcciones,
+  type AccionLider,
+  type PanelBYMA,
+} from '../lib/mercado/accionesLideres';
 import type { FetchStatus } from './useRentaFija';
 
 /** Default = TTL de caché del proxy (api/_lib/data912.ts): refrescar más seguido no trae datos nuevos. */
@@ -8,15 +13,16 @@ const DEFAULT_INTERVAL_SEC = 90;
 const FLASH_MS = 550;
 const SIM_TICK_MS = 2800;
 
-export type FuenteAcciones = 'ejemplo' | 'data912';
+/** `sin-datos`: todavía no llegó ninguna respuesta buena (o falló): filas con "—". */
+export type FuenteAcciones = 'sin-datos' | 'data912';
 
 export interface OpcionesAccionesLideres {
   /** Segundos entre refrescos automáticos; 0 = sin auto-refresh. Default 90. */
   intervalSec?: number;
   /**
-   * Latido simulado (deriva aleatoria + resaltado) mientras se ven los precios de
-   * `fallback`. Default true (Hero). La tabla de /herramientas/acciones lo apaga: su
-   * fallback no tiene precios, son filas con "—" mientras carga.
+   * Latido simulado (resaltado de una fila al azar cada tanto) mientras no hay datos reales, para
+   * que el panel se vea vivo. Nunca inventa precios: las filas siguen con "—". Default true (Hero);
+   * la tabla de /herramientas/acciones lo apaga.
    */
   simularLatido?: boolean;
   /**
@@ -31,35 +37,41 @@ export interface OpcionesAccionesLideres {
  * Cotizaciones de las acciones líderes (data912 arg_stocks vía /api/mercado/arg-stocks).
  * Lo usan el panel resumido del Hero y la tabla completa de /herramientas/acciones.
  *
- * - Arranca con `fallback` para que el primer render nunca esté vacío, y al montar
- *   pide el endpoint. Si responde bien, pasa a datos reales; si falla, se queda con lo
- *   que tenía (el fallback, o el último dato real bueno si la falla es en un refresh
- *   posterior) — nunca vuelve al fallback después de haber mostrado reales.
+ * - Las líderes (`lideres`) las elige Brio en Sanity y pueden llegar después que los precios, o
+ *   cambiar: el hook guarda el panel completo de la última respuesta buena y arma las filas de
+ *   las líderes que tenga en cada momento, sin volver a pedir.
+ * - Mientras no hay respuesta buena, las filas de las líderes van con "—" (ticker y nombre sí),
+ *   así el panel tiene su alto desde el primer render. Si un refresco posterior falla, se queda
+ *   con el último dato real bueno. Una líder que no viene en la respuesta va con "—".
  * - Auto-refresh cada `intervalSec` (solo con la pestaña visible; al volver a la
  *   pestaña refresca si ya pasó ese tiempo). Cambiar el intervalo no dispara un fetch,
  *   solo rearma el timer — mismo criterio que Renta Fija. `refrescar` fuerza uno manual.
  * - Resalta (`flash`) las filas cuyo precio o % cambió entre datos reales. Ese resaltado
  *   reemplaza al "latido" simulado: sobre precios reales no se inventan movimientos.
- * - Mientras se ven los precios de ejemplo, si `simularLatido`, se mantiene el latido
- *   simulado del mock original, salvo con prefers-reduced-motion.
  * - Con `catalogo`, `todas` trae el panel completo del último dato real bueno ([] hasta
  *   entonces). No participa del resaltado ni del latido.
  */
 export function useAccionesLideres(
   lideres: AccionLider[],
-  fallback: CotizacionAccion[],
   { intervalSec = DEFAULT_INTERVAL_SEC, simularLatido = true, catalogo }: OpcionesAccionesLideres = {},
 ) {
-  const [stocks, setStocks] = useState<CotizacionAccion[]>(fallback);
-  const [todas, setTodas] = useState<CotizacionAccion[]>([]);
-  const [fuente, setFuente] = useState<FuenteAcciones>('ejemplo');
+  const [panel, setPanel] = useState<PanelBYMA | null>(null);
   const [flash, setFlash] = useState<ReadonlySet<string>>(() => new Set());
   const [status, setStatus] = useState<FetchStatus>('idle');
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  // Último dato real recibido, para resaltar solo lo que cambió entre refrescos.
-  const ultimoReal = useRef<CotizacionAccion[] | null>(null);
+  // Último panel real recibido, para resaltar solo lo que cambió entre refrescos.
+  const ultimoReal = useRef<PanelBYMA | null>(null);
   const ctrlRef = useRef<AbortController | null>(null);
   const ultimoFetchRef = useRef(0);
+  // Para el latido: las líderes del momento, sin rearmar el intervalo cada vez que cambian.
+  const lideresRef = useRef(lideres);
+  useEffect(() => {
+    lideresRef.current = lideres;
+  }, [lideres]);
+
+  const stocks = useMemo(() => filasLideres(lideres, panel), [lideres, panel]);
+  const todas = useMemo(() => (catalogo && panel ? todasLasAcciones(panel, catalogo) : []), [catalogo, panel]);
+  const fuente: FuenteAcciones = panel ? 'data912' : 'sin-datos';
 
   const refrescar = useCallback(async () => {
     ctrlRef.current?.abort();
@@ -70,18 +82,15 @@ export function useAccionesLideres(
     try {
       const res = await fetch('/api/mercado/arg-stocks', { cache: 'no-store', signal: actual.signal });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const raw: unknown = await res.json();
-      const filas = parseAccionesLideres(raw, lideres);
-      if (!filas) throw new Error('la respuesta no trae ninguno de los tickers');
+      const nuevo = parsePanelBYMA(await res.json());
+      if (!nuevo) throw new Error('la respuesta no trae ninguna cotización');
 
       const prev = ultimoReal.current;
-      const cambiaron = filas
-        .filter((f, i) => !prev || prev[i]?.price !== f.price || prev[i]?.changePct !== f.changePct)
-        .map((f) => f.symbol);
-      ultimoReal.current = filas;
-      setStocks(filas);
-      if (catalogo) setTodas(parseTodasLasAcciones(raw, catalogo));
-      setFuente('data912');
+      const cambiaron = [...nuevo.values()]
+        .filter((c) => !prev || prev.get(c.symbol)?.price !== c.price || prev.get(c.symbol)?.changePct !== c.changePct)
+        .map((c) => c.symbol);
+      ultimoReal.current = nuevo;
+      setPanel(nuevo);
       setStatus('ok');
       setLastUpdated(new Date());
       if (cambiaron.length) setFlash(new Set(cambiaron));
@@ -91,7 +100,7 @@ export function useAccionesLideres(
       // warn y no error: lo que se estaba mostrando sigue en pantalla, no rompe nada.
       console.warn('[useAccionesLideres] sin datos de arg-stocks, se mantiene lo que había:', err);
     }
-  }, [lideres, catalogo]);
+  }, []);
 
   // Fetch inicial. Con setTimeout(0) (mismo patrón que useRentaFija): el cleanup lo
   // cancela en el doble montaje de StrictMode, y el setState de `refrescar` no corre
@@ -121,29 +130,18 @@ export function useAccionesLideres(
     };
   }, [intervalSec, refrescar]);
 
-  // Latido simulado, SOLO mientras se ven los precios de ejemplo (ver doc arriba).
+  // Latido simulado, SOLO mientras no hay datos reales (ver doc arriba).
   useEffect(() => {
-    if (!simularLatido || fuente !== 'ejemplo') return;
+    if (!simularLatido || fuente !== 'sin-datos') return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const id = setInterval(() => {
-      // Si justo llegaron datos reales y el cleanup todavía no corrió, no tocarlos.
-      if (ultimoReal.current) return;
-      const i = Math.floor(Math.random() * fallback.length);
-      setStocks((prev) =>
-        prev.map((s, idx) => {
-          if (idx !== i || s.price === null || s.changePct === null) return s;
-          const drift = (Math.random() - 0.48) * 0.6; // -0.29..+0.31
-          return {
-            ...s,
-            price: Math.max(1, s.price * (1 + drift / 100)),
-            changePct: +(s.changePct + drift).toFixed(1),
-          };
-        }),
-      );
-      setFlash(new Set([fallback[i].symbol]));
+      // Si justo llegaron datos reales y el cleanup todavía no corrió, no resaltar nada.
+      const filas = lideresRef.current;
+      if (ultimoReal.current || !filas.length) return;
+      setFlash(new Set([filas[Math.floor(Math.random() * filas.length)].ticker]));
     }, SIM_TICK_MS);
     return () => clearInterval(id);
-  }, [simularLatido, fuente, fallback]);
+  }, [simularLatido, fuente]);
 
   useEffect(() => {
     if (!flash.size) return;

@@ -331,6 +331,29 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* Acción sin nombre en la lista maestra: el ticker solo, centrado en el alto de las otras filas.
+   Debajo hay una copia invisible de los dos renglones (ticker + nombre) que da ese alto. */
+.symSolo {
+  display: grid;
+  gap: 0;
+}
+.symSolo > * {
+  grid-column: 1;
+}
+.symSolo > .symCode {
+  grid-row: 1 / 3;
+  align-self: center;
+}
+.symSolo > .symHueco {
+  visibility: hidden;
+}
+.symSolo > .symHueco.symCode {
+  grid-row: 1;
+  margin-bottom: 1px;
+}
+.symSolo > .symHueco.symName {
+  grid-row: 2;
+}
 .px {
   font-size: 0.86rem;
   color: var(--white);

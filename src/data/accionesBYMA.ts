@@ -8,9 +8,11 @@
 // - ACCIONES_BYMA: especies en pesos, una por acción. Es la lista para elegir líderes.
 // - ACCIONES_BYMA_USD: las mismas acciones cotizando en dólares (sufijo D / .D). El Panel
 //   de Cotizaciones las usa solo para mostrarles nombre; no se ofrecen como líderes.
-// - Solo hay nombre donde se sabe con certeza qué empresa es. Las especies que faltan
-//   (ECOG, EDSH, GAMI, HSAT, IEB, RAGH, REIT y sus versiones en dólares) igual se ven en
-//   el Panel, con el ticker solo: ver PROGRESO.md, pendiente de confirmar.
+// - Solo hay nombre donde se sabe con certeza qué empresa es. Las especies en pesos sin
+//   nombre confirmado (ECOG, EDSH, GAMI, HSAT, IEB, RAGH, REIT) están con nombre vacío:
+//   se pueden elegir como líderes y se ven con el ticker solo. Sus versiones en dólares
+//   no están en la lista y el Panel también las muestra con el ticker solo. Ver
+//   PROGRESO.md, pendiente de confirmar.
 
 export interface AccionBYMA {
   /** Ticker tal cual lo devuelve data912. */
@@ -43,9 +45,12 @@ export const ACCIONES_BYMA: AccionBYMA[] = [
   { ticker: 'CVH', nombre: 'Cablevisión Holding' },
   { ticker: 'DGCU2', nombre: 'Distribuidora de Gas Cuyana' },
   { ticker: 'DOME', nombre: 'Domec' },
+  { ticker: 'ECOG', nombre: '' },
   { ticker: 'EDN', nombre: 'Edenor' },
+  { ticker: 'EDSH', nombre: '' },
   { ticker: 'FERR', nombre: 'Ferrum' },
   { ticker: 'FIPL', nombre: 'Fiplasto' },
+  { ticker: 'GAMI', nombre: '' },
   { ticker: 'GARO', nombre: 'Garovaglio y Zorraquín' },
   { ticker: 'GBAN', nombre: 'Naturgy BAN' },
   { ticker: 'GCDI', nombre: 'GCDI' },
@@ -54,6 +59,8 @@ export const ACCIONES_BYMA: AccionBYMA[] = [
   { ticker: 'GRIM', nombre: 'Grimoldi' },
   { ticker: 'HARG', nombre: 'Holcim Argentina' },
   { ticker: 'HAVA', nombre: 'Havanna Holding' },
+  { ticker: 'HSAT', nombre: '' },
+  { ticker: 'IEB', nombre: '' },
   { ticker: 'INTR', nombre: 'Compañía Introductora de Buenos Aires' },
   { ticker: 'INVJ', nombre: 'Inversora Juramento' },
   { ticker: 'IRSA', nombre: 'IRSA' },
@@ -68,6 +75,8 @@ export const ACCIONES_BYMA: AccionBYMA[] = [
   { ticker: 'OEST', nombre: 'Grupo Concesionario del Oeste' },
   { ticker: 'PAMP', nombre: 'Pampa Energía' },
   { ticker: 'PATA', nombre: 'Importadora y Exportadora de la Patagonia' },
+  { ticker: 'RAGH', nombre: '' },
+  { ticker: 'REIT', nombre: '' },
   { ticker: 'RICH', nombre: 'Laboratorios Richmond' },
   { ticker: 'RIGO', nombre: 'Rigolleau' },
   { ticker: 'ROSE', nombre: 'Instituto Rosenbusch' },

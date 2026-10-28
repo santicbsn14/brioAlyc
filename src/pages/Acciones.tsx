@@ -1,10 +1,9 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { ACCIONES_BYMA, ACCIONES_BYMA_USD } from '../data/accionesBYMA';
-import { ACCIONES_LIDERES } from '../data/accionesLideres';
 import { useAccionesLideres } from '../hooks/useAccionesLideres';
 import type { FetchStatus } from '../hooks/useRentaFija';
 import { useReveal } from '../hooks/useReveal';
-import type { CotizacionAccion } from '../lib/mercado/accionesLideres';
+import type { AccionLider, CotizacionAccion } from '../lib/mercado/accionesLideres';
 import { fmtVol } from '../lib/rentaFija/calc';
 import styles from './Acciones.module.css';
 
@@ -16,17 +15,7 @@ const INTERVALOS = [
   { value: 300, label: 'Cada 5 min' },
 ];
 
-// Fallback SIN precios: en esta tabla no se muestran precios de ejemplo (a diferencia
-// del Hero) — mientras carga, o si data912 falla, las filas se ven con "—".
-const FILAS_VACIAS: CotizacionAccion[] = ACCIONES_LIDERES.map((a) => ({
-  symbol: a.ticker,
-  name: a.nombre,
-  price: null,
-  changePct: null,
-  bid: null,
-  ask: null,
-  volume: null,
-}));
+const SIN_ACCIONES: AccionLider[] = [];
 
 // Nombres del panel completo de BYMA para el buscador (pesos + especies en dólares).
 const CATALOGO = [...ACCIONES_BYMA, ...ACCIONES_BYMA_USD];
@@ -85,19 +74,29 @@ function ordenar(rows: CotizacionAccion[], key: SortKey, dir: 1 | -1): Cotizacio
 /**
  * Página /herramientas/acciones: panel de cotizaciones de BYMA.
  * Diseño portado de `__ref/BrioAcciones.jsx` (prototipo aprobado). Sin búsqueda es la
- * versión "tabla completa" de lo que el Hero muestra resumido: misma lista
- * (ACCIONES_LIDERES), mismo endpoint y mismo hook (useAccionesLideres), con intervalo de
- * refresh elegible. Con búsqueda, filtra entre todas las especies de la misma respuesta
- * (`todas`, nombradas con la lista maestra de data/accionesBYMA.ts).
+ * versión "tabla completa" de lo que el Hero muestra resumido: las mismas líderes (elegidas
+ * en Sanity, en ese orden hasta que se ordena por una columna), mismo endpoint y mismo hook
+ * (useAccionesLideres), con intervalo de refresh elegible. Con búsqueda, filtra entre todas las
+ * especies de la misma respuesta (`todas`, nombradas con la lista maestra de data/accionesBYMA.ts).
+ * Mientras no llegan precios, o si data912 falla, las filas van con "—" (sin precios de ejemplo).
  */
-export default function Acciones() {
+export default function Acciones({
+  lideres,
+  avisoLideres,
+}: {
+  /** Las líderes de Sanity, en su orden. `null` = todavía cargando (la tabla queda sin filas). */
+  lideres: AccionLider[] | null;
+  /** Aviso de dev si no hay líderes (va arriba de la tabla). */
+  avisoLideres?: ReactNode;
+}) {
   const [query, setQuery] = useState('');
-  const [sortBy, setSortBy] = useState<SortKey>('symbol');
+  // Sin columna elegida: las líderes en el orden de Sanity y las búsquedas por ticker.
+  const [sortBy, setSortBy] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<1 | -1>(1);
   const [intervalSec, setIntervalSec] = useState(120);
   const ref = useReveal<HTMLElement>(styles.reveal, styles.isIn);
 
-  const { stocks, todas, status, lastUpdated, refrescar } = useAccionesLideres(ACCIONES_LIDERES, FILAS_VACIAS, {
+  const { stocks, todas, status, lastUpdated, refrescar } = useAccionesLideres(lideres ?? SIN_ACCIONES, {
     intervalSec,
     simularLatido: false,
     catalogo: CATALOGO,
@@ -105,11 +104,12 @@ export default function Acciones() {
 
   const q = normalizar(query.trim());
   const rows = useMemo(() => {
+    if (!q) return sortBy ? ordenar(stocks, sortBy, sortDir) : stocks;
     // Hasta que llega el primer dato real, `todas` está vacía: se busca entre las líderes.
-    const filtradas = q
-      ? (todas.length ? todas : stocks).filter((s) => normalizar(s.symbol).includes(q) || normalizar(s.name).includes(q))
-      : stocks;
-    return ordenar(filtradas, sortBy, sortDir);
+    const filtradas = (todas.length ? todas : stocks).filter(
+      (s) => normalizar(s.symbol).includes(q) || normalizar(s.name).includes(q),
+    );
+    return ordenar(filtradas, sortBy ?? 'symbol', sortBy ? sortDir : 1);
   }, [stocks, todas, q, sortBy, sortDir]);
 
   const toggleSort = (key: SortKey) => {
@@ -188,9 +188,13 @@ export default function Acciones() {
         <p className={styles.hint}>
           {q
             ? `${rows.length} ${rows.length === 1 ? 'resultado' : 'resultados'} entre las ${todas.length} especies de BYMA`
-            : `Mostrando las ${stocks.length} líderes · buscá entre las ${todas.length} especies de BYMA`}
+            : stocks.length
+              ? `Mostrando las ${stocks.length} líderes · buscá entre las ${todas.length} especies de BYMA`
+              : `Buscá entre las ${todas.length} especies de BYMA`}
         </p>
       )}
+
+      {avisoLideres}
 
       <div className={styles.tableWrap}>
         <table className={styles.table}>
@@ -217,10 +221,13 @@ export default function Acciones() {
                 </tr>
               );
             })}
-            {rows.length === 0 && (
+            {/* Vacío: buscando, sin coincidencias; sin buscar, no hay líderes (mientras cargan, nada). */}
+            {rows.length === 0 && (q || lideres !== null) && (
               <tr>
                 <td colSpan={COLUMNAS.length} className={styles.empty}>
-                  No encontramos ninguna acción que coincida con tu búsqueda.
+                  {q
+                    ? 'No encontramos ninguna acción que coincida con tu búsqueda.'
+                    : 'Usá el buscador para ver la cotización de cualquier acción de BYMA.'}
                 </td>
               </tr>
             )}

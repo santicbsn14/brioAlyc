@@ -1,10 +1,8 @@
-// Tipos del Navbar, del Hero y de Servicios, destinos de los botones y precios de ejemplo del
-// panel del Hero.
+// Tipos del Navbar, del Hero y de Servicios y destinos de los botones.
 // En la rama feature/sanity el Navbar, el Hero y Servicios ya leen sus textos de Sanity: de ellos
-// acá quedan solo los tipos, los destinos (ABRI_CUENTA_HREF, APERTURA_CUENTA_URL, BROKER_LOGIN_URL) y los precios de
-// ejemplo. Quiénes somos y Equipo también leen de Sanity (sus tipos viven en sus componentes).
-
-import { ACCIONES_LIDERES } from './accionesLideres';
+// acá quedan solo los tipos y los destinos (ABRI_CUENTA_HREF, APERTURA_CUENTA_URL, BROKER_LOGIN_URL).
+// Quiénes somos y Equipo también leen de Sanity (sus tipos viven en sus componentes). Las acciones
+// del panel del Hero también: ya no hay precios de ejemplo (mientras cargan, "—").
 
 export type NavItemKind = 'internal' | 'external' | 'disabled';
 
@@ -36,13 +34,6 @@ export interface Credential {
   number: string;
 }
 
-export interface StockRow {
-  symbol: string;
-  name: string;
-  price: number;
-  changePct: number;
-}
-
 /** Login del broker online. Lo usan "Mi Portafolio" (Navbar) y "Operá online" (Hero). */
 export const BROKER_LOGIN_URL = 'https://virtualbroker-brio.aunesa.com/auth/signin';
 
@@ -51,29 +42,6 @@ export const ABRI_CUENTA_HREF = '/abri-tu-cuenta';
 
 /** Apertura de cuenta online (botón "Empezar" de /abri-tu-cuenta; abre en otra pestaña). */
 export const APERTURA_CUENTA_URL = 'https://app.briovalores.com/registro';
-
-// FALLBACK del panel de acciones del Hero: precios de EJEMPLO (no reales) que se ven
-// en el primer render, antes de que resuelva /api/mercado/arg-stocks, y si ese fetch
-// falla — el Hero nunca queda vacío. Los tickers/nombres salen de ACCIONES_LIDERES
-// (mismas filas, mismo orden que con datos reales → sin salto de layout). Los precios
-// están en un orden de magnitud parecido al real (oct. 2026) para que el cambio a los
-// datos reales no sea brusco; no hace falta mantenerlos al día.
-const precioEjemplo: Record<string, { price: number; changePct: number }> = {
-  GGAL: { price: 6100, changePct: 1.8 },
-  YPFD: { price: 8200, changePct: 0.9 },
-  PAMP: { price: 5100, changePct: -0.6 },
-  ALUA: { price: 830, changePct: -0.4 },
-  BMA: { price: 11000, changePct: 2.3 },
-  CEPU: { price: 1980, changePct: 1.1 },
-  TGSU2: { price: 8550, changePct: -0.8 },
-  BBAR: { price: 7100, changePct: 1.4 },
-};
-
-export const stocksInitial: StockRow[] = ACCIONES_LIDERES.map((a) => ({
-  symbol: a.ticker,
-  name: a.nombre,
-  ...(precioEjemplo[a.ticker] ?? { price: 1000, changePct: 0 }),
-}));
 
 // ── Servicios (sección 6.4) ──────────────────────────────────────────────
 

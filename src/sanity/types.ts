@@ -95,6 +95,9 @@ export interface SeccionHeroDoc {
   textoBotonSecundario?: Texto;
   tituloPanel?: Texto;
   etiquetaPanel?: Texto;
+  /** Tickers del panel (y de la vista inicial del Panel de Cotizaciones), en el orden del Studio.
+   * Obligatorio, de 4 a 8, de la lista fija de data/accionesBYMA.ts. Agregado el 2026-10-28. */
+  accionesPanel?: (string | null)[] | null;
   notaPanel?: Texto;
   /** "Ver panel completo", sin la flecha (la pone el front). Agregado el 2026-10-21: un Hero
    * publicado antes no lo tiene. */

@@ -11,13 +11,14 @@ export const NAVBAR_QUERY = /* groq */ `
   textoPortafolio, textoBotonCuenta
 }`;
 
-/** Hero de la home. Entradas "Sanity 6.19 + sección Hero + menú agrupado" y
- * "Hero: texto del link al panel completo". */
+/** Hero de la home. Entradas "Sanity 6.19 + sección Hero + menú agrupado",
+ * "Hero: texto del link al panel completo" y "Acciones del panel + certificación en Equipo".
+ * También la usa el Panel de Cotizaciones, por `accionesPanel` (así comparten la caché). */
 export const HERO_QUERY = /* groq */ `
 {
   "hero": *[_type == "seccionHero" && _id == "seccionHero"][0]{
     titulo, bajada, textoBotonPrincipal, textoBotonSecundario,
-    tituloPanel, etiquetaPanel, notaPanel, textoLinkPanel
+    tituloPanel, etiquetaPanel, accionesPanel, notaPanel, textoLinkPanel
   },
   "empresa": *[_type == "datosEmpresa" && _id == "datosEmpresa"][0]{
     selloCnv, credenciales[]{_key, entidad, numero}
