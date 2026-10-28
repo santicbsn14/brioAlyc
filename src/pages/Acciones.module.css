@@ -156,6 +156,14 @@
   outline-offset: 2px;
 }
 
+/* línea chica bajo el buscador: qué se está mostrando */
+.hint {
+  max-width: 1100px;
+  margin: -8px auto 14px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
 /* ── tabla ── */
 .tableWrap {
   max-width: 1100px;

@@ -1,7 +1,8 @@
 // Parser de la respuesta de data912 /live/arg_stocks para las acciones líderes (panel
-// del Hero y tabla de /herramientas/acciones). Mismo criterio de lectura que d912parse
-// de Renta Fija (symbol normalizado, `c` = último precio, descartar precios no numéricos
-// o <= 0), con dos diferencias a propósito:
+// del Hero y tabla de /herramientas/acciones) y para el panel completo de BYMA (buscador
+// de /herramientas/acciones). Mismo criterio de lectura que d912parse de Renta Fija
+// (symbol normalizado, `c` = último precio, descartar precios no numéricos o <= 0), con
+// dos diferencias a propósito:
 //  - NO exige volumen (v > 0): el panel del Hero es informativo, no operativo, así que
 //    alcanza con el último precio aunque el papel no haya operado hoy. En Renta Fija el
 //    volumen sí importa porque decide si la TIR usa precio de mercado o manual.
@@ -42,34 +43,50 @@ function toPositive(x: unknown): number | null {
   return n !== null && n > 0 ? n : null;
 }
 
+function normSymbol(r: D912StockRow | undefined): string {
+  return String(r?.symbol ?? '').trim().toUpperCase();
+}
+
+function porTicker(raw: unknown): Map<string, D912StockRow> {
+  const map = new Map<string, D912StockRow>();
+  for (const r of Array.isArray(raw) ? (raw as D912StockRow[]) : []) {
+    const sym = normSymbol(r);
+    if (sym) map.set(sym, r);
+  }
+  return map;
+}
+
+function aCotizacion(symbol: string, name: string, r: D912StockRow | undefined): CotizacionAccion {
+  const price = toPositive(r?.c);
+  const v = toNumber(r?.v);
+  return {
+    symbol,
+    name,
+    price,
+    changePct: price !== null ? toNumber(r?.pct_change) : null,
+    bid: toPositive(r?.px_bid),
+    ask: toPositive(r?.px_ask),
+    volume: v !== null && v >= 0 ? v : null,
+  };
+}
+
 /**
  * Arma las filas en el orden de `lideres`. Devuelve `null` si ninguno de los tickers
  * vino con precio válido (respuesta vacía o con otro formato) — el caller lo trata como
  * falla y sigue mostrando lo que tenía (el fallback o el último dato real bueno).
  */
 export function parseAccionesLideres(raw: unknown, lideres: AccionLider[]): CotizacionAccion[] | null {
-  const porTicker = new Map<string, D912StockRow>();
-  for (const r of Array.isArray(raw) ? (raw as D912StockRow[]) : []) {
-    const sym = String(r?.symbol ?? '').trim().toUpperCase();
-    if (sym) porTicker.set(sym, r);
-  }
+  const filasApi = porTicker(raw);
+  const filas = lideres.map((a) => aCotizacion(a.ticker, a.nombre, filasApi.get(a.ticker)));
+  return filas.some((f) => f.price !== null) ? filas : null;
+}
 
-  let conPrecio = 0;
-  const filas = lideres.map((a): CotizacionAccion => {
-    const r = porTicker.get(a.ticker);
-    const price = toPositive(r?.c);
-    if (price !== null) conPrecio++;
-    const v = toNumber(r?.v);
-    return {
-      symbol: a.ticker,
-      name: a.nombre,
-      price,
-      changePct: price !== null ? toNumber(r?.pct_change) : null,
-      bid: toPositive(r?.px_bid),
-      ask: toPositive(r?.px_ask),
-      volume: v !== null && v >= 0 ? v : null,
-    };
-  });
-
-  return conPrecio > 0 ? filas : null;
+/**
+ * Todas las especies que vinieron en la respuesta, en el orden de data912, con el nombre
+ * de `catalogo` (lista maestra). Las que no están en el catálogo quedan con nombre vacío:
+ * no se descartan.
+ */
+export function parseTodasLasAcciones(raw: unknown, catalogo: AccionLider[]): CotizacionAccion[] {
+  const nombres = new Map(catalogo.map((a) => [a.ticker, a.nombre]));
+  return [...porTicker(raw)].map(([sym, r]) => aCotizacion(sym, nombres.get(sym) ?? '', r));
 }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AccionLider } from '../data/accionesLideres';
-import { parseAccionesLideres, type CotizacionAccion } from '../lib/mercado/accionesLideres';
+import { parseAccionesLideres, parseTodasLasAcciones, type CotizacionAccion } from '../lib/mercado/accionesLideres';
 import type { FetchStatus } from './useRentaFija';
 
 /** Default = TTL de caché del proxy (api/_lib/data912.ts): refrescar más seguido no trae datos nuevos. */
@@ -19,6 +19,12 @@ export interface OpcionesAccionesLideres {
    * fallback no tiene precios, son filas con "—" mientras carga.
    */
   simularLatido?: boolean;
+  /**
+   * Lista maestra (data/accionesBYMA.ts) para nombrar el panel completo de BYMA. Si se
+   * pasa, además de las líderes se expone `todas` (todas las especies de la misma
+   * respuesta, sin otro fetch). Solo la usa el buscador de /herramientas/acciones.
+   */
+  catalogo?: AccionLider[];
 }
 
 /**
@@ -36,13 +42,16 @@ export interface OpcionesAccionesLideres {
  *   reemplaza al "latido" simulado: sobre precios reales no se inventan movimientos.
  * - Mientras se ven los precios de ejemplo, si `simularLatido`, se mantiene el latido
  *   simulado del mock original, salvo con prefers-reduced-motion.
+ * - Con `catalogo`, `todas` trae el panel completo del último dato real bueno ([] hasta
+ *   entonces). No participa del resaltado ni del latido.
  */
 export function useAccionesLideres(
   lideres: AccionLider[],
   fallback: CotizacionAccion[],
-  { intervalSec = DEFAULT_INTERVAL_SEC, simularLatido = true }: OpcionesAccionesLideres = {},
+  { intervalSec = DEFAULT_INTERVAL_SEC, simularLatido = true, catalogo }: OpcionesAccionesLideres = {},
 ) {
   const [stocks, setStocks] = useState<CotizacionAccion[]>(fallback);
+  const [todas, setTodas] = useState<CotizacionAccion[]>([]);
   const [fuente, setFuente] = useState<FuenteAcciones>('ejemplo');
   const [flash, setFlash] = useState<ReadonlySet<string>>(() => new Set());
   const [status, setStatus] = useState<FetchStatus>('idle');
@@ -61,7 +70,8 @@ export function useAccionesLideres(
     try {
       const res = await fetch('/api/mercado/arg-stocks', { cache: 'no-store', signal: actual.signal });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const filas = parseAccionesLideres(await res.json(), lideres);
+      const raw: unknown = await res.json();
+      const filas = parseAccionesLideres(raw, lideres);
       if (!filas) throw new Error('la respuesta no trae ninguno de los tickers');
 
       const prev = ultimoReal.current;
@@ -70,6 +80,7 @@ export function useAccionesLideres(
         .map((f) => f.symbol);
       ultimoReal.current = filas;
       setStocks(filas);
+      if (catalogo) setTodas(parseTodasLasAcciones(raw, catalogo));
       setFuente('data912');
       setStatus('ok');
       setLastUpdated(new Date());
@@ -80,7 +91,7 @@ export function useAccionesLideres(
       // warn y no error: lo que se estaba mostrando sigue en pantalla, no rompe nada.
       console.warn('[useAccionesLideres] sin datos de arg-stocks, se mantiene lo que había:', err);
     }
-  }, [lideres]);
+  }, [lideres, catalogo]);
 
   // Fetch inicial. Con setTimeout(0) (mismo patrón que useRentaFija): el cleanup lo
   // cancela en el doble montaje de StrictMode, y el setState de `refrescar` no corre
@@ -140,5 +151,5 @@ export function useAccionesLideres(
     return () => clearTimeout(t);
   }, [flash]);
 
-  return { stocks, fuente, flash, status, lastUpdated, refrescar };
+  return { stocks, todas, fuente, flash, status, lastUpdated, refrescar };
 }
