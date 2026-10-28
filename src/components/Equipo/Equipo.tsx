@@ -16,6 +16,8 @@ export interface Socio {
   id: string;
   nombre: string;
   cargo: string;
+  /** Texto de certificación ("Idóneo registrado ante CNV"), debajo del cargo. Ausente = no se pinta. */
+  certificacion?: string;
   /** Bio corta, siempre visible en la tarjeta. Vacía = no se pinta. */
   bio?: string;
   /** Bio completa, se despliega con "Ver más". Ausente = la tarjeta no muestra el toggle. */
@@ -29,6 +31,8 @@ export interface Empleado {
   id: string;
   nombre: string;
   cargo: string;
+  /** Texto de certificación, debajo del cargo. Ausente = no se pinta. */
+  certificacion?: string;
   /** Ausente = se muestra el avatar placeholder (iniciales). */
   foto?: FotoPersona;
 }
@@ -130,6 +134,26 @@ function Avatar({
   );
 }
 
+/** Texto de certificación debajo del cargo, con un escudo con tilde chico (decorativo). El ícono va
+ * dentro del renglón, así si el texto baja a dos renglones (grilla angosta) queda prolijo. */
+function Certificacion({ texto }: { texto: string }) {
+  return (
+    <p className={styles.certificacion}>
+      <svg className={styles.certIcono} viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <path
+          d="M8 1.2 2.8 3.1v4.1c0 3.3 2.2 6.1 5.2 7.1 3-1 5.2-3.8 5.2-7.1V3.1L8 1.2Z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+        />
+        <path d="m5.6 8 1.7 1.7 3.2-3.4" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      {texto}
+    </p>
+  );
+}
+
 /**
  * Bio extendida desplegable in-place ("Ver más" / "Ver menos"). La transición de alto usa
  * el truco de `grid-template-rows: 0fr → 1fr` (anima a la altura real del texto, sin
@@ -175,6 +199,7 @@ function SocioCard({
       <Avatar nombre={socio.nombre} foto={socio.foto} tone={tone} size="lg" />
       <h3 className={styles.socioNombre}>{socio.nombre}</h3>
       <p className={styles.socioCargo}>{socio.cargo}</p>
+      {socio.certificacion && <Certificacion texto={socio.certificacion} />}
       {socio.bio && <p className={styles.socioBio}>{socio.bio}</p>}
       {socio.bioExtendida && <BioExtendida texto={socio.bioExtendida} verMas={verMas} verMenos={verMenos} />}
     </article>
@@ -188,6 +213,7 @@ function EmpleadoCard({ empleado, index }: { empleado: Empleado; index: number }
       <Avatar nombre={empleado.nombre} foto={empleado.foto} tone={tone} size="sm" />
       <p className={styles.empNombre}>{empleado.nombre}</p>
       <p className={styles.empCargo}>{empleado.cargo}</p>
+      {empleado.certificacion && <Certificacion texto={empleado.certificacion} />}
     </div>
   );
 }

@@ -17,22 +17,28 @@ function armarFoto(foto: ImagenDoc | null | undefined, anchos: readonly number[]
   return { src: urlImagen(foto, anchos[1], PROPORCION_FOTO), srcSet: srcSetImagen(foto, [...anchos], PROPORCION_FOTO) };
 }
 
+/** El texto de certificación, solo si la persona está marcada y la sección tiene el texto. */
+const certificacionDe = (p: PersonaDoc, textoCertificacion?: string) =>
+  p.certificado ? textoCertificacion : undefined;
+
 /** Una persona sin nombre no se muestra. */
 const conNombre = (p: PersonaDoc) => !!texto(p.nombre);
 
-const armarSocio = (p: PersonaDoc): Socio => ({
+const armarSocio = (p: PersonaDoc, textoCert?: string): Socio => ({
   id: p._id,
   nombre: texto(p.nombre) ?? '',
   cargo: p.cargo ?? '',
+  certificacion: certificacionDe(p, textoCert),
   bio: texto(p.bio),
   bioExtendida: texto(p.bioExtendida),
   foto: armarFoto(p.foto, ANCHOS.socio),
 });
 
-const armarEmpleado = (p: PersonaDoc): Empleado => ({
+const armarEmpleado = (p: PersonaDoc, textoCert?: string): Empleado => ({
   id: p._id,
   nombre: texto(p.nombre) ?? '',
   cargo: p.cargo ?? '',
+  certificacion: certificacionDe(p, textoCert),
   foto: armarFoto(p.foto, ANCHOS.empleado),
 });
 
@@ -40,6 +46,8 @@ const armarEmpleado = (p: PersonaDoc): Empleado => ({
  * orden (entrada "Sección Equipo" de PROGRESO-STUDIO.md).
  *  - cargando o error de red → la cáscara (el fondo con el alto de la sección);
  *  - seccionEquipo sin publicar → recuadro FaltaCargar (en producción, nada);
+ *  - persona marcada como certificada y texto de certificación cargado → ese texto debajo del cargo
+ *    (sin marca o sin texto, nada);
  *  - sin socios o sin empleados → la sección sin ese bloque; sin ninguna persona, solo el
  *    encabezado y, en dev, un aviso chico.
  * La `key` hace que la sección se monte de nuevo al llegar los textos: así la aparición al
@@ -52,8 +60,9 @@ export default function EquipoSanity() {
   const s = data?.seccion;
   if (!s) return <FaltaCargar nombre="Sección Equipo" ubicacion="Inicio → Equipo → Textos de la sección" />;
 
-  const socios = (data?.socios ?? []).filter(conNombre).map(armarSocio);
-  const empleados = (data?.empleados ?? []).filter(conNombre).map(armarEmpleado);
+  const textoCert = texto(s.textoCertificacion);
+  const socios = (data?.socios ?? []).filter(conNombre).map((p) => armarSocio(p, textoCert));
+  const empleados = (data?.empleados ?? []).filter(conNombre).map((p) => armarEmpleado(p, textoCert));
 
   return (
     <Equipo

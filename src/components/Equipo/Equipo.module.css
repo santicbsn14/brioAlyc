@@ -197,6 +197,26 @@
   margin: 2px 0 0;
 }
 
+/* ── Certificación ("Idóneo registrado ante CNV"), debajo del cargo: dato secundario ── */
+.certificacion {
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.4;
+  margin: 4px 0 0;
+  /* En la grilla angosta baja a dos renglones: parejos, sin una palabra suelta abajo. */
+  text-wrap: balance;
+}
+.socio .certificacion {
+  margin: -10px 0 14px;
+}
+.certIcono {
+  width: 12px;
+  height: 12px;
+  margin-right: 4px;
+  vertical-align: -2px;
+  color: var(--teal);
+}
+
 /* ── reveal al scrollear ── */
 .reveal {
   opacity: 0;

@@ -304,6 +304,8 @@ export interface SeccionEquipoDoc {
   rotuloEmpleados?: Texto;
   textoVerMas?: Texto;
   textoVerMenos?: Texto;
+  /** Opcional: debajo del cargo de las personas marcadas como certificadas. Agregado el 2026-10-28. */
+  textoCertificacion?: Texto;
 }
 
 export interface PersonaDoc {
@@ -315,6 +317,8 @@ export interface PersonaDoc {
   /** Solo socios, opcional: si está, aparece "Ver más". */
   bioExtendida?: Texto;
   foto?: ImagenDoc | null;
+  /** "Idóneo registrado ante CNV": muestra el texto de certificación de la sección. Agregado el 2026-10-28. */
+  certificado?: boolean | null;
 }
 
 /** EQUIPO_QUERY: `seccion` viene `null` si no está publicada; las listas, vacías si no hay nadie. */

@@ -91,18 +91,18 @@ export const QUIENES_SOMOS_QUERY = /* groq */ `
 }`;
 
 /** Equipo de la home: textos de la sección + socios y empleados en el orden de cada lista del
- * Studio (orderRank). Entrada "Sección Equipo". */
+ * Studio (orderRank). Entradas "Sección Equipo" y "Acciones del panel + certificación en Equipo". */
 export const EQUIPO_QUERY = /* groq */ `
 {
   "seccion": *[_type == "seccionEquipo" && _id == "seccionEquipo"][0]{
-    kicker, titulo, bajada, rotuloEmpleados, textoVerMas, textoVerMenos
+    kicker, titulo, bajada, rotuloEmpleados, textoVerMas, textoVerMenos, textoCertificacion
   },
   "socios": *[_type == "persona" && tipo == "socio"] | order(orderRank){
-    _id, nombre, cargo, bio, bioExtendida,
+    _id, nombre, cargo, certificado, bio, bioExtendida,
     foto{asset->{_id, url, metadata{dimensions, lqip}}, crop, hotspot}
   },
   "empleados": *[_type == "persona" && tipo == "empleado"] | order(orderRank){
-    _id, nombre, cargo,
+    _id, nombre, cargo, certificado,
     foto{asset->{_id, url, metadata{dimensions, lqip}}, crop, hotspot}
   }
 }`;
