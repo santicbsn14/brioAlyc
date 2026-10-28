@@ -4,6 +4,8 @@ import { useSanityQuery } from '../../sanity/useSanityQuery';
 import { QUIENES_SOMOS_QUERY } from '../../sanity/queries';
 import { srcSetImagen, tieneImagen, urlImagen } from '../../sanity/imagen';
 import type { QuienesSomosQueryResult, ValorDoc } from '../../sanity/types';
+import { atributoEdicion } from '../../sanity/edicion';
+import { paraAtributo, partirParrafos, texto } from '../../sanity/limpiar';
 
 /** Ícono de cada valor, por posición: diana, reloj, brújula, escudo con tilde. */
 const ICONOS: QuienesValueIcon[] = ['target', 'clock', 'compass', 'shield'];
@@ -16,16 +18,6 @@ const ALT_FOTO = 'Oficinas de Brio Valores en Rosario';
 const PROPORCION_FOTO = 4 / 3;
 const ANCHOS_FOTO = [600, 900, 1200, 1600];
 const SIZES_FOTO = '(max-width: 860px) 100vw, 528px';
-
-const texto = (t?: string | null) => t?.trim() || undefined;
-
-/** El relato es un solo texto: cada renglón en blanco (dos Enter) empieza un párrafo nuevo. Un Enter
- * solo queda dentro del mismo párrafo (en la web se ve como un espacio). */
-const partirParrafos = (relato?: string | null) =>
-  (relato ?? '')
-    .split(/\n\s*\n/)
-    .map((p) => p.trim())
-    .filter(Boolean);
 
 /** Un valor sin título ni línea no se muestra. */
 const armarValores = (valores: (ValorDoc | null | undefined)[]): QuienesValue[] =>
@@ -59,7 +51,8 @@ export default function QuienesSomosSanity() {
       photoSrc={foto && urlImagen(foto, 1200, PROPORCION_FOTO)}
       photoSrcSet={foto && srcSetImagen(foto, ANCHOS_FOTO, PROPORCION_FOTO)}
       photoSizes={SIZES_FOTO}
-      photoAlt={texto(qs.foto?.alt) ?? ALT_FOTO}
+      photoAlt={paraAtributo(qs.foto?.alt) ?? ALT_FOTO}
+      photoEdit={atributoEdicion('seccionQuienesSomos', 'seccionQuienesSomos', 'foto')}
       values={armarValores([qs.valor1, qs.valor2, qs.valor3, qs.valor4])}
       note={
         !foto && (

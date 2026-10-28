@@ -1,11 +1,13 @@
 import type { PortableTextComponents } from '@portabletext/react';
+import { hayTexto } from '../sanity/limpiar';
 import styles from './LegalDoc.module.css';
 
 /** Los hijos de un bloque: pedazos de texto (`text`) y, en un inciso con subincisos, la lista anidada. */
 type Hijos = { _type: string; text?: unknown }[] | undefined;
 
+/** Sin contar los caracteres invisibles de la vista previa del Studio (sanity/limpiar.ts). */
 const tieneTexto = (children: Hijos) =>
-  (children ?? []).some((c) => typeof c.text === 'string' && c.text.trim());
+  (children ?? []).some((c) => typeof c.text === 'string' && hayTexto(c.text));
 
 /** Cómo se pinta el cuerpo de las dos páginas legales (campo "Texto legal" de Sanity, entrada
  * "Legales" de PROGRESO-STUDIO.md). Mismo HTML que tenían con `data/legal.ts`, así

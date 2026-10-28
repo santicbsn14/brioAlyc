@@ -4,6 +4,7 @@ import { useSanityQuery } from '../../sanity/useSanityQuery';
 import { SERVICIOS_QUERY } from '../../sanity/queries';
 import type { PilarDoc, ProductosParaServicios, ServiciosQueryResult } from '../../sanity/types';
 import type { InstrumentGroup, InstrumentItem, ServiceIconName, ServicePillar } from '../../data/placeholders';
+import { texto } from '../../sanity/limpiar';
 
 /** Ícono de cada pilar, por posición. El destacado ("Nuestro diferencial") es siempre el primero. */
 const ICONOS: ServiceIconName[] = ['growth', 'pie', 'layers'];
@@ -15,8 +16,6 @@ const CATEGORIAS_HOME = ['categoriaFinanciamiento', 'categoriaRentaFija', 'categ
 /** Último renglón de Renta variable: link al Panel de Cotizaciones. El texto sale de Sanity; la
  * ruta y la flecha, de código. */
 const PANEL_HREF = '/herramientas/acciones';
-
-const texto = (t?: string | null) => t?.trim() || undefined;
 
 function armarPilares(pilares: (PilarDoc | null | undefined)[]): ServicePillar[] {
   return pilares.map((p, i) => ({

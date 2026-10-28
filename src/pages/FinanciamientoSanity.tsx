@@ -5,11 +5,10 @@ import { tieneTexto } from '../sanity/resaltado';
 import { useSanityQuery } from '../sanity/useSanityQuery';
 import { FINANCIAMIENTO_QUERY } from '../sanity/queries';
 import type { BloqueFijoDoc, FinanciamientoQueryResult } from '../sanity/types';
+import { texto } from '../sanity/limpiar';
 
 /** Los dos botones llevan a Contacto con el motivo "pyme" preseleccionado (Contacto lee `?motivo=`). */
 const CTA_HREF = '/?motivo=pyme#contacto';
-
-const texto = (t?: string | null) => t?.trim() || undefined;
 
 /** Beneficios y pasos son campos fijos en Sanity (beneficio1..3, paso1..4): se arman en ese orden.
  * Uno sin título ni texto no se muestra (no debería pasar: en el Studio son obligatorios). */

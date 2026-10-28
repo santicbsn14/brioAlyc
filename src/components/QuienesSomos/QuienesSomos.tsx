@@ -22,6 +22,8 @@ export interface QuienesSomosTextos {
   /** Qué ancho ocupa la foto en pantalla, para que el navegador elija del `photoSrcSet`. */
   photoSizes?: string;
   photoAlt: string;
+  /** Atributo de edición de la foto (solo en la vista previa del Studio, ver sanity/edicion.ts). */
+  photoEdit?: string;
   values: QuienesValue[];
   /** Aviso debajo del relato (ej. el recuadro "Falta…" cuando falta la foto). */
   note?: ReactNode;
@@ -100,7 +102,7 @@ function staggerStyle(index: number): CSSProperties {
 /** Recibe los textos y la foto por props (QuienesSomosSanity los arma desde Sanity). */
 export default function QuienesSomos(props: QuienesSomosProps) {
   const { cargando } = props;
-  const { kicker, title, paragraphs, photoSrc, photoSrcSet, photoSizes, photoAlt, values, note } = props.cargando
+  const { kicker, title, paragraphs, photoSrc, photoSrcSet, photoSizes, photoAlt, photoEdit, values, note } = props.cargando
     ? RESERVA
     : props;
   const ref = useReveal<HTMLElement>(styles.reveal, styles.isIn);
@@ -137,7 +139,14 @@ export default function QuienesSomos(props: QuienesSomosProps) {
           {conFoto && (
             <div className={`${styles.relatoFoto} ${styles.reveal}`}>
               {photoSrc ? (
-                <img src={photoSrc} srcSet={photoSrcSet} sizes={photoSizes} alt={photoAlt} className={styles.foto} />
+                <img
+                  src={photoSrc}
+                  srcSet={photoSrcSet}
+                  sizes={photoSizes}
+                  alt={photoAlt}
+                  className={styles.foto}
+                  data-sanity={photoEdit}
+                />
               ) : (
                 <div className={styles.foto} />
               )}

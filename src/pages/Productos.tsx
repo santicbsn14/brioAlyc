@@ -3,6 +3,7 @@ import type { CSSProperties, PointerEvent } from 'react';
 import { useReveal } from '../hooks/useReveal';
 import { reserva } from '../lib/reserva';
 import styles from './Productos.module.css';
+import { limpio } from '../sanity/limpiar';
 
 /** Un instrumento: `t` = nombre, `d` = línea explicativa. `key`: clave de React (en Sanity, el `_key`). */
 export interface Instrumento {
@@ -278,7 +279,7 @@ export default function Productos(props: ProductosProps) {
                   type="button"
                   className={`${styles.dot} ${i === idx ? styles.dotActive : ''}`}
                   onClick={() => go(i)}
-                  aria-label={c.nombre}
+                  aria-label={limpio(c.nombre)}
                   aria-current={i === idx}
                 />
               ))}

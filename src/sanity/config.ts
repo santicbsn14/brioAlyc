@@ -17,3 +17,8 @@ export const useCdn = import.meta.env.PROD && import.meta.env.VITE_SANITY_USE_CD
 /** Mostrar los recuadros "Falta cargar en Sanity" (components/FaltaCargar): siempre con
  * `vite dev`, y en un build solo si VITE_MOSTRAR_FALTANTES=true (para la preview de Vercel). */
 export const mostrarFaltantes = import.meta.env.DEV || import.meta.env.VITE_MOSTRAR_FALTANTES === 'true';
+
+/** Dirección del Studio. La usan las marcas invisibles de la Vista previa (ver sanity/vistaPrevia/)
+ * para saber adónde apuntan; en la web pública no se usa. Por defecto, el Studio local de
+ * `npm run dev` en brio-studio; cuando el Studio se despliegue, VITE_SANITY_STUDIO_URL. */
+export const studioUrl = import.meta.env.VITE_SANITY_STUDIO_URL || 'http://localhost:3333';

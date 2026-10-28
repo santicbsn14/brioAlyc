@@ -1,6 +1,7 @@
 import { useId, useState, type CSSProperties, type ReactNode } from 'react';
 import { useReveal } from '../../hooks/useReveal';
 import { reserva } from '../../lib/reserva';
+import { limpio } from '../../sanity/limpiar';
 import styles from './Equipo.module.css';
 
 type Tone = 'teal' | 'orange';
@@ -24,6 +25,8 @@ export interface Socio {
   bioExtendida?: string;
   /** Ausente = se muestra el avatar placeholder (iniciales). */
   foto?: FotoPersona;
+  /** Atributo de edición de la foto (solo en la vista previa del Studio, ver sanity/edicion.ts). */
+  fotoEdit?: string;
 }
 
 export interface Empleado {
@@ -35,6 +38,8 @@ export interface Empleado {
   certificacion?: string;
   /** Ausente = se muestra el avatar placeholder (iniciales). */
   foto?: FotoPersona;
+  /** Atributo de edición de la foto (solo en la vista previa del Studio, ver sanity/edicion.ts). */
+  fotoEdit?: string;
 }
 
 /** Los textos y las personas de la sección (vienen de Sanity). Los opcionales vacíos no se pintan. */
@@ -95,9 +100,9 @@ function staggerStyle(index: number): CSSProperties {
   return { '--i': index } as CSSProperties;
 }
 
-/** Iniciales de nombre + último apellido ("Claudio Adrián Iglesias" → "CI"). */
+/** Iniciales de nombre + último apellido ("Claudio Adrián Iglesias" → "CI"), del nombre limpio. */
 function initials(nombre: string): string {
-  const partes = nombre.split(' ').filter(Boolean);
+  const partes = limpio(nombre).split(' ').filter(Boolean);
   const elegidas = partes.length > 1 ? [partes[0], partes[partes.length - 1]] : partes;
   return elegidas
     .map((p) => p[0])
@@ -109,17 +114,20 @@ function initials(nombre: string): string {
 function Avatar({
   nombre,
   foto,
+  edit,
   tone,
   size,
 }: {
   nombre: string;
   foto?: FotoPersona;
+  /** Atributo de edición: en la vista previa, tocar la foto (o las iniciales) abre el campo Foto. */
+  edit?: string;
   tone: Tone;
   size: 'lg' | 'sm';
 }) {
   if (foto) {
     return (
-      <div className={`${styles.avatar} ${styles[`avatar${size === 'lg' ? 'Lg' : 'Sm'}`]}`}>
+      <div className={`${styles.avatar} ${styles[`avatar${size === 'lg' ? 'Lg' : 'Sm'}`]}`} data-sanity={edit}>
         <img src={foto.src} srcSet={foto.srcSet} sizes={SIZES[size]} alt="" className={styles.avatarImg} />
       </div>
     );
@@ -128,6 +136,7 @@ function Avatar({
     <div
       className={`${styles.avatar} ${styles[`avatar${size === 'lg' ? 'Lg' : 'Sm'}`]} ${styles[`tone${tone === 'teal' ? 'Teal' : 'Orange'}`]}`}
       aria-hidden="true"
+      data-sanity={edit}
     >
       <span>{initials(nombre) || '?'}</span>
     </div>
@@ -196,7 +205,7 @@ function SocioCard({
   const tone: Tone = index % 2 ? 'orange' : 'teal';
   return (
     <article className={`${styles.socio} ${styles.reveal}`} style={staggerStyle(index)}>
-      <Avatar nombre={socio.nombre} foto={socio.foto} tone={tone} size="lg" />
+      <Avatar nombre={socio.nombre} foto={socio.foto} edit={socio.fotoEdit} tone={tone} size="lg" />
       <h3 className={styles.socioNombre}>{socio.nombre}</h3>
       <p className={styles.socioCargo}>{socio.cargo}</p>
       {socio.certificacion && <Certificacion texto={socio.certificacion} />}
@@ -210,7 +219,7 @@ function EmpleadoCard({ empleado, index }: { empleado: Empleado; index: number }
   const tone: Tone = index % 2 ? 'orange' : 'teal';
   return (
     <div className={`${styles.emp} ${styles.reveal}`} style={staggerStyle(index % 5)}>
-      <Avatar nombre={empleado.nombre} foto={empleado.foto} tone={tone} size="sm" />
+      <Avatar nombre={empleado.nombre} foto={empleado.foto} edit={empleado.fotoEdit} tone={tone} size="sm" />
       <p className={styles.empNombre}>{empleado.nombre}</p>
       <p className={styles.empCargo}>{empleado.cargo}</p>
       {empleado.certificacion && <Certificacion texto={empleado.certificacion} />}

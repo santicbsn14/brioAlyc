@@ -5,8 +5,7 @@ import FaltaCargar from '../components/FaltaCargar/FaltaCargar';
 import { useSanityQuery } from '../sanity/useSanityQuery';
 import { TERMINOS_QUERY } from '../sanity/queries';
 import type { TerminosQueryResult } from '../sanity/types';
-
-const texto = (t?: string | null) => t?.trim() || undefined;
+import { texto } from '../sanity/limpiar';
 
 /** Página /terminos-y-condiciones con el documento "paginaTerminos" de Sanity (entrada "Legales" de
  * PROGRESO-STUDIO.md).

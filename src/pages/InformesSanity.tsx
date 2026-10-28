@@ -8,12 +8,12 @@ import type {
   InformesQueryResult,
   PaginaInformesDoc,
 } from '../sanity/types';
+import { atributoEdicion } from '../sanity/edicion';
+import { limpio, texto } from '../sanity/limpiar';
 
 /** Ids y orden de las categorías: los de CATEGORIAS_INFORME del Studio. El nombre visible sale de
  * `etiquetasCategorias`. */
 const CATEGORIAS: CategoriaInformeId[] = ['semanal', 'mensual', 'especial'];
-
-const texto = (t?: string | null) => t?.trim() || undefined;
 
 /** Todas las categorías, tengan informes o no (como hoy). Una sin nombre no se muestra (no debería
  * pasar: en el Studio es obligatorio). */
@@ -27,7 +27,7 @@ const armarCategorias = (pagina: PaginaInformesDoc): CategoriaInforme[] =>
  * baja con el nombre con que se subió (el atributo `download` no sirve con otro dominio). Sin
  * nombre, `?dl=` vacío. */
 const linkDescarga = (url: string, nombre?: string | null) =>
-  `${url}?dl=${encodeURIComponent(nombre ?? '')}`;
+  `${limpio(url)}?dl=${encodeURIComponent(limpio(nombre))}`;
 
 /** Un informe sin título o sin PDF no se muestra (no debería pasar: en el Studio son obligatorios,
  * y la query ya deja afuera los que no tienen PDF). */
@@ -39,10 +39,12 @@ const armarInformes = (informes: InformeDoc[]): Informe[] =>
       {
         id: inf._id,
         titulo,
-        fecha: inf.fecha ?? '',
-        categoria: inf.categoria ?? '',
+        // Fecha (va en el atributo dateTime) y categoría (se compara con el filtro): limpias.
+        fecha: limpio(inf.fecha),
+        categoria: limpio(inf.categoria),
         resumen: texto(inf.resumen),
         href: linkDescarga(inf.archivoUrl, inf.archivoNombre),
+        archivoEdit: atributoEdicion(inf._id, 'informe', 'archivo'),
       },
     ];
   });

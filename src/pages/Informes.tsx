@@ -19,6 +19,8 @@ export interface Informe {
   categoria: string;
   resumen?: string;
   href: string;
+  /** Atributo de edición del PDF (solo en la vista previa del Studio, ver sanity/edicion.ts). */
+  archivoEdit?: string;
 }
 
 /** Los textos y el listado (vienen de Sanity, ver InformesSanity). Antetítulo, bajada y resumen
@@ -189,7 +191,7 @@ export default function Informes(props: InformesProps) {
                   {inf.resumen && <p className={styles.resumen}>{inf.resumen}</p>}
                 </div>
 
-                <a className={styles.dl} href={cargando ? undefined : inf.href} download>
+                <a className={styles.dl} href={cargando ? undefined : inf.href} download data-sanity={inf.archivoEdit}>
                   <IconDownload />
                   <span>{downloadLabel}</span>
                 </a>

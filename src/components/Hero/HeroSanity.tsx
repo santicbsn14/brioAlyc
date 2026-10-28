@@ -4,6 +4,7 @@ import FaltaCargar, { AvisoFaltante } from '../FaltaCargar/FaltaCargar';
 import { useSanityQuery } from '../../sanity/useSanityQuery';
 import { HERO_QUERY } from '../../sanity/queries';
 import type { DatosEmpresaHero, HeroQueryResult, SeccionHeroDoc } from '../../sanity/types';
+import { hayTexto, texto } from '../../sanity/limpiar';
 import { accionesElegidas } from '../../lib/mercado/accionesLideres';
 import { ABRI_CUENTA_HREF, BROKER_LOGIN_URL } from '../../data/placeholders';
 
@@ -23,20 +24,20 @@ const EN_CODIGO = {
  * Destinos y estilos de los botones quedan en código; un botón sin texto no se pinta. */
 function armarTextos(hero: SeccionHeroDoc, empresa: DatosEmpresaHero | null): HeroTextos {
   return {
-    kicker: empresa?.selloCnv?.trim() || undefined,
+    kicker: texto(empresa?.selloCnv),
     title: hero.titulo ?? '',
-    lead: hero.bajada?.trim() || undefined,
+    lead: texto(hero.bajada),
     ctas: [
       { label: hero.textoBotonPrincipal ?? '', href: ABRI_CUENTA_HREF, variant: 'primary' as const },
       { label: hero.textoBotonSecundario ?? '', href: BROKER_LOGIN_URL, variant: 'ghost' as const },
-    ].filter((c) => c.label.trim()),
+    ].filter((c) => hayTexto(c.label)),
     credentials: (empresa?.credenciales ?? [])
-      .filter((c) => c.entidad?.trim() && c.numero?.trim())
+      .filter((c) => hayTexto(c.entidad) && hayTexto(c.numero))
       .map((c) => ({ key: c._key, label: c.entidad ?? '', number: c.numero ?? '' })),
     panelTitle: hero.tituloPanel ?? '',
     panelTag: hero.etiquetaPanel ?? '',
     panelFootnote: hero.notaPanel ?? '',
-    panelLinkLabel: hero.textoLinkPanel?.trim() || undefined,
+    panelLinkLabel: texto(hero.textoLinkPanel),
   };
 }
 
