@@ -3,7 +3,7 @@ import { sanityClient } from './client';
 
 export type EstadoQuery = 'cargando' | 'listo' | 'error';
 
-type Parametros = Record<string, string | number | boolean>;
+export type Parametros = Record<string, string | number | boolean>;
 
 type Resultado = { status: 'listo'; data: unknown } | { status: 'error' };
 
@@ -46,6 +46,24 @@ export function useSanityQuery<T>(
   query: string,
   params: Parametros = {},
 ): { data: T | null | undefined; status: EstadoQuery } {
+  // Se elige una sola vez, antes del primer render (main.tsx): siempre se llama el mismo hook.
+  const usar = (hookVistaPrevia ?? useSanityQueryPublica) as HookQuery<T>;
+  return usar(query, params);
+}
+
+export type ResultadoQuery<T> = { data: T | null | undefined; status: EstadoQuery };
+type HookQuery<T> = (query: string, params: Parametros) => ResultadoQuery<T>;
+
+/** En la Vista previa del Studio, el hook que trae los datos en vivo (./vistaPrevia/). */
+let hookVistaPrevia: HookQuery<unknown> | null = null;
+
+/** Lo llama ./vistaPrevia/ al cargarse, antes de que se pinte la app (main.tsx). */
+export function usarHookVistaPrevia(hook: <T>(query: string, params: Parametros) => ResultadoQuery<T>) {
+  hookVistaPrevia = hook;
+}
+
+/** La web pública: pedido directo a Sanity, solo lo publicado, con caché en memoria. */
+function useSanityQueryPublica<T>(query: string, params: Parametros): ResultadoQuery<T> {
   const paramsJson = JSON.stringify(params);
   const clave = `${query}\n${paramsJson}`;
   const [estado, setEstado] = useState<{ clave: string; resultado?: Resultado }>(() => ({

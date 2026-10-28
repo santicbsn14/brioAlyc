@@ -5,8 +5,7 @@ import FaltaCargar from '../components/FaltaCargar/FaltaCargar';
 import { useSanityQuery } from '../sanity/useSanityQuery';
 import { CODIGO_CONDUCTA_QUERY } from '../sanity/queries';
 import type { CodigoConductaQueryResult } from '../sanity/types';
-
-const texto = (t?: string | null) => t?.trim() || undefined;
+import { texto, unirRenglones } from '../sanity/limpiar';
 
 /** Página /codigo-de-conducta con el documento "paginaCodigoConducta" + la razón social de
  * "datosEmpresa" (entrada "Legales" de PROGRESO-STUDIO.md). La razón social va en un renglón (los
@@ -27,7 +26,7 @@ export default function CodigoConductaSanity() {
   return (
     <CodigoConducta
       key="listo"
-      empresa={texto(data?.empresa?.razonSocial?.split('\n').map((l) => l.trim()).filter(Boolean).join(' '))}
+      empresa={unirRenglones(data?.empresa?.razonSocial)}
       titulo={pagina.titulo ?? ''}
       cuerpo={<PortableText value={pagina.cuerpo ?? []} components={componentesLegales} onMissingComponent={false} />}
       cierre={texto(pagina.cierre)}

@@ -11,12 +11,15 @@
   },
   "dependencies": {
     "@portabletext/react": "^8.0.1",
-    "@sanity/client": "^8.9.0",
+    "@sanity/client": "^8.12.0",
     "@sanity/image-url": "^2.1.1",
+    "@sanity/react-loader": "^2.3.0",
+    "@sanity/visual-editing": "^6.2.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.3",
-    "resend": "^6.28.1"
+    "resend": "^6.28.1",
+    "styled-components": "^6.6.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

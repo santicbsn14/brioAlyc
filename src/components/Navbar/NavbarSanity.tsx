@@ -3,6 +3,7 @@ import FaltaCargar from '../FaltaCargar/FaltaCargar';
 import { useSanityQuery } from '../../sanity/useSanityQuery';
 import { NAVBAR_QUERY } from '../../sanity/queries';
 import type { NavbarDoc, NavbarQueryResult } from '../../sanity/types';
+import { hayTexto } from '../../sanity/limpiar';
 import { ABRI_CUENTA_HREF, BROKER_LOGIN_URL, type NavDropdownItem, type NavLinkItem } from '../../data/placeholders';
 
 /** Texto alternativo del logo: no es texto visible, queda en código. */
@@ -13,7 +14,7 @@ type ConTextoSanity<T> = Omit<T, 'label'> & { label?: string | null };
 
 /** Saca los ítems sin texto (no debería pasar: en el Studio son obligatorios). */
 function conTexto<T>(items: ConTextoSanity<T>[]): T[] {
-  return items.filter((i) => Boolean(i.label?.trim())) as T[];
+  return items.filter((i) => hayTexto(i.label)) as T[];
 }
 
 /** Arma los links del Navbar. De Sanity viene solo el texto; destinos, tipo de link (interno o

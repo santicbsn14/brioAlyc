@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { useReveal } from '../hooks/useReveal';
 import { reserva } from '../lib/reserva';
 import styles from './Comisiones.module.css';
+import { limpio } from '../sanity/limpiar';
 
 /** Una tabla de comisiones: columnas variables (no todas las tablas tienen las mismas). Los valores
  * van tal cual (con %, "+ IVA", "$", "USD" y los asteriscos de prorrateo). */
@@ -101,7 +102,7 @@ function FeeTableCard({ table }: { table: FeeTable }) {
               {fila.map((cell, j) => (
                 <td
                   key={j}
-                  data-label={table.columnas[j]}
+                  data-label={limpio(table.columnas[j])}
                   className={j === 0 ? styles.tdMain : styles.tdFee}
                 >
                   {cell}

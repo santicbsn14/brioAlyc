@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { MARCA_RESALTADO, spansResaltado } from './resaltado';
+import { estaResaltado, spansResaltado } from './resaltado';
 import type { TextoResaltadoDoc } from './types';
 
 /** Pinta un campo "Texto con resaltado" de Sanity (entrada "Página Financiamiento PyME + tipo 'Texto
@@ -12,7 +12,7 @@ export default function TextoResaltado({ value }: { value?: TextoResaltadoDoc | 
     <>
       {spansResaltado(value).map((s, i) => {
         const key = s._key || String(i);
-        return s.marks?.includes(MARCA_RESALTADO) ? (
+        return estaResaltado(s) ? (
           <strong key={key}>{s.text}</strong>
         ) : (
           <Fragment key={key}>{s.text}</Fragment>

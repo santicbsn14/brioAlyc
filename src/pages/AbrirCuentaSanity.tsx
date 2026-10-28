@@ -4,19 +4,10 @@ import { APERTURA_CUENTA_URL } from '../data/placeholders';
 import { useSanityQuery } from '../sanity/useSanityQuery';
 import { ABRIR_CUENTA_QUERY } from '../sanity/queries';
 import type { AbrirCuentaQueryResult, PreguntaFrecuenteDoc } from '../sanity/types';
+import { partirParrafos, texto } from '../sanity/limpiar';
 
 /** El botón del cierre lleva a Contacto con el motivo "cuenta" ("Abrir mi cuenta") preseleccionado. */
 const CONTACTO_HREF = '/?motivo=cuenta#contacto';
-
-const texto = (t?: string | null) => t?.trim() || undefined;
-
-/** La respuesta es un solo texto: cada renglón en blanco (dos Enter) empieza un párrafo nuevo. Un
- * Enter solo queda dentro del mismo párrafo (en la web se ve como un espacio). */
-const partirParrafos = (respuesta?: string | null) =>
-  (respuesta ?? '')
-    .split(/\n\s*\n/)
-    .map((p) => p.trim())
-    .filter(Boolean);
 
 /** Una pregunta sin texto no se muestra (no debería pasar: en el Studio es obligatoria). */
 const armarPreguntas = (preguntas?: PreguntaFrecuenteDoc[] | null): PreguntaFrecuente[] =>

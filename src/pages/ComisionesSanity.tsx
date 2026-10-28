@@ -4,8 +4,7 @@ import { partirFecha } from '../lib/fecha';
 import { useSanityQuery } from '../sanity/useSanityQuery';
 import { COMISIONES_QUERY } from '../sanity/queries';
 import type { ComisionesQueryResult, PaginaComisionesDoc, PestanaComisionesDoc } from '../sanity/types';
-
-const texto = (t?: string | null) => t?.trim() || undefined;
+import { texto } from '../sanity/limpiar';
 
 /** "Vigencia:" + "2026-01-01" → "Vigencia: Enero 2026". La fecha se parte a mano (lib/fecha.ts),
  * nunca con `new Date()`: el 1° de enero en UTC es el 31 de diciembre en Argentina. Sin fecha

@@ -2,9 +2,10 @@ import Contacto, { type ContactoCanal, type ContactoProps, type ContactoRed } fr
 import FaltaCargar from '../FaltaCargar/FaltaCargar';
 import { useSanityQuery } from '../../sanity/useSanityQuery';
 import { CONTACTO_QUERY } from '../../sanity/queries';
-import { hrefEmail, hrefTelefono, hrefWhatsapp } from '../../sanity/links';
+import { hrefEmail, hrefRed, hrefTelefono, hrefWhatsapp } from '../../sanity/links';
 import type { ContactoQueryResult, DatosEmpresaContacto, SeccionContactoDoc } from '../../sanity/types';
 import styles from './Contacto.module.css';
+import { hayTexto, paraAtributo, texto } from '../../sanity/limpiar';
 
 /** Id del ancla de la sección: lo usan "/#contacto" (Navbar) y los botones de Financiamiento PyME
  * y del cierre de Abrí tu cuenta ("/?motivo=…#contacto"). */
@@ -16,8 +17,6 @@ const REDES: Omit<ContactoRed, 'href'>[] = [
   { id: 'instagram', label: 'Instagram' },
   { id: 'linkedin', label: 'LinkedIn' },
 ];
-
-const texto = (t?: string | null) => t?.trim() || undefined;
 
 /** Los 5 canales, con los valores de Datos de la empresa y los nombres de la sección. Un canal sin
  * valor no se muestra (WhatsApp y horario son opcionales en el Studio). */
@@ -41,12 +40,12 @@ function armarCanales(seccion: SeccionContactoDoc, empresa: DatosEmpresaContacto
     email ? { id: 'email', label: nombres?.email ?? '', value: email, href: hrefEmail(email) } : null,
     telefono ? { id: 'tel', label: nombres?.telefono ?? '', value: telefono, href: hrefTelefono(telefono) } : null,
     // "Rosario, Santa Fe" + "Córdoba 1464 Piso 4, CP 2000": las comas y el "CP" los pone el front.
-    d && (d.ciudad || d.provincia)
+    d && (hayTexto(d.ciudad) || hayTexto(d.provincia))
       ? {
           id: 'dir',
           label: nombres?.oficina ?? '',
-          value: [d.ciudad, d.provincia].filter(Boolean).join(', '),
-          sub: texto([d.calle, d.codigoPostal && `CP ${d.codigoPostal}`].filter(Boolean).join(', ')),
+          value: [texto(d.ciudad), texto(d.provincia)].filter(Boolean).join(', '),
+          sub: texto([texto(d.calle), hayTexto(d.codigoPostal) && `CP ${d.codigoPostal}`].filter(Boolean).join(', ')),
           href: null,
         }
       : null,
@@ -69,7 +68,7 @@ function armarContacto(seccion: SeccionContactoDoc, empresa: DatosEmpresaContact
     socialLabel: seccion.rotuloRedes ?? '',
     // Una red sin link no se muestra.
     social: REDES.flatMap((r) => {
-      const href = texto(empresa[r.id]);
+      const href = hrefRed(empresa[r.id]);
       return href ? [{ ...r, href }] : [];
     }),
     motivosLabel: seccion.rotuloMotivos ?? '',
@@ -79,10 +78,11 @@ function armarContacto(seccion: SeccionContactoDoc, empresa: DatosEmpresaContact
       telefono: campos?.telefono ?? '',
       mensaje: campos?.mensaje ?? '',
     },
+    // Van en el atributo placeholder del mensaje: limpios.
     mensajePlaceholders: {
-      cuenta: texto(ayuda?.cuenta),
-      pyme: texto(ayuda?.pyme),
-      consulta: texto(ayuda?.consulta),
+      cuenta: paraAtributo(ayuda?.cuenta),
+      pyme: paraAtributo(ayuda?.pyme),
+      consulta: paraAtributo(ayuda?.consulta),
     },
     submitLabel: seccion.textoBotonEnviar ?? '',
     sendingLabel: seccion.textoBotonEnviando ?? '',

@@ -4,13 +4,13 @@ import { useSanityQuery } from '../../sanity/useSanityQuery';
 import { EQUIPO_QUERY } from '../../sanity/queries';
 import { srcSetImagen, tieneImagen, urlImagen } from '../../sanity/imagen';
 import type { EquipoQueryResult, ImagenDoc, PersonaDoc } from '../../sanity/types';
+import { atributoEdicion } from '../../sanity/edicion';
+import { texto } from '../../sanity/limpiar';
 
 /** Fotos verticales 4:5. Anchos del srcSet según lo que mide cada avatar en pantalla (120 px los
  * socios, 84 px los empleados) a 1x, 2x y 3x; `src` es el de 2x. */
 const PROPORCION_FOTO = 4 / 5;
 const ANCHOS = { socio: [120, 240, 360], empleado: [84, 168, 252] } as const;
-
-const texto = (t?: string | null) => t?.trim() || undefined;
 
 function armarFoto(foto: ImagenDoc | null | undefined, anchos: readonly number[]): FotoPersona | undefined {
   if (!tieneImagen(foto)) return undefined;
@@ -27,6 +27,7 @@ const armarSocio = (p: PersonaDoc): Socio => ({
   bio: texto(p.bio),
   bioExtendida: texto(p.bioExtendida),
   foto: armarFoto(p.foto, ANCHOS.socio),
+  fotoEdit: atributoEdicion(p._id, 'persona', 'foto'),
 });
 
 const armarEmpleado = (p: PersonaDoc): Empleado => ({
@@ -34,6 +35,7 @@ const armarEmpleado = (p: PersonaDoc): Empleado => ({
   nombre: texto(p.nombre) ?? '',
   cargo: p.cargo ?? '',
   foto: armarFoto(p.foto, ANCHOS.empleado),
+  fotoEdit: atributoEdicion(p._id, 'persona', 'foto'),
 });
 
 /** Equipo con "seccionEquipo" + las personas de las listas Socios y Empleados del Studio, en su

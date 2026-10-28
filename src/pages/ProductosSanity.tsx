@@ -3,6 +3,7 @@ import FaltaCargar from '../components/FaltaCargar/FaltaCargar';
 import { useSanityQuery } from '../sanity/useSanityQuery';
 import { PRODUCTOS_QUERY } from '../sanity/queries';
 import type { PaginaProductosDoc, ProductosQueryResult } from '../sanity/types';
+import { texto } from '../sanity/limpiar';
 
 /** Orden del carrusel e id de cada categoría (el id elige la ilustración en Productos.tsx). Las 4
  * categorías son campos fijos en Sanity; el orden y la ilustración quedan en código. */
@@ -12,8 +13,6 @@ const ORDEN = [
   { id: 'financiamiento', campo: 'financiamiento' },
   { id: 'futuros', campo: 'futuros' },
 ] as const;
-
-const texto = (t?: string | null) => t?.trim() || undefined;
 
 /** Arma el array del carrusel como dice la entrada "Página Productos" de PROGRESO-STUDIO.md. Una
  * categoría sin nombre o sin instrumentos no se muestra; un instrumento sin nombre, tampoco. */
