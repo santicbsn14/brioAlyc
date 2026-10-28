@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
+import { ACCIONES_BYMA, ACCIONES_BYMA_USD } from '../data/accionesBYMA';
 import { ACCIONES_LIDERES } from '../data/accionesLideres';
 import { useAccionesLideres } from '../hooks/useAccionesLideres';
 import type { FetchStatus } from '../hooks/useRentaFija';
@@ -26,6 +27,9 @@ const FILAS_VACIAS: CotizacionAccion[] = ACCIONES_LIDERES.map((a) => ({
   ask: null,
   volume: null,
 }));
+
+// Nombres del panel completo de BYMA para el buscador (pesos + especies en dólares).
+const CATALOGO = [...ACCIONES_BYMA, ...ACCIONES_BYMA_USD];
 
 type SortKey = 'symbol' | 'name' | 'bid' | 'ask' | 'price' | 'changePct' | 'volume';
 
@@ -62,11 +66,14 @@ function StatusDot({ status }: { status: FetchStatus }) {
   return <span className={cls} aria-hidden="true" />;
 }
 
-/** Ordena con los valores faltantes (null/undefined) siempre al final, en ambas direcciones. */
+/** Minúsculas y sin tildes, para que "galicia" encuentre "Grupo Financiero Galicia". */
+const normalizar = (t: string) => t.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+
+/** Ordena con los valores faltantes (null/undefined o nombre vacío) siempre al final, en ambas direcciones. */
 function ordenar(rows: CotizacionAccion[], key: SortKey, dir: 1 | -1): CotizacionAccion[] {
   return [...rows].sort((a, b) => {
-    const va = a[key];
-    const vb = b[key];
+    const va = a[key] === '' ? null : a[key];
+    const vb = b[key] === '' ? null : b[key];
     if (va == null && vb == null) return 0;
     if (va == null) return 1;
     if (vb == null) return -1;
@@ -75,25 +82,13 @@ function ordenar(rows: CotizacionAccion[], key: SortKey, dir: 1 | -1): Cotizacio
   });
 }
 
-/** Descarga lo que se ve en pantalla (filtro + orden activos). Mismo formato que el CSV de Renta Fija. */
-function exportCSV(rows: CotizacionAccion[]) {
-  const header = COLUMNAS.map((c) => c.label);
-  const lines = [
-    header,
-    ...rows.map((s) => [s.symbol, s.name, s.bid ?? '', s.ask ?? '', s.price ?? '', s.changePct ?? '', s.volume ?? '']),
-  ];
-  const csv = lines.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,﻿' + encodeURIComponent(csv);
-  a.download = `briovalores-acciones-${new Date().toISOString().slice(0, 10)}.csv`;
-  a.click();
-}
-
 /**
- * Página /herramientas/acciones: panel de cotizaciones de las acciones líderes de BYMA.
- * Diseño portado de `__ref/BrioAcciones.jsx` (prototipo aprobado). Es la versión "tabla
- * completa" de lo que el Hero muestra resumido: misma lista (ACCIONES_LIDERES), mismo
- * endpoint y mismo hook (useAccionesLideres), con intervalo de refresh elegible.
+ * Página /herramientas/acciones: panel de cotizaciones de BYMA.
+ * Diseño portado de `__ref/BrioAcciones.jsx` (prototipo aprobado). Sin búsqueda es la
+ * versión "tabla completa" de lo que el Hero muestra resumido: misma lista
+ * (ACCIONES_LIDERES), mismo endpoint y mismo hook (useAccionesLideres), con intervalo de
+ * refresh elegible. Con búsqueda, filtra entre todas las especies de la misma respuesta
+ * (`todas`, nombradas con la lista maestra de data/accionesBYMA.ts).
  */
 export default function Acciones() {
   const [query, setQuery] = useState('');
@@ -102,18 +97,20 @@ export default function Acciones() {
   const [intervalSec, setIntervalSec] = useState(120);
   const ref = useReveal<HTMLElement>(styles.reveal, styles.isIn);
 
-  const { stocks, status, lastUpdated, refrescar } = useAccionesLideres(ACCIONES_LIDERES, FILAS_VACIAS, {
+  const { stocks, todas, status, lastUpdated, refrescar } = useAccionesLideres(ACCIONES_LIDERES, FILAS_VACIAS, {
     intervalSec,
     simularLatido: false,
+    catalogo: CATALOGO,
   });
 
+  const q = normalizar(query.trim());
   const rows = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    // Hasta que llega el primer dato real, `todas` está vacía: se busca entre las líderes.
     const filtradas = q
-      ? stocks.filter((s) => s.symbol.toLowerCase().includes(q) || s.name.toLowerCase().includes(q))
+      ? (todas.length ? todas : stocks).filter((s) => normalizar(s.symbol).includes(q) || normalizar(s.name).includes(q))
       : stocks;
     return ordenar(filtradas, sortBy, sortDir);
-  }, [stocks, query, sortBy, sortDir]);
+  }, [stocks, todas, q, sortBy, sortDir]);
 
   const toggleSort = (key: SortKey) => {
     if (sortBy === key) setSortDir((d) => (d === 1 ? -1 : 1));
@@ -151,8 +148,8 @@ export default function Acciones() {
           Panel de Cotizaciones
         </h1>
         <p className={styles.lead}>
-          Precios de las principales acciones líderes de BYMA — datos referenciales, con actualización automática cada 2
-          minutos aproximadamente.
+          Las acciones líderes de BYMA a la vista y cualquier otra con el buscador — datos referenciales, con
+          actualización automática cada 2 minutos aproximadamente.
         </p>
       </div>
 
@@ -160,7 +157,7 @@ export default function Acciones() {
         <input
           className={styles.search}
           type="search"
-          placeholder="Buscar por ticker o nombre…"
+          placeholder="Buscá cualquier ticker o empresa"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           aria-label="Buscar acción"
@@ -184,11 +181,16 @@ export default function Acciones() {
           <button type="button" className={styles.btn} onClick={() => void refrescar()}>
             ⟳ Actualizar
           </button>
-          <button type="button" className={styles.btn} onClick={() => exportCSV(rows)}>
-            ⇩ Exportar CSV
-          </button>
         </div>
       </div>
+
+      {todas.length > 0 && (
+        <p className={styles.hint}>
+          {q
+            ? `${rows.length} ${rows.length === 1 ? 'resultado' : 'resultados'} entre las ${todas.length} especies de BYMA`
+            : `Mostrando las ${stocks.length} líderes · buscá entre las ${todas.length} especies de BYMA`}
+        </p>
+      )}
 
       <div className={styles.tableWrap}>
         <table className={styles.table}>
@@ -204,7 +206,7 @@ export default function Acciones() {
                   <td>
                     <span className={styles.ticker}>{s.symbol}</span>
                   </td>
-                  <td className={styles.muted}>{s.name}</td>
+                  <td className={styles.muted}>{s.name || '—'}</td>
                   <td className={styles.num}>{fmtPx(s.bid)}</td>
                   <td className={styles.num}>{fmtPx(s.ask)}</td>
                   <td className={`${styles.num} ${styles.last}`}>{fmtPx(s.price)}</td>
