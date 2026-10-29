@@ -35,12 +35,18 @@ import { usarHookVistaPrevia, type Parametros, type ResultadoQuery } from '../us
  * informe). Con marcas, el texto legal y el resaltado dejarían de pintarse bien. */
 const SIN_MARCAS = new Set(['style', 'listItem', 'marks', 'categoria']);
 
+/** Listas cuyos ítems son valores internos: los tickers de las acciones del panel del Hero (se
+ * buscan en data912 y en la lista maestra). Igual se limpian donde se usan; su overlay es el
+ * atributo data-sanity de la lista (Hero y Panel de Cotizaciones). */
+const LISTAS_SIN_MARCAS = new Set(['accionesPanel']);
+
 const filtroStega: NonNullable<StegaConfig['filter']> = (props) => {
   const camino = props.sourcePath;
   const ultimo = camino.at(-1);
   // Cada marca de un pedazo de texto (`marks[0]`…).
   if (typeof ultimo === 'number' && camino.at(-2) === 'marks') return false;
   if (typeof ultimo === 'string' && SIN_MARCAS.has(ultimo)) return false;
+  if (camino.some((p) => typeof p === 'string' && LISTAS_SIN_MARCAS.has(p))) return false;
   // El email de Datos de la empresa: por defecto Sanity no lo marca (por el nombre del campo),
   // pero se pinta y Agus lo tiene que poder tocar. El mailto: se arma con el texto limpio.
   if (ultimo === 'email') return true;

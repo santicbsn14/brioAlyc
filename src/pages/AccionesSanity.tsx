@@ -5,6 +5,7 @@ import { useSanityQuery } from '../sanity/useSanityQuery';
 import { HERO_QUERY } from '../sanity/queries';
 import type { HeroQueryResult } from '../sanity/types';
 import { accionesElegidas } from '../lib/mercado/accionesLideres';
+import { atributoEdicion } from '../sanity/edicion';
 
 /** Panel de Cotizaciones con las líderes de "seccionHero" (las mismas del panel del Hero). Usa la
  * query del Hero para compartir su caché: si se llega desde la home, no vuelve a pedir.
@@ -23,6 +24,7 @@ export default function AccionesSanity() {
   return (
     <Acciones
       lideres={lideres}
+      lideresEdit={atributoEdicion('seccionHero', 'seccionHero', 'accionesPanel')}
       avisoLideres={
         lideres.length === 0 && (
           <AvisoFaltante texto="Faltan las acciones del panel: Inicio → Hero (portada) → Panel de acciones" />

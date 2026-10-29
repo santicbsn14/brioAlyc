@@ -14,6 +14,7 @@
 
 import { ACCIONES_BYMA, type AccionBYMA } from '../../data/accionesBYMA';
 import type { D912Row } from '../rentaFija/lookups';
+import { limpio } from '../../sanity/limpiar';
 
 /** Una acción del panel: ticker + nombre (vacío si la lista maestra no lo tiene). */
 export type AccionLider = AccionBYMA;
@@ -24,12 +25,14 @@ const NOMBRES_BYMA = new Map(ACCIONES_BYMA.map((a) => [a.ticker, a.nombre]));
  * Las acciones elegidas en Sanity (solo tickers, en su orden) con su nombre de la lista maestra.
  * Descarta los vacíos y las repetidas (el Studio no las deja publicar, pero el front no se rompe
  * si llegan). Un ticker que no está en la lista queda con nombre vacío: se ve solo el ticker.
+ * El ticker se limpia (sanity/limpiar.ts): en la vista previa del Studio traería caracteres
+ * invisibles y no coincidiría ni con data912 ni con la lista maestra.
  */
 export function accionesElegidas(tickers: readonly (string | null | undefined)[] | null | undefined): AccionLider[] {
   const vistos = new Set<string>();
   const acciones: AccionLider[] = [];
   for (const t of tickers ?? []) {
-    const ticker = (t ?? '').trim().toUpperCase();
+    const ticker = limpio(t).trim().toUpperCase();
     if (!ticker || vistos.has(ticker)) continue;
     vistos.add(ticker);
     acciones.push({ ticker, nombre: NOMBRES_BYMA.get(ticker) ?? '' });

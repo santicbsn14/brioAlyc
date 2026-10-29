@@ -83,11 +83,15 @@ function ordenar(rows: CotizacionAccion[], key: SortKey, dir: 1 | -1): Cotizacio
 export default function Acciones({
   lideres,
   avisoLideres,
+  lideresEdit,
 }: {
   /** Las líderes de Sanity, en su orden. `null` = todavía cargando (la tabla queda sin filas). */
   lideres: AccionLider[] | null;
   /** Aviso de dev si no hay líderes (va arriba de la tabla). */
   avisoLideres?: ReactNode;
+  /** Atributo de edición de las líderes (solo en la vista previa del Studio): va en las filas de la
+   * vista inicial, así tocarlas abre "Acciones del panel". */
+  lideresEdit?: string;
 }) {
   const [query, setQuery] = useState('');
   // Sin columna elegida: las líderes en el orden de Sanity y las búsquedas por ticker.
@@ -201,7 +205,7 @@ export default function Acciones({
           <thead>
             <tr>{COLUMNAS.map((c) => th(c.key, c.label, c.num))}</tr>
           </thead>
-          <tbody>
+          <tbody data-sanity={q ? undefined : lideresEdit}>
             {rows.map((s) => {
               const pct = s.changePct;
               const tono = pct == null ? styles.flat : pct > 0 ? styles.up : pct < 0 ? styles.down : styles.flat;

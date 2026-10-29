@@ -28,6 +28,9 @@ export interface HeroAcciones {
   leaders: AccionLider[];
   /** Lo que va en lugar del panel si no hay acciones (el aviso de dev; en producción, nada). */
   avisoPanel?: ReactNode;
+  /** Atributo de edición de la lista de acciones (solo en la vista previa del Studio, ver
+   * sanity/edicion.ts): los tickers no llevan marcas invisibles, así que el overlay va en la lista. */
+  panelEdit?: string;
 }
 
 /** `cargando`: los textos todavía no llegaron de Sanity. Se ve la cáscara (el fondo) con el mismo
@@ -83,6 +86,7 @@ export default function Hero(props: HeroProps) {
   const { panelHref, panelLinkAriaLabel, cargando } = props;
   const leaders = props.cargando ? SIN_ACCIONES : props.leaders;
   const avisoPanel = props.cargando ? undefined : props.avisoPanel;
+  const panelEdit = props.cargando ? undefined : props.panelEdit;
   const {
     kicker,
     title,
@@ -175,7 +179,7 @@ export default function Hero(props: HeroProps) {
               <span className={styles.tag}>{panelTag}</span>
             </div>
 
-            <ul className={styles.rows}>
+            <ul className={styles.rows} data-sanity={panelEdit}>
               {filas.map((s) => {
                 const up = (s.changePct ?? 0) >= 0;
                 return (

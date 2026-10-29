@@ -4,6 +4,7 @@ import FaltaCargar, { AvisoFaltante } from '../FaltaCargar/FaltaCargar';
 import { useSanityQuery } from '../../sanity/useSanityQuery';
 import { HERO_QUERY } from '../../sanity/queries';
 import type { DatosEmpresaHero, HeroQueryResult, SeccionHeroDoc } from '../../sanity/types';
+import { atributoEdicion } from '../../sanity/edicion';
 import { hayTexto, texto } from '../../sanity/limpiar';
 import { accionesElegidas } from '../../lib/mercado/accionesLideres';
 import { ABRI_CUENTA_HREF, BROKER_LOGIN_URL } from '../../data/placeholders';
@@ -65,6 +66,7 @@ export default function HeroSanity() {
       {...EN_CODIGO}
       {...armarTextos(hero, data?.empresa ?? null)}
       leaders={leaders}
+      panelEdit={atributoEdicion('seccionHero', 'seccionHero', 'accionesPanel')}
       avisoPanel={
         <AvisoFaltante texto="Faltan las acciones del panel: Inicio → Hero (portada) → Panel de acciones" />
       }
