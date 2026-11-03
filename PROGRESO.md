@@ -163,6 +163,44 @@ Puesta a punto técnica antes del merge a `main` y del cambio de dominio a briov
 - **Barra final:** en `vercel.json`, una dirección con "/" al final (ej. `/comisiones/`) redirige sola a la versión sin barra. Los pedidos a `/api/` nunca llevan barra final, así que no los afecta.
 - Se verificó en el sitio armado, con un navegador automático a 390 y 1440 de ancho, en las 10 páginas más una dirección inventada: título, descripción y dirección oficial correctos, una sola etiqueta de cada tipo, "noindex" solo en la 404 (y se va al tocar "Volver al inicio"), 0 errores en la consola.
 
+**Un tropiezo en el camino (ya resuelto):** en los commits de las partes 1 a 3, `vercel.json` quedó mal escrito: se perdió una barra invertida al guardarlo desde la terminal. El build local no lo nota, porque ese archivo solo lo lee Vercel, pero las tres previews de Vercel de esos commits fallaron con "Invalid vercel.json file provided". No llegó a producción (es la rama). Se arregló en el commit siguiente (`4fff998`), cuya preview anduvo, y desde ahí se valida el archivo antes de cada commit.
+
+**Parte 4 — Las direcciones del WordPress viejo.**
+El dominio tenía un WordPress (hackeado). Las direcciones viejas que siguen en Google o en links de otros sitios ahora caen en la página nueva que corresponde, y las de WordPress y el spam le dicen a Google "esto ya no existe".
+- **De dónde salió la lista:** del archivo histórico de Internet (Wayback Machine), con su consulta de direcciones guardadas: 432 direcciones de briovalores.com y sus subdominios, de 2015 a 2026. No se inventó ninguna; las únicas reglas "por patrón" son las de carpetas internas de WordPress y la de cualquier dirección con la palabra "casino" (todo el spam encontrado es de casinos).
+- **Cómo quedó cada grupo** (todo en `vercel.json`, antes de la regla que sirve la web; no afecta a `/api/` ni a los archivos del sitio):
+
+  a) Páginas reales del sitio viejo → redirección permanente a la nueva:
+  - `/quienes-somos/` → Quiénes somos en la home (`/#quienes`)
+  - `/que-hacemos/` y `/area-de-negocios/` → Servicios en la home (`/#servicios`)
+  - `/contacto/` → Contacto en la home (`/#contacto`)
+  - `/financiamiento-pyme/` → `/servicios/financiamiento-pyme`
+  - `/cartera-todos/` (el panel de cotizaciones viejo) → `/herramientas/acciones`; con `?panel=bonos` → `/herramientas/renta-fija`
+  - `/merval/` y `/graficos/` → `/herramientas/acciones`
+  - `/calculadora-bonos/` → `/herramientas/renta-fija`
+  - `/consulta-portfolio`, `/mi-cartera/` y `/dolar-bolsa/` (sin equivalente) → la home
+  - `/codigo-de-conducta/`, `/comisiones`, `/informes/` y `/abri-tu-cuenta/` tienen la misma dirección en el sitio nuevo: solo se les saca la barra final.
+  - Notas viejas del blog: las de financiamiento PyME (`/financiamiento-pyme-record-la-negociacion-cheques-pago-diferido/`, `/nos-dejo-2018-financiamiento-pyme/` y las dos de "Luciani: el mercado de capitales, socio estratégico de las PyMEs") → `/servicios/financiamiento-pyme`; la de cauciones (`/cauciones-bursatiles-una-alternativa-de-ahorro-o-financiamiento-a-corto-plazo`) → `/servicios/productos`; el resto (11 notas de mercado de 2017 a 2021: inflación, emergentes, ganancias de las líderes, dólar bolsa, Brasil 2040 —dos versiones—, la bolsa porteña, Loma Negra, bonos 2016, Transener, nuevo Merval, "tendencia de locos") → la home.
+
+  b) Documentos viejos: en el archivo aparece **un solo PDF**, el instructivo "Cómo abrirte una cuenta en BRIO VALORES" (2024) → `/abri-tu-cuenta`. **No aparece ningún PDF del código de conducta ni de comisiones**; del código de conducta solo estaba la página (`/codigo-de-conducta/`), que en el sitio nuevo tiene la misma dirección, así que sigue publicada donde siempre (requisito de la CNV).
+
+  c) Internos de WordPress y spam → **410** ("ya no existe"), con la indicación de no guardarlas, a través de una función mínima nueva (`api/gone.ts`):
+  - Todo lo de `/wp-admin`, `/wp-content` (209 archivos del archivo: temas, plugins, imágenes), `/wp-includes` (28), `/wp-json` (20), `/wp-login.php`, `/xmlrpc.php`, `/feed/`, `/comments/feed/`, `/author/…`, `/category/…`, `/sample-page/` y los archivos por fecha (`/2021/05/`).
+  - Spam del hackeo: cualquier dirección con "casino" (en el archivo hay 25, en francés y alemán, de 2026) y otras tres sin esa palabra (banzai-slot, roobet, gratorama).
+  - **La home con parámetros de spam** (`/?x=37282471021860`, `/?p=1021`, `/?s=…`, `/?wordfence_lh=…`): ahí **no se puede dar 410**, porque Vercel sirve la home antes de mirar cualquier regla (se probó en la preview real). Queda el respaldo: la home se pide "noindex" cuando la dirección trae un parámetro que no es del sitio. Los del sitio son `motivo` y los de campañas (`utm_…`, `gclid`, `fbclid`); con esos, la home se indexa normal. Además la dirección oficial (canonical) de la home es siempre la limpia, sin parámetros.
+  - No se tocaron (dan 404 común, que está bien): los archivos sueltos del sitio de 2016 (`/css/`, `/js/`, `/img/`, `/fonts/`, `/font-awesome-4.1.0/`, `/favicon.ico`), y los subdominios (`app.`, `wbroker.`, `webmail.`), que no son de esta web.
+- **Verificación:**
+  - Con `vercel dev` (local), las direcciones del grupo a) y b) redirigen al destino correcto: las que traen "/" final, en dos saltos (primero se saca la barra, después va a la nueva; Google sigue hasta 10). Las del grupo c) dan 410 con "noindex", y `/api/`, `robots.txt`, `sitemap.xml`, las imágenes y las páginas nuevas siguen respondiendo normal.
+  - En la **preview real de Vercel**: 410 en `/wp-admin` y en una de casino; `/cartera-todos?panel=bonos` → Renta fija (esta regla depende del parámetro y `vercel dev` no la prueba); `/quienes-somos` → `/#quienes`; `/api/mercado/arg-stocks` responde; `/?x=…` da 200 y la home se pone "noindex" sola.
+  - Detalle: las redirecciones de Vercel conservan los parámetros de la dirección vieja (ej. `/cartera-todos?panel=lideres` → `/herramientas/acciones?panel=lideres`). La página los ignora y la dirección oficial es la limpia, así que no molesta.
+- **Checklist para Santiago** (cuando el dominio apunte a Vercel, o en la preview logueado):
+  - `https://briovalores.com/quienes-somos/` → termina en Quiénes somos;
+  - `https://briovalores.com/contacto/` → termina en Contacto;
+  - `https://briovalores.com/codigo-de-conducta/` → Código de conducta;
+  - `https://briovalores.com/cartera-todos/?panel=bonos` → Renta fija;
+  - `https://briovalores.com/wp-admin` → página en blanco con "410";
+  - `https://briovalores.com/?x=37282471021860` → la home (en el código de la página, con `<meta name="robots" content="noindex">`).
+
 ### 2026-11-03 — El formulario de Contacto manda mails de verdad a info@briovalores.com (rama `main`)
 El formulario de Contacto ya manda las consultas a **info@briovalores.com**, desde una dirección propia de Brio (`web@briovalores.com`) y ya no desde la dirección de prueba de Resend, que solo le llegaba al dueño de la cuenta. Commit `0240c7c`, ya en producción. Antes, Santiago verificó el dominio briovalores.com en Resend y cargó la API key y el destinatario en Vercel (Production y Preview).
 

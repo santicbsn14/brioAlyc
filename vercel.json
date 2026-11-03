@@ -52,7 +52,6 @@
     { "source": "/quelles-strategies-adopter-pour-tirer-profit-des-jeux-de-table-sur-roobet", "destination": "/api/gone" },
     { "source": "/quels-benefices-retirer-d-un-compte-actif-sur-gratorama", "destination": "/api/gone" },
     { "source": "/analyse-der-spielauswahl-im-rollino-casino-qualitat-und-vielfalt", "destination": "/api/gone" },
-    { "source": "/", "has": [{ "type": "query", "key": "x" }], "destination": "/api/gone" },
     { "source": "/((?!api/|@)(?!.*\\.[a-zA-Z0-9]+$).*)", "destination": "/index.html" }
   ],
   "headers": [

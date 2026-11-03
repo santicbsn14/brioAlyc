@@ -99,6 +99,20 @@ export function paginaDe(pathname: string): Pagina {
   return PAGINAS[normalizarRuta(pathname)] ?? PAGINA_NO_ENCONTRADA;
 }
 
+/**
+ * ¿La URL trae algún parámetro que no es del sitio? Los del sitio son `motivo` (Contacto) y los de
+ * campañas (`utm_*`, `gclid`, `fbclid`). Cualquier otro (ej. "?x=37282471021860", "?p=1021") viene
+ * del WordPress viejo o del spam del hackeo: Vercel sirve la home igual (no se puede dar 410 en
+ * "/" con parámetros), así que la home pide "noindex" para que Google no la guarde con esa URL.
+ */
+export function tieneParametrosAjenos(search: string): boolean {
+  for (const clave of new URLSearchParams(search).keys()) {
+    if (clave === 'motivo' || clave === 'gclid' || clave === 'fbclid' || clave.startsWith('utm_')) continue;
+    return true;
+  }
+  return false;
+}
+
 /** Canonical / og:url: dominio + ruta, sin query, sin hash y sin barra final (home: "SITIO/"). */
 export function urlCanonica(pathname: string): string {
   const ruta = normalizarRuta(pathname);
