@@ -4,6 +4,7 @@ import NavbarSanity from './components/Navbar/NavbarSanity';
 import FooterSanity from './components/Footer/FooterSanity';
 import Home from './pages/Home';
 import { useScrollToTop } from './hooks/useScrollToTop';
+import { useSeo } from './seo/useSeo';
 
 /* Cada página que no es la home se baja aparte, recién cuando se entra a ella: así la home no
  * carga el código de Renta fija, del Panel de Cotizaciones ni de las legales (@portabletext/react). */
@@ -16,9 +17,12 @@ const AccionesSanity = lazy(() => import('./pages/AccionesSanity'));
 const RentaFija = lazy(() => import('./pages/RentaFija'));
 const CodigoConductaSanity = lazy(() => import('./pages/CodigoConductaSanity'));
 const TerminosSanity = lazy(() => import('./pages/TerminosSanity'));
+const NoEncontrada = lazy(() => import('./pages/NoEncontrada'));
 
 function App() {
   useScrollToTop();
+  // Título, descripción, canonical y Open Graph de cada ruta (src/seo/paginas.ts).
+  useSeo();
 
   return (
     <>
@@ -38,6 +42,8 @@ function App() {
           <Route path="/herramientas/renta-fija" element={<RentaFija />} />
           <Route path="/codigo-de-conducta" element={<CodigoConductaSanity />} />
           <Route path="/terminos-y-condiciones" element={<TerminosSanity />} />
+          {/* Cualquier otra ruta: página 404 (con noindex mientras se ve). */}
+          <Route path="*" element={<NoEncontrada />} />
         </Routes>
       </Suspense>
       <FooterSanity />
