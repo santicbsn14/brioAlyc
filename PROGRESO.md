@@ -135,6 +135,18 @@ brio-nuevo/
 
 ## Historial
 
+### 2026-11-03 — Rama `feature/sanity`: pre-lanzamiento técnico (carga por página, limpieza, SEO, redirecciones del WordPress viejo, CORS)
+Puesta a punto técnica antes del merge a `main` y del cambio de dominio a briovalores.com. Se hizo en cinco partes, cada una con su commit. No se tocó el dataset de Sanity, ni `main`, ni Renta fija, ni la Vista previa, ni el envío de Contacto.
+
+**Parte 1 — Cada página baja su propio código.**
+- Hasta ahora el navegador bajaba todo el sitio de una vez, aunque se entrara solo a la home: un archivo de 600 kB (174 kB comprimido). Ahora la home, el Navbar y el Footer vienen de entrada, y cada una de las otras páginas se baja recién cuando se entra a ella. El código de entrada de la web pública quedó en unos 453 kB (unos 145 comprimido), repartido en varios archivos chicos que se piden juntos.
+- El código de Renta fija (el más pesado, 109 kB) solo se baja en Renta fija; el que pinta las legales (`@portabletext/react`) solo en Código de conducta y Términos.
+- La Vista previa del Studio sigue en su propio archivo y la web pública no la baja nunca (se revisó archivo por archivo).
+- Mientras baja una página (es un instante) se ve una pantalla de fondo navy, sin spinner ni texto, así el Footer no sube y vuelve a bajar.
+- Los archivos del sitio con nombre "con huella" (carpeta `/assets/`, cambian de nombre en cada versión) ahora le dicen al navegador que los guarde un año: en una segunda visita no se vuelven a bajar. Está en `vercel.json`; el permiso del iframe para el Studio no se tocó.
+- Se probó en el sitio armado (build): entrar directo a cada una de las 10 páginas, navegar entre páginas (links, menús desplegables del Navbar, Footer), "Consultá por tu PyME" y "Abrí tu cuenta" bajan a Contacto con el motivo elegido, y Quiénes somos / Equipo / Contacto del Navbar andan desde una página interna.
+- Vite sigue avisando de "un archivo de más de 500 kB": es el de la Vista previa (632 kB), que solo se baja dentro del Studio. Es la librería oficial de edición visual de Sanity; achicarla no está en nuestras manos y no afecta a los visitantes.
+
 ### 2026-11-03 — El formulario de Contacto manda mails de verdad a info@briovalores.com (rama `main`)
 El formulario de Contacto ya manda las consultas a **info@briovalores.com**, desde una dirección propia de Brio (`web@briovalores.com`) y ya no desde la dirección de prueba de Resend, que solo le llegaba al dueño de la cuenta. Commit `0240c7c`, ya en producción. Antes, Santiago verificó el dominio briovalores.com en Resend y cargó la API key y el destinatario en Vercel (Production y Preview).
 
