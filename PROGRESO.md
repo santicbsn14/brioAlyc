@@ -147,6 +147,11 @@ Puesta a punto técnica antes del merge a `main` y del cambio de dominio a briov
 - Se probó en el sitio armado (build): entrar directo a cada una de las 10 páginas, navegar entre páginas (links, menús desplegables del Navbar, Footer), "Consultá por tu PyME" y "Abrí tu cuenta" bajan a Contacto con el motivo elegido, y Quiénes somos / Equipo / Contacto del Navbar andan desde una página interna.
 - Vite sigue avisando de "un archivo de más de 500 kB": es el de la Vista previa (632 kB), que solo se baja dentro del Studio. Es la librería oficial de edición visual de Sanity; achicarla no está en nuestras manos y no afecta a los visitantes.
 
+**Parte 2 — Limpieza de `src/assets/`.**
+- Se borraron las 11 fotos de Equipo, la foto de la oficina de Quiénes somos y el PDF del primer informe (con sus carpetas). Ya están en Sanity y el código no los usaba (se confirmó buscando en todo el proyecto antes de borrar). El script de carga del Studio los lee de un commit fijo de `main`, así que no se rompe nada allá.
+- A los dos logos (blanco y color) se les sacó un bloque de datos ocultos que traían de fábrica (una "firma de contenido" de unos 8 kB que no se ve). Pasaron de 11 kB a 3,3 kB cada uno. Se comparó el dibujo antes y después píxel por píxel: es idéntico, y en el Navbar y el Footer se ve igual. Como ahora es tan chico, el logo blanco viaja adentro del código de la página y se ahorra un pedido aparte.
+- `logo-brio-color.svg` no lo usa el código, pero queda: es la base del favicon nuevo (parte 3) y sirve para documentos.
+
 ### 2026-11-03 — El formulario de Contacto manda mails de verdad a info@briovalores.com (rama `main`)
 El formulario de Contacto ya manda las consultas a **info@briovalores.com**, desde una dirección propia de Brio (`web@briovalores.com`) y ya no desde la dirección de prueba de Resend, que solo le llegaba al dueño de la cuenta. Commit `0240c7c`, ya en producción. Antes, Santiago verificó el dominio briovalores.com en Resend y cargó la API key y el destinatario en Vercel (Production y Preview).
 
