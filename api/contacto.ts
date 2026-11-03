@@ -7,8 +7,13 @@ import { Resend } from 'resend';
 // CONFIGURACIÓN EN VERCEL (variables de entorno, no van en el repo — ver `.env.example`):
 //   - RESEND_API_KEY: API key de https://resend.com. Sin ella, la función responde
 //     { ok:false } y no rompe: queda logueado en la consola del servidor para debug.
-//   - CONTACTO_DESTINATARIO: mail de Brio a donde llega la consulta.
-//     TODO(Agus): hoy no sabemos el mail real, se usa un placeholder de ejemplo.
+//   - CONTACTO_DESTINATARIO: mail de Brio a donde llega la consulta (info@briovalores.com).
+//   - CONTACTO_REMITENTE (opcional): el "from" del mail. Tiene que ser de un dominio
+//     verificado en Resend (briovalores.com lo está). Si no está definida, se usa
+//     REMITENTE_POR_DEFECTO (abajo).
+//
+// El mail sale con reply_to = el email que dejó la persona (ya validado), así al tocar
+// "Responder" desde info@ le contestan directo a ella.
 //
 // Se usa la firma clásica de función de Vercel (req/res al estilo Node, sin depender
 // de @vercel/node): Vercel la reconoce igual y así no suma una dependencia solo para
@@ -36,6 +41,23 @@ const MOTIVO_LABELS: Record<string, string> = {
 // Mismo criterio de validación que el frontend (`Contacto.tsx`): nunca hay que confiar
 // solo en la validación del cliente, alguien puede pegarle directo al endpoint.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+const REMITENTE_POR_DEFECTO = 'Brio Valores — Web <web@briovalores.com>';
+
+/** Escapa el texto que escribió la persona antes de meterlo en el HTML del mail. */
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/** Para asunto y campos de una línea: sin saltos de línea ni espacios de más. */
+function oneLine(value: string): string {
+  return value.replace(/\s+/g, ' ').trim();
+}
 
 interface ContactoBody {
   motivo?: string;
@@ -94,15 +116,15 @@ export default async function handler(req: VercelLikeRequest, res: VercelLikeRes
     return;
   }
 
-  if (!nombre?.trim() || !EMAIL_RE.test(email?.trim() ?? '') || !mensaje || mensaje.trim().length < 5) {
+  const emailLimpio = email?.trim() ?? '';
+  if (!nombre?.trim() || !EMAIL_RE.test(emailLimpio) || !mensaje || mensaje.trim().length < 5) {
     res.status(400).json({ ok: false, error: 'Faltan datos o son inválidos: revisá nombre, email y mensaje.' });
     return;
   }
 
   const apiKey = process.env.RESEND_API_KEY;
-  // TODO(Agus): CONTACTO_DESTINATARIO hoy es un placeholder — confirmar el mail real de
-  // Brio y configurarlo como variable de entorno en Vercel.
   const destinatario = process.env.CONTACTO_DESTINATARIO;
+  const remitente = process.env.CONTACTO_REMITENTE?.trim() || REMITENTE_POR_DEFECTO;
 
   if (!apiKey || !destinatario) {
     console.error('[api/contacto] Falta configurar RESEND_API_KEY y/o CONTACTO_DESTINATARIO en Vercel.');
@@ -111,31 +133,54 @@ export default async function handler(req: VercelLikeRequest, res: VercelLikeRes
   }
 
   const motivoLabel = (motivo && MOTIVO_LABELS[motivo]) || 'Consulta';
-  const subject = `Nueva consulta — ${motivoLabel}`;
-  const text = [
-    `Motivo: ${motivoLabel}`,
-    `Nombre: ${nombre}`,
-    `Email: ${email}`,
-    telefono ? `Teléfono: ${telefono}` : null,
-    empresa ? `Empresa: ${empresa}` : null,
-    '',
-    'Mensaje:',
-    mensaje,
-  ]
-    .filter((line) => line !== null)
-    .join('\n');
+  const nombreLinea = oneLine(nombre);
+  const telefonoLinea = telefono ? oneLine(telefono) : '';
+  // La empresa solo corresponde al motivo PyME: el front manda el campo siempre, aunque
+  // la persona la haya escrito y después cambiado de motivo.
+  const empresaLinea = motivo === 'pyme' && empresa ? oneLine(empresa) : '';
+  const mensajeLimpio = mensaje.trim();
+
+  const subject = `Consulta web — ${motivoLabel} — ${nombreLinea}`;
+
+  const campos: Array<[string, string]> = [
+    ['Motivo', motivoLabel],
+    ['Nombre', nombreLinea],
+    ['Email', emailLimpio],
+    ['Teléfono', telefonoLinea || '(no lo dejó)'],
+  ];
+  if (empresaLinea) campos.push(['Empresa', empresaLinea]);
+
+  const pie = 'Enviado desde el formulario de contacto de la web. Respondé este mail para contestarle directo.';
+
+  const text = [...campos.map(([label, value]) => `${label}: ${value}`), '', 'Mensaje:', mensajeLimpio, '', '—', pie].join(
+    '\n',
+  );
+
+  const filasHtml = campos
+    .map(
+      ([label, value]) =>
+        `<tr><td style="padding:4px 12px 4px 0;color:#555;vertical-align:top;white-space:nowrap"><strong>${escapeHtml(label)}</strong></td>` +
+        `<td style="padding:4px 0">${escapeHtml(value)}</td></tr>`,
+    )
+    .join('');
+  const html =
+    `<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#111">` +
+    `<p style="margin:0 0 12px">Nueva consulta desde la web.</p>` +
+    `<table style="border-collapse:collapse;margin:0 0 16px">${filasHtml}</table>` +
+    `<p style="margin:0 0 4px"><strong>Mensaje:</strong></p>` +
+    `<p style="margin:0 0 16px">${escapeHtml(mensajeLimpio).replace(/\r?\n/g, '<br>')}</p>` +
+    `<p style="margin:0;color:#777;font-size:12px">${escapeHtml(pie)}</p>` +
+    `</div>`;
 
   try {
     const resend = new Resend(apiKey);
     const { error } = await resend.emails.send({
-      // TODO(Agus): reemplazar por un remitente del dominio real de Brio una vez que
-      // esté verificado en Resend (resend.com/domains). Mientras tanto, el dominio de
-      // pruebas de Resend siempre funciona sin verificación.
-      from: 'Brio Valores — Web <onboarding@resend.dev>',
+      from: remitente,
       to: destinatario,
-      replyTo: email,
+      replyTo: emailLimpio,
       subject,
       text,
+      html,
     });
 
     if (error) {
