@@ -1,43 +1,52 @@
+import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import Navbar from './components/Navbar/Navbar';
-import Footer from './components/Footer/Footer';
+import NavbarSanity from './components/Navbar/NavbarSanity';
+import FooterSanity from './components/Footer/FooterSanity';
 import Home from './pages/Home';
-import Comisiones from './pages/Comisiones';
-import Productos from './pages/Productos';
-import FinanciamientoPyme from './pages/FinanciamientoPyme';
-import Informes from './pages/Informes';
-import RentaFija from './pages/RentaFija';
-import Acciones from './pages/Acciones';
-import CodigoConducta from './pages/CodigoConducta';
-import TerminosCondiciones from './pages/TerminosCondiciones';
-import { brand, navLinks, navActions } from './data/placeholders';
 import { useScrollToTop } from './hooks/useScrollToTop';
+import { useSeo } from './seo/useSeo';
+
+/* Cada página que no es la home se baja aparte, recién cuando se entra a ella: así la home no
+ * carga el código de Renta fija, del Panel de Cotizaciones ni de las legales (@portabletext/react). */
+const ComisionesSanity = lazy(() => import('./pages/ComisionesSanity'));
+const ProductosSanity = lazy(() => import('./pages/ProductosSanity'));
+const FinanciamientoSanity = lazy(() => import('./pages/FinanciamientoSanity'));
+const AbrirCuentaSanity = lazy(() => import('./pages/AbrirCuentaSanity'));
+const InformesSanity = lazy(() => import('./pages/InformesSanity'));
+const AccionesSanity = lazy(() => import('./pages/AccionesSanity'));
+const RentaFija = lazy(() => import('./pages/RentaFija'));
+const CodigoConductaSanity = lazy(() => import('./pages/CodigoConductaSanity'));
+const TerminosSanity = lazy(() => import('./pages/TerminosSanity'));
+const NoEncontrada = lazy(() => import('./pages/NoEncontrada'));
 
 function App() {
   useScrollToTop();
+  // Título, descripción, canonical y Open Graph de cada ruta (src/seo/paginas.ts).
+  useSeo();
 
   return (
     <>
-      <Navbar
-        logoAlt={brand.logoAlt}
-        links={navLinks}
-        portfolioLabel={navActions.portfolioLabel}
-        portfolioHref={navActions.portfolioHref}
-        ctaLabel={navActions.ctaLabel}
-        ctaHref={navActions.ctaHref}
-      />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/comisiones" element={<Comisiones />} />
-        <Route path="/servicios/financiamiento-pyme" element={<FinanciamientoPyme />} />
-        <Route path="/servicios/productos" element={<Productos />} />
-        <Route path="/informes" element={<Informes />} />
-        <Route path="/herramientas/acciones" element={<Acciones />} />
-        <Route path="/herramientas/renta-fija" element={<RentaFija />} />
-        <Route path="/codigo-de-conducta" element={<CodigoConducta />} />
-        <Route path="/terminos-y-condiciones" element={<TerminosCondiciones />} />
-      </Routes>
-      <Footer />
+      {/* Navbar y Footer piden sus textos a Sanity cada uno por su cuenta (ver src/sanity/). */}
+      <NavbarSanity />
+      {/* Mientras baja el código de una página: una pantalla de fondo navy, para que el Footer no
+          suba y después salte. Sin spinner ni texto (dura muy poco). */}
+      <Suspense fallback={<div className="carga-pagina" aria-hidden="true" />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/comisiones" element={<ComisionesSanity />} />
+          <Route path="/servicios/financiamiento-pyme" element={<FinanciamientoSanity />} />
+          <Route path="/servicios/productos" element={<ProductosSanity />} />
+          <Route path="/abri-tu-cuenta" element={<AbrirCuentaSanity />} />
+          <Route path="/informes" element={<InformesSanity />} />
+          <Route path="/herramientas/acciones" element={<AccionesSanity />} />
+          <Route path="/herramientas/renta-fija" element={<RentaFija />} />
+          <Route path="/codigo-de-conducta" element={<CodigoConductaSanity />} />
+          <Route path="/terminos-y-condiciones" element={<TerminosSanity />} />
+          {/* Cualquier otra ruta: página 404 (con noindex mientras se ve). */}
+          <Route path="*" element={<NoEncontrada />} />
+        </Routes>
+      </Suspense>
+      <FooterSanity />
     </>
   );
 }

@@ -21,6 +21,13 @@
   box-sizing: border-box;
 }
 
+/* Cargando los textos de Sanity: se ve solo el fondo del Hero. El contenido (texto de reserva,
+   ver Hero.tsx) sigue ocupando su lugar para que el alto sea el mismo, pero no se ve ni se
+   puede enfocar. */
+.cargando .grid {
+  visibility: hidden;
+}
+
 /* ── grid ── */
 .grid {
   flex: 1;
@@ -323,6 +330,29 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+/* Acción sin nombre en la lista maestra: el ticker solo, centrado en el alto de las otras filas.
+   Debajo hay una copia invisible de los dos renglones (ticker + nombre) que da ese alto. */
+.symSolo {
+  display: grid;
+  gap: 0;
+}
+.symSolo > * {
+  grid-column: 1;
+}
+.symSolo > .symCode {
+  grid-row: 1 / 3;
+  align-self: center;
+}
+.symSolo > .symHueco {
+  visibility: hidden;
+}
+.symSolo > .symHueco.symCode {
+  grid-row: 1;
+  margin-bottom: 1px;
+}
+.symSolo > .symHueco.symName {
+  grid-row: 2;
 }
 .px {
   font-size: 0.86rem;

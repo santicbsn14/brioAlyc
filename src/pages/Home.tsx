@@ -1,61 +1,27 @@
-import Hero from '../components/Hero/Hero';
-import { ACCIONES_LIDERES } from '../data/accionesLideres';
-import Servicios from '../components/Servicios/Servicios';
-import QuienesSomos from '../components/QuienesSomos/QuienesSomos';
-import Equipo from '../components/Equipo/Equipo';
-import Contacto from '../components/Contacto/Contacto';
-import {
-  heroContent,
-  heroCtas,
-  credentials,
-  stocksInitial,
-  panelCopy,
-  serviciosContent,
-  servicePillars,
-  instrumentGroups,
-  quienesContent,
-  quienesValues,
-} from '../data/placeholders';
+import { useLocation } from 'react-router-dom';
+import HeroSanity from '../components/Hero/HeroSanity';
+import ServiciosSanity from '../components/Servicios/ServiciosSanity';
+import QuienesSomosSanity from '../components/QuienesSomos/QuienesSomosSanity';
+import EquipoSanity from '../components/Equipo/EquipoSanity';
+import ContactoSanity from '../components/Contacto/ContactoSanity';
+import { tieneParametrosAjenos } from '../seo/paginas';
+import { useNoIndex } from '../seo/useSeo';
 
-/** Home = Hero + Servicios + Quiénes somos + Equipo + Contacto (antes vivían directo en App.tsx, sin routing). */
+/** Home = Hero + Servicios + Quiénes somos + Equipo + Contacto (antes vivían directo en App.tsx, sin routing).
+ * Todas leen de Sanity (componentes *Sanity). */
 export default function Home() {
+  // URLs de spam del WordPress viejo ("/?x=…", "/?p=…"): noindex mientras traigan esos parámetros
+  // (ver tieneParametrosAjenos). Con "?motivo=", utm_*, gclid o fbclid, la home se indexa normal.
+  const { search } = useLocation();
+  useNoIndex(tieneParametrosAjenos(search));
+
   return (
     <>
-      <Hero
-        kicker={heroContent.kicker}
-        title={heroContent.title}
-        lead={heroContent.lead}
-        ctas={heroCtas}
-        credentials={credentials}
-        leaders={ACCIONES_LIDERES}
-        fallbackStocks={stocksInitial}
-        panelTitle={panelCopy.title}
-        panelTag={panelCopy.tag}
-        panelFootnote={panelCopy.footnote}
-        panelHref={panelCopy.href}
-        panelLinkLabel={panelCopy.linkLabel}
-        panelLinkAriaLabel={panelCopy.linkAriaLabel}
-      />
-      <Servicios
-        kicker={serviciosContent.kicker}
-        title={serviciosContent.title}
-        lead={serviciosContent.lead}
-        pillars={servicePillars}
-        instrumentsTitle={serviciosContent.instrumentsTitle}
-        instrumentGroups={instrumentGroups}
-        feesTitle={serviciosContent.feesTitle}
-        feesLead={serviciosContent.feesLead}
-        feesCtaLabel={serviciosContent.feesCtaLabel}
-      />
-      <QuienesSomos
-        kicker={quienesContent.kicker}
-        title={quienesContent.title}
-        paragraphs={quienesContent.paragraphs}
-        photoAlt={quienesContent.photoAlt}
-        values={quienesValues}
-      />
-      <Equipo />
-      <Contacto />
+      <HeroSanity />
+      <ServiciosSanity />
+      <QuienesSomosSanity />
+      <EquipoSanity />
+      <ContactoSanity />
     </>
   );
 }

@@ -1,4 +1,67 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [{ "source": "/((?!api/|@)(?!.*\\.[a-zA-Z0-9]+$).*)", "destination": "/index.html" }]
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/quienes-somos", "destination": "/#quienes", "permanent": true },
+    { "source": "/que-hacemos", "destination": "/#servicios", "permanent": true },
+    { "source": "/area-de-negocios", "destination": "/#servicios", "permanent": true },
+    { "source": "/contacto", "destination": "/#contacto", "permanent": true },
+    { "source": "/financiamiento-pyme", "destination": "/servicios/financiamiento-pyme", "permanent": true },
+    { "source": "/financiamiento-pyme-record-la-negociacion-cheques-pago-diferido", "destination": "/servicios/financiamiento-pyme", "permanent": true },
+    { "source": "/nos-dejo-2018-financiamiento-pyme", "destination": "/servicios/financiamiento-pyme", "permanent": true },
+    { "source": "/luciani-mercado-capitales-socio-estrategico-las-pymes", "destination": "/servicios/financiamiento-pyme", "permanent": true },
+    { "source": "/luciani-el-mercado-de-capitales-es-un-socio-estrategico-de-las-pymes", "destination": "/servicios/financiamiento-pyme", "permanent": true },
+    { "source": "/cauciones-bursatiles-una-alternativa-de-ahorro-o-financiamiento-a-corto-plazo", "destination": "/servicios/productos", "permanent": true },
+    { "source": "/cartera-todos", "has": [{ "type": "query", "key": "panel", "value": "bonos" }], "destination": "/herramientas/renta-fija", "permanent": true },
+    { "source": "/cartera-todos", "destination": "/herramientas/acciones", "permanent": true },
+    { "source": "/merval", "destination": "/herramientas/acciones", "permanent": true },
+    { "source": "/graficos", "destination": "/herramientas/acciones", "permanent": true },
+    { "source": "/calculadora-bonos", "destination": "/herramientas/renta-fija", "permanent": true },
+    { "source": "/wp-content/uploads/2024/12/:archivo(.*abrirte-una-cuenta-en-BRIO-VALORES\\.pdf)", "destination": "/abri-tu-cuenta", "permanent": true },
+    { "source": "/consulta-portfolio", "destination": "/", "permanent": true },
+    { "source": "/mi-cartera", "destination": "/", "permanent": true },
+    { "source": "/dolar-bolsa", "destination": "/", "permanent": true },
+    { "source": "/dolar-bolsa-comprar-dolares-ante-cepo-endurecido", "destination": "/", "permanent": true },
+    { "source": "/analistas-mantienen-proyeccion-inflacion-22", "destination": "/", "permanent": true },
+    { "source": "/bienvenido-regreso-emergentes-otra-oportunidad-la-normalizacion", "destination": "/", "permanent": true },
+    { "source": "/cuanto-ganaron-las-empresas-lideres-de-la-bolsa-portena-en-el-primer-semestre", "destination": "/", "permanent": true },
+    { "source": "/donde-va-brasil-2040-materia-granaria-implicancias-argentina", "destination": "/", "permanent": true },
+    { "source": "/a-donde-va-brasil-para-el-2040-en-materia-granaria-implicancias-para-argentina", "destination": "/", "permanent": true },
+    { "source": "/la-bolsa-portena-avanza-08-acumula-15-subas-consecutivas", "destination": "/", "permanent": true },
+    { "source": "/loma-negra-compania-industrial-argentina-sociedad-anonima-oferta-publica-30-000-000-nuevas-acciones/:resto*", "destination": "/", "permanent": true },
+    { "source": "/los-bonos-argentinos-alcanzan-maximos-2016-suben-21-ano", "destination": "/", "permanent": true },
+    { "source": "/macri-desoye-las-criticas-radicales-ordena-vender-transener-varias-centrales", "destination": "/", "permanent": true },
+    { "source": "/nuevo-merval-ya-no-participa-consultatio-se-destacan-las-entradas-phoenix-boldt", "destination": "/", "permanent": true },
+    { "source": "/tendencia-de-locos", "destination": "/", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/wp-admin/:resto*", "destination": "/api/gone" },
+    { "source": "/wp-login.php", "destination": "/api/gone" },
+    { "source": "/wp-content/:resto*", "destination": "/api/gone" },
+    { "source": "/wp-includes/:resto*", "destination": "/api/gone" },
+    { "source": "/wp-json/:resto*", "destination": "/api/gone" },
+    { "source": "/xmlrpc.php", "destination": "/api/gone" },
+    { "source": "/feed/:resto*", "destination": "/api/gone" },
+    { "source": "/comments/feed/:resto*", "destination": "/api/gone" },
+    { "source": "/author/:resto*", "destination": "/api/gone" },
+    { "source": "/category/:resto*", "destination": "/api/gone" },
+    { "source": "/sample-page", "destination": "/api/gone" },
+    { "source": "/:anio(\\d{4})/:resto*", "destination": "/api/gone" },
+    { "source": "/:spam(.*casino.*)", "destination": "/api/gone" },
+    { "source": "/dans-quelle-mesure-banzai-slot-reste-t-il-competitif-et-novateur", "destination": "/api/gone" },
+    { "source": "/quelles-strategies-adopter-pour-tirer-profit-des-jeux-de-table-sur-roobet", "destination": "/api/gone" },
+    { "source": "/quels-benefices-retirer-d-un-compte-actif-sur-gratorama", "destination": "/api/gone" },
+    { "source": "/analyse-der-spielauswahl-im-rollino-casino-qualitat-und-vielfalt", "destination": "/api/gone" },
+    { "source": "/((?!api/|@)(?!.*\\.[a-zA-Z0-9]+$).*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [{ "key": "Content-Security-Policy", "value": "frame-ancestors 'self' http://localhost:3333 https://brio-valores.sanity.studio https://www.sanity.io" }]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    }
+  ]
 }

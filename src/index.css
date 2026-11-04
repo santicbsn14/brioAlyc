@@ -19,3 +19,10 @@ body {
   min-height: 100svh;
   background: var(--navy);
 }
+
+/* Lugar que ocupa una página mientras se baja su código (Suspense en App.tsx): una pantalla de
+ * alto con el fondo del sitio, así el Footer no sube y vuelve a bajar. */
+.carga-pagina {
+  min-height: 100svh;
+  background: var(--navy);
+}

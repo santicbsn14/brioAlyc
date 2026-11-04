@@ -15,6 +15,10 @@
   max-width: 1120px;
   margin: 0 auto;
 }
+/* Cargando: el fondo con el alto de la sección, sin nada a la vista (ver RESERVA en Servicios.tsx). */
+.cargando .inner {
+  visibility: hidden;
+}
 
 /* ── encabezado ── */
 .head {

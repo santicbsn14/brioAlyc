@@ -15,6 +15,10 @@
   max-width: 1120px;
   margin: 0 auto;
 }
+/* Cargando: el fondo con el alto de la sección, sin nada a la vista (ver RESERVA en QuienesSomos.tsx). */
+.cargando .inner {
+  visibility: hidden;
+}
 
 /* ── Bloque 1 — Relato ── */
 .relato {
@@ -23,6 +27,10 @@
   gap: clamp(32px, 5vw, 64px);
   align-items: center;
   margin-bottom: clamp(48px, 7vw, 84px);
+}
+/* Sin foto (no debería pasar: en el Studio es obligatoria), el relato ocupa todo el ancho. */
+.relatoSinFoto {
+  grid-template-columns: 1fr;
 }
 .kicker {
   display: inline-flex;
@@ -105,6 +113,8 @@
   font-weight: 700;
   font-size: 0.95rem;
   letter-spacing: 0.5px;
+  /* En Sanity los títulos se escriben normal ("Especialistas"): las mayúsculas las pone la web. */
+  text-transform: uppercase;
   margin: 0 0 10px;
 }
 .valueLine {
@@ -139,12 +149,16 @@
 }
 
 /* ── responsive ── */
+/* Valores: 4 columnas recién desde 956 px. Más angosto, la tarjeta de "Asesoramiento" (la palabra
+   más larga) quedaba más ancha que las otras; en 2 columnas quedan parejas. */
+@media (max-width: 955px) {
+  .values {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 @media (max-width: 860px) {
   .relato {
     grid-template-columns: 1fr;
-  }
-  .values {
-    grid-template-columns: repeat(2, 1fr);
   }
 }
 @media (max-width: 480px) {

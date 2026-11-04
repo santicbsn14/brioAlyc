@@ -19,6 +19,11 @@
   margin: 0 auto;
 }
 
+/* Mientras cargan los textos de Sanity: el alto del encabezado y de unas filas, sin nada a la vista. */
+.cargando .inner {
+  visibility: hidden;
+}
+
 /* ── encabezado ── */
 .head {
   max-width: 44rem;
