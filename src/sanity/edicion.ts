@@ -5,7 +5,8 @@
 
 /**
  * true si la web está adentro de un iframe: así la muestra la Vista previa del Studio. Ningún otro
- * sitio puede mostrarla en un iframe (vercel.json solo se lo permite al Studio), así que para un
+ * sitio puede mostrarla en un iframe (vercel.json solo se lo permite al Studio, local o publicado,
+ * y al Dashboard de Sanity, www.sanity.io, que es donde se abre el Studio publicado), así que para un
  * visitante común es siempre false. Si el navegador no deja mirar la ventana de arriba (otro
  * origen, en algunos navegadores), también es un iframe.
  */
