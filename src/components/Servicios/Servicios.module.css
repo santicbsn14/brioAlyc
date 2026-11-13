@@ -19,6 +19,11 @@
 .cargando .inner {
   visibility: hidden;
 }
+/* Lo último de la sección (hoy los instrumentos; los pilares si no hay instrumentos) no suma su
+   margen de abajo: el aire final lo da el padding de la sección, igual arriba y abajo. */
+.inner > :last-child {
+  margin-bottom: 0;
+}
 
 /* ── encabezado ── */
 .head {
@@ -202,42 +207,6 @@
 .instLink:focus-visible {
   text-decoration: underline;
   text-underline-offset: 3px;
-}
-
-/* ── Comisiones (CTA a /comisiones) ── */
-.feesCta {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: clamp(28px, 4vw, 40px) clamp(24px, 4vw, 40px);
-  text-align: center;
-}
-.feesLead {
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: var(--muted);
-  max-width: 34rem;
-  margin: 0 auto 22px;
-}
-.feesLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: 'Sora', sans-serif;
-  font-weight: 600;
-  font-size: 0.98rem;
-  color: var(--navy);
-  background: var(--teal);
-  border-radius: 999px;
-  padding: 13px 26px;
-  text-decoration: none;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-.feesLink:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 34px -18px rgba(101, 245, 229, 0.55);
 }
 
 /* ── reveal al scrollear ── */

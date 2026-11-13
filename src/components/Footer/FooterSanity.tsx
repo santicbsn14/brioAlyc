@@ -71,8 +71,10 @@ function armarFooter(footer: FooterDoc, empresa: DatosEmpresaFooter): FooterProp
     razonSocial: partir(empresa.razonSocial, '\n'),
     registro: empresa.leyendaCnv ?? '',
     credenciales: textoCredenciales(empresa, footer.prefijoCredencial),
-    // Destinos en código: cada link legal tiene su página y su ruta en App.tsx.
+    // Destinos en código: cada link tiene su página y su ruta en App.tsx. Un link sin texto no se
+    // pinta (Comisiones, hasta que se cargue su texto en el Studio, no se ve).
     legalLinks: [
+      { id: 'comisiones', texto: footer.textoLinkComisiones ?? '', href: '/comisiones' },
       { id: 'conducta', texto: footer.textoLinkConducta ?? '', href: '/codigo-de-conducta' },
       { id: 'terminos', texto: footer.textoLinkTerminos ?? '', href: '/terminos-y-condiciones' },
     ].filter((l) => hayTexto(l.texto)),
