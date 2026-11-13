@@ -1,6 +1,7 @@
 // Tipos del Navbar, del Hero y de Servicios y destinos de los botones.
 // En la rama feature/sanity el Navbar, el Hero y Servicios ya leen sus textos de Sanity: de ellos
-// acá quedan solo los tipos y los destinos (ABRI_CUENTA_HREF, APERTURA_CUENTA_URL, BROKER_LOGIN_URL).
+// acá quedan solo los tipos y los destinos (ABRI_CUENTA_HREF, APERTURA_CUENTA_URL, BROKER_LOGIN_URL,
+// OPERA_ONLINE_URL).
 // Quiénes somos y Equipo también leen de Sanity (sus tipos viven en sus componentes). Las acciones
 // del panel del Hero también: ya no hay precios de ejemplo (mientras cargan, "—").
 
@@ -34,8 +35,12 @@ export interface Credential {
   number: string;
 }
 
-/** Login del broker online. Lo usan "Mi Portafolio" (Navbar) y "Operá online" (Hero). */
+/** Login del broker online. Lo usa "Mi Portafolio" (Navbar, también en el menú del celular). */
 export const BROKER_LOGIN_URL = 'https://virtualbroker-brio.aunesa.com/auth/signin';
+
+/** Plataforma para operar: botón "Operá online" del Hero (abre en otra pestaña). Desde el
+ * 2026-11-13 es distinta del login de "Mi Portafolio" (BROKER_LOGIN_URL), a pedido de Brio. */
+export const OPERA_ONLINE_URL = 'https://matriz.briovalores.xoms.com.ar/';
 
 /** "Abrí tu cuenta" (Navbar, también en el menú del celular, y Hero): la página /abri-tu-cuenta. */
 export const ABRI_CUENTA_HREF = '/abri-tu-cuenta';
