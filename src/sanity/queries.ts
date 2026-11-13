@@ -32,8 +32,7 @@ export const SERVICIOS_QUERY = /* groq */ `
   "servicios": *[_type == "seccionServicios" && _id == "seccionServicios"][0]{
     kicker, titulo, bajada, textoDestacado,
     pilar1{titulo, texto}, pilar2{titulo, texto}, pilar3{titulo, texto},
-    tituloInstrumentos, textoLinkPanel,
-    tituloComisiones, bajadaComisiones, textoBotonComisiones
+    tituloInstrumentos, textoLinkPanel
   },
   "productos": *[_type == "paginaProductos" && _id == "paginaProductos"][0]{
     categoriaFinanciamiento{nombre, instrumentos[]{_key, nombre}},
@@ -73,7 +72,7 @@ export const FOOTER_QUERY = /* groq */ `
 {
   "footer": *[_type == "footer" && _id == "footer"][0]{
     tituloContacto, tituloDireccion, tituloRedes, prefijoCredencial,
-    textoLinkConducta, textoLinkTerminos, textoCopyright
+    textoLinkComisiones, textoLinkConducta, textoLinkTerminos, textoCopyright
   },
   "empresa": *[_type == "datosEmpresa" && _id == "datosEmpresa"][0]{
     telefono, email, direccion,

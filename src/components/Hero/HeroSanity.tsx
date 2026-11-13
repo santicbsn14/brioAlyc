@@ -7,7 +7,7 @@ import type { DatosEmpresaHero, HeroQueryResult, SeccionHeroDoc } from '../../sa
 import { atributoEdicion } from '../../sanity/edicion';
 import { hayTexto, texto } from '../../sanity/limpiar';
 import { accionesElegidas } from '../../lib/mercado/accionesLideres';
-import { ABRI_CUENTA_HREF, BROKER_LOGIN_URL } from '../../data/placeholders';
+import { ABRI_CUENTA_HREF, OPERA_ONLINE_URL } from '../../data/placeholders';
 
 /** Todo el panel es un link al Panel de Cotizaciones (mismas acciones, tabla completa).
  * Ruta y nombre para lectores de pantalla en código; de Sanity viene solo el texto del pie. */
@@ -30,7 +30,7 @@ function armarTextos(hero: SeccionHeroDoc, empresa: DatosEmpresaHero | null): He
     lead: texto(hero.bajada),
     ctas: [
       { label: hero.textoBotonPrincipal ?? '', href: ABRI_CUENTA_HREF, variant: 'primary' as const },
-      { label: hero.textoBotonSecundario ?? '', href: BROKER_LOGIN_URL, variant: 'ghost' as const },
+      { label: hero.textoBotonSecundario ?? '', href: OPERA_ONLINE_URL, variant: 'ghost' as const },
     ].filter((c) => hayTexto(c.label)),
     credentials: (empresa?.credenciales ?? [])
       .filter((c) => hayTexto(c.entidad) && hayTexto(c.numero))

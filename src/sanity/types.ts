@@ -41,6 +41,8 @@ export interface FooterDoc {
   tituloRedes?: Texto;
   /** Opcional: "Agente" antes de cada credencial. */
   prefijoCredencial?: Texto;
+  /** Opcional: link a /comisiones en la franja legal, el primero. Vacío → el link no se pinta. */
+  textoLinkComisiones?: Texto;
   textoLinkConducta?: Texto;
   textoLinkTerminos?: Texto;
   /** Sin "© " ni el año: los pone el front. */
@@ -201,11 +203,6 @@ export interface SeccionServiciosDoc {
   tituloInstrumentos?: Texto;
   /** "Panel de cotizaciones en vivo", sin la flecha (la pone el front). */
   textoLinkPanel?: Texto;
-  tituloComisiones?: Texto;
-  /** Opcional. */
-  bajadaComisiones?: Texto;
-  /** "Ver comisiones completas", sin la flecha (la pone el front). */
-  textoBotonComisiones?: Texto;
 }
 
 // ── Productos (schemaTypes/singletons/paginaProductos.ts) ───────────────

@@ -79,9 +79,6 @@ export default function ServiciosSanity() {
           <AvisoFaltante texto="Faltan los instrumentos: se cargan en Páginas → Productos (Financiamiento, Renta fija y Renta variable) y hay que tocar Publicar." />
         )
       }
-      feesTitle={s.tituloComisiones ?? ''}
-      feesLead={texto(s.bajadaComisiones)}
-      feesCtaLabel={s.textoBotonComisiones ?? ''}
     />
   );
 }

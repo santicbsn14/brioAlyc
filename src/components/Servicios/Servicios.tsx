@@ -18,10 +18,6 @@ export interface ServiciosTextos {
   instrumentGroups: InstrumentGroup[];
   /** Aviso debajo de los instrumentos (ej. el recuadro "Falta cargar" cuando falta alguna categoría). */
   instrumentsNote?: ReactNode;
-  feesTitle: string;
-  feesLead?: string;
-  /** Sin la flecha: la agrega el componente. */
-  feesCtaLabel: string;
 }
 
 /** `cargando`: los textos todavía no llegaron de Sanity. Se ve el fondo de la sección con el alto
@@ -52,9 +48,6 @@ const RESERVA: ServiciosTextos = {
     category: reserva(category as number),
     items: (items as number[]).map((largo, j) => ({ key: String(j), label: reserva(largo) })),
   })),
-  feesTitle: reserva(10),
-  feesLead: reserva(76),
-  feesCtaLabel: reserva(24),
 };
 
 /** Flecha decorativa al final de un link: en código, fuera del texto editable. Va pegada al texto
@@ -121,9 +114,6 @@ export default function Servicios(props: ServiciosProps) {
     instrumentsTitle,
     instrumentGroups,
     instrumentsNote,
-    feesTitle,
-    feesLead,
-    feesCtaLabel,
   } = props.cargando ? RESERVA : props;
   const ref = useReveal<HTMLElement>(styles.reveal, styles.isIn);
 
@@ -195,15 +185,6 @@ export default function Servicios(props: ServiciosProps) {
           </>
         )}
         {instrumentsNote}
-
-        {/* ── Comisiones ── */}
-        <div className={`${styles.feesCta} ${styles.reveal}`}>
-          <h3 className={styles.subTitle}>{feesTitle}</h3>
-          {feesLead && <p className={styles.feesLead}>{feesLead}</p>}
-          <Link to="/comisiones" className={styles.feesLink}>
-            <ConFlecha>{feesCtaLabel}</ConFlecha>
-          </Link>
-        </div>
       </div>
     </section>
   );
